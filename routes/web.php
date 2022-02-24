@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Dashboard\ClientesController;
+use App\Http\Controllers\Dashboard\FacturasClienteController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +23,25 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/admin', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::middleware('auth')
+->prefix('admin')
+->as('admin.')
+->group(function () {
+
+    Route::prefix('clientes')
+    ->as('clientes.')
+    ->group(function () {
+        Route::get('/', [ClientesController::class, 'index'])->name('index');
+        Route::get('/crear', [ClientesController::class, 'crear'])->name('crear');
+        Route::get('/configuracion/{cliente}', [ClientesController::class, 'configuracion'])->name('configuracion');
+
+        Route::prefix('{cliente}/facturas')
+        ->as('facturas.')
+        ->group(function () {
+            Route::get('/', [FacturasClienteController::class, 'index'])->name('index');
+            Route::get('/descargar', [FacturasClienteController::class, 'descargarFacturas'])->name('descargarFacturas');
+        });
+    });
+
+});

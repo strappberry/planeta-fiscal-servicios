@@ -12,7 +12,12 @@
         "laravel/framework": "^9.0",
         "laravel/sanctum": "^2.14",
         "laravel/tinker": "^2.7",
-        "laravel/ui": "^3.4"
+        "laravel/ui": "^3.4",
+        "livewire/livewire": "^2.10",
+        "maatwebsite/excel": "^3.1",
+        "phpcfdi/cfdi-sat-scraper": "^3.0",
+        "phpcfdi/cfdi-to-json": "^0.2.3",
+        "phpcfdi/sat-ws-descarga-masiva": "^0.4.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

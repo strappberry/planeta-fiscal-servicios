@@ -127,7 +127,7 @@ return [
     'classes_content_wrapper' => '',
     'classes_content_header' => '',
     'classes_content' => '',
-    'classes_sidebar' => 'sidebar-light-primary',
+    'classes_sidebar' => 'sidebar-light-navy',
     'classes_sidebar_nav' => 'pt-4',
     'classes_topnav' => 'navbar-navy navbar-dark border-0',
     'classes_topnav_nav' => 'navbar-expand',
@@ -234,10 +234,9 @@ return [
         // Sidebar items:
         ['header' => 'main_navigation'],
         [
-            'text'        => 'pages',
-            'url'         => 'admin/pages',
-            'icon'        => 'far fa-fw fa-file',
-            'label_color' => 'success',
+            'text'        => 'clientes',
+            'route' => 'admin.clientes.index',
+            'icon'        => 'fas fa-fw fa-users',
         ],
     ],
 
@@ -393,5 +392,5 @@ return [
     |
     */
 
-    'livewire' => false,
+    'livewire' => true,
 ];
