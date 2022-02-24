@@ -16,6 +16,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+
+        // Descargar facturas de los clientes por scraper diario a las 2:00 am
+        $schedule->command('sat:descargar-por-scraper')->dailyAt('02:00');
     }
 
     /**
