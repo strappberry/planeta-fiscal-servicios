@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DateTimeImmutable;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use PhpCfdi\CfdiSatScraper\Filters\DownloadType;
 use PhpCfdi\CfdiSatScraper\MetadataList;
@@ -113,9 +114,16 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
         } while($fechaIntervalo->gte($this->fechaInicio));
 
         foreach($intervalosDeDescarga as $intervalo) {
-            $this->listarCfdis($intervalo['fechaInicio'], $intervalo['fechaFin'], DownloadType::emitidos());
-            $this->listarCfdis($intervalo['fechaInicio'], $intervalo['fechaFin'], DownloadType::recibidos());
-            break;
+            try {
+                $this->listarCfdis($intervalo['fechaInicio'], $intervalo['fechaFin'], DownloadType::emitidos());
+            } catch(Exception $e) {
+                Log::error("[EMITIDOS] Error al listar CFDIs del cliente {$this->cliente->rfc} " . $e->getMessage());
+            }
+            try {
+                $this->listarCfdis($intervalo['fechaInicio'], $intervalo['fechaFin'], DownloadType::recibidos());
+            } catch (Exception $e) {
+                Log::error("[RECIBIDOS] Error al listar CFDIs del cliente {$this->cliente->rfc} " . $e->getMessage());
+            }
         }
     }
 

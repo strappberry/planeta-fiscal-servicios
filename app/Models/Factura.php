@@ -29,6 +29,7 @@ class Factura extends Model
         'serie',
         'folio',
         'tipo_comprobante',
+        'complementos',
         'xml_procesado',
         'cliente_id',
     ];

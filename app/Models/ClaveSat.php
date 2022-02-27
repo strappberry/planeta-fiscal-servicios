@@ -10,6 +10,7 @@ class ClaveSat extends Model
     const LIVEWIRE_RULES = [
         'formulario.password' => 'required',
     ];
+    const TIPO_FIEL = 'fiel';
 
     use HasFactory;
 
@@ -18,6 +19,7 @@ class ClaveSat extends Model
         'key',
         'password',
         'caducidad',
+        'tipo',
         'activo',
     ];
 

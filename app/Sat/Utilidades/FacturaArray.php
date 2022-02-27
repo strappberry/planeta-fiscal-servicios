@@ -53,6 +53,15 @@ class FacturaArray
 
         if ($factura) {
             $factura->update($datos);
+            if ($factura->comprobanteXml) {
+                $factura->comprobanteXml->update([
+                    'comprobante' => $cfdi
+                ]);
+            } else {
+                $factura->comprobanteXml()->create([
+                    'comprobante' => $cfdi
+                ]);
+            }
         }
     }
 
@@ -76,8 +85,8 @@ class FacturaArray
         }
 
         if ($cfdi['Receptor']) {
-            $datos['rfc_emisor'] = $cfdi['Receptor']['Rfc'] ?? '';
-            $datos['nombre_emisor'] = $cfdi['Receptor']['Nombre'] ?? '';
+            $datos['rfc_receptor'] = $cfdi['Receptor']['Rfc'] ?? '';
+            $datos['nombre_receptor'] = $cfdi['Receptor']['Nombre'] ?? '';
         }
 
         if (isset($cfdi['Complemento']['TimbreFiscalDigital'])) {
@@ -85,6 +94,7 @@ class FacturaArray
                 $cfdi['Complemento']['TimbreFiscalDigital']['FechaTimbrado']
             ) ?? '';
             $datos['pac_certifico'] = $cfdi['Complemento']['TimbreFiscalDigital']['RfcProvCertif'] ?? '';
+            $datos['complementos'] = array_keys($cfdi['Complemento']);
         }
 
         return $datos;

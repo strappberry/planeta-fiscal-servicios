@@ -15,6 +15,7 @@ class Index extends Component
     public function render()
     {
         $facturas = $this->cliente->facturas()
+            ->orderBy('facturas.fecha_emision', 'asc')
             ->paginate(30);
 
         return view(

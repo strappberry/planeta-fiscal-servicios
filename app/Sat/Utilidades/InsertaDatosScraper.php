@@ -22,7 +22,7 @@ class InsertaDatosScraper
             'pac_certifico' => $metadata->get('pacCertifico'),
             'efecto_comprobante' => $metadata->get('efectoComprobante'),
             'estatus_cancelacion' => $metadata->get('estatusCancelacion'),
-            'estado_comprobante' => $metadata->get('estadoComprobante'),
+            'estado_comprobante' => strtolower($metadata->get('estadoComprobante')),
             'estatus_proceso_cancelacion' => $metadata->get('estatusProcesoCancelacion'),
             'fecha_proceso_cancelacion' => empty($metadata->get('fechaProcesoCancelacion')) ?
                 null : Carbon::parse($metadata->get('fechaProcesoCancelacion')),

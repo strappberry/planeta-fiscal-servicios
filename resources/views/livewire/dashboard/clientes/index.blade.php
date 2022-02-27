@@ -36,4 +36,6 @@
         </table>
     </div>
 
+    {!! $clientes->links() !!}
+
 </x-adminlte-card>
