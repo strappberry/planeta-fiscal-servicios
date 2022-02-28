@@ -15,6 +15,7 @@ class Index extends Component
     public function render()
     {
         $clientes = Cliente::query()
+            ->orderBy('rfc')
             ->paginate(20);
 
         return view('livewire.dashboard.clientes.index', compact('clientes'));
