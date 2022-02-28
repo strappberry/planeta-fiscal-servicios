@@ -36,6 +36,7 @@ class Factura extends Model
 
     protected $casts = [
         'xml_procesado' => 'boolean',
+        'complementos' => 'array',
     ];
 
     protected $dates = [
