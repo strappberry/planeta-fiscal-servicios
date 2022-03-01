@@ -47,3 +47,10 @@ Route::middleware('auth')
     });
 
 });
+
+Route::prefix('reportes')->group(function() {
+    Route::get(
+        '/simplificado/{rfc}/{fechaInicio}/{fechaFin}',
+        [App\Http\Controllers\ReportesController::class, 'simplificado']
+    )->name('reporte.simplificado');
+});

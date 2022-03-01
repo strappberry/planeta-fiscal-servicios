@@ -9,6 +9,12 @@ class ComprobanteXml extends Model
 {
     use HasFactory;
 
+    const IMPUESTO_ISR = '001';
+    const IMPUESTO_IVA = '002';
+    const IMPUESTO_IEPS = '003';
+
+    const OTRO_PAGO_SUBSIDIO_AL_EMPLEO = '002';
+
     protected $fillable = [
         'comprobante',
         'factura_id',
