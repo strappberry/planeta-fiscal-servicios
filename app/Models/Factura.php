@@ -54,4 +54,11 @@ class Factura extends Model
     {
         return $this->hasOne(ComprobanteXml::class);
     }
+
+    public function scopeVigentes($query)
+    {
+        return $query
+            ->where('estado_comprobante', '=', 'Vigente')
+            ->orWhere('estado_comprobante', '=', 'vigente');
+    }
 }

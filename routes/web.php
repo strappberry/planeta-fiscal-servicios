@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Dashboard\ClientesController;
 use App\Http\Controllers\Dashboard\FacturasClienteController;
+use App\Http\Controllers\ReportesController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -48,9 +49,13 @@ Route::middleware('auth')
 
 });
 
-Route::prefix('reportes')->group(function() {
+Route::prefix('reportes')->as('reportes.')->group(function() {
     Route::get(
-        '/simplificado/{rfc}/{fechaInicio}/{fechaFin}',
-        [App\Http\Controllers\ReportesController::class, 'simplificado']
-    )->name('reporte.simplificado');
+        'atender-solicitud-reporte/{token}',
+        [ReportesController::class, 'atenderSolicitudReporte']
+    )->name('atender-solicitud-reporte');
+    // Route::get(
+    //     '/simplificado/{rfc}/{fechaInicio}/{fechaFin}',
+    //     [App\Http\Controllers\ReportesController::class, 'simplificado']
+    // )->name('reporte.simplificado');
 });
