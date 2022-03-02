@@ -917,8 +917,8 @@ class ReporteSimplificado implements Reporte
         $lineas = [];
         $linea = [
             $factura->uuid,
-            $factura->rfc_emisor,
-            $factura->nombre_emisor,
+            $factura->rfc_receptor,
+            $factura->nombre_receptor,
         ];
 
         if (
