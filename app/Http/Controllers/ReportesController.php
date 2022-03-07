@@ -57,7 +57,7 @@ class ReportesController extends Controller
                 new DateTimeImmutable($solicitudReporte->fecha_fin . ' 23:59:59')
             );
 
-            // $solicitudReporte->delete();
+            $solicitudReporte->delete();
 
             return Excel::download(
                 new ReporteSimplificadoExport($reporte),
