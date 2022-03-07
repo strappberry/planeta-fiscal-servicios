@@ -155,71 +155,13 @@ class ReporteSimplificado implements Reporte
 
         array_push($linea, $factura->subtotal);
 
-        $seAgregoIvaTraslado = false;
-        $seAgregoIepsTraslado = false;
+        $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
+        array_push($linea, $impuestosTraslados['iva']);
+        array_push($linea, $impuestosTraslados['ieps']);
 
-        if (
-            $comprobante &&
-            isset($comprobante->comprobante['Impuestos']) &&
-            isset($comprobante->comprobante['Impuestos']['Traslados'])
-        ) {
-            $ivaTrasladado = 0;
-            $iepsTrasladado = 0;
-            foreach($comprobante->comprobante['Impuestos']['Traslados'] as $clave => $impuestos) {
-                foreach ($impuestos as $traslado) {
-                    if ($traslado['Impuesto'] == ComprobanteXml::IMPUESTO_IVA) {
-                        $ivaTrasladado = floatval($traslado[0]['Importe'] ?? 0);
-                    }
-                    if ($traslado['Impuesto'] == ComprobanteXml::IMPUESTO_IEPS) {
-                        $iepsTrasladado = floatval($traslado[0]['Importe'] ?? 0);
-                    }
-                }
-            }
-
-            $seAgregoIvaTraslado = true;
-            array_push($linea, $ivaTrasladado);
-            $seAgregoIepsTraslado = true;
-            array_push($linea, $iepsTrasladado);
-        }
-        if (!$seAgregoIvaTraslado) {
-            array_push($linea, 0);
-        }
-        if (!$seAgregoIepsTraslado) {
-            array_push($linea, 0);
-        }
-
-        $seAgregoIvaRetenido = false;
-        $seAgregoIsrRetenido = false;
-
-        if (
-            $comprobante &&
-            isset($comprobante->comprobante['Impuestos']) &&
-            isset($comprobante->comprobante['Impuestos']['Retenciones'])
-        ) {
-            $ivaRetenido = 0;
-            $isrRetenido = 0;
-            foreach($comprobante->comprobante['Impuestos']['Retenciones'] as $clave => $impuestos) {
-                foreach ($impuestos as $retencion) {
-                    if ($retencion['Impuesto'] == ComprobanteXml::IMPUESTO_IVA) {
-                        $ivaRetenido += floatval($retencion[0]['Importe'] ?? 0);
-                    }
-                    if ($retencion['Impuesto'] == ComprobanteXml::IMPUESTO_ISR) {
-                        $isrRetenido += floatval($retencion[0]['Importe'] ?? 0);
-                    }
-                }
-            }
-
-            $seAgregoIvaRetenido = true;
-            array_push($linea, $ivaRetenido);
-            $seAgregoIsrRetenido =  true;
-            array_push($linea, $isrRetenido);
-        }
-        if (!$seAgregoIvaRetenido) {
-            array_push($linea, 0);
-        }
-        if (!$seAgregoIsrRetenido) {
-            array_push($linea, 0);
-        }
+        $impuestosRetenidos = $comprobante->obtenerImpuestosRetenidos();
+        array_push($linea, $impuestosRetenidos['iva']);
+        array_push($linea, $impuestosRetenidos['isr']);
 
         array_push($linea, $factura->descuento);
         array_push($linea, $factura->total);
@@ -461,7 +403,7 @@ class ReporteSimplificado implements Reporte
             foreach($pagos as $pago) {
                 foreach($pago['DoctoRelacionado'] as $documento) {
                     $documento = [
-                        $pago['FechaPago'] ?? '',
+                        substr($pago['FechaPago'], 0, 10) ?? '',
                         $documento['IdDocumento'] ?? '',
                         $documento['Serie'] ?? '',
                         $documento['Folio'] ?? '',
@@ -626,71 +568,13 @@ class ReporteSimplificado implements Reporte
 
         array_push($linea, $factura->subtotal);
 
-        $seAgregoIvaTraslado = false;
-        $seAgregoIepsTraslado = false;
+        $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
+        array_push($linea, $impuestosTraslados['iva']);
+        array_push($linea, $impuestosTraslados['ieps']);
 
-        if (
-            $comprobante &&
-            isset($comprobante->comprobante['Impuestos']) &&
-            isset($comprobante->comprobante['Impuestos']['Traslados'])
-        ) {
-            $ivaTrasladado = 0;
-            $iepsTrasladado = 0;
-            foreach($comprobante->comprobante['Impuestos']['Traslados'] as $clave => $impuestos) {
-                foreach ($impuestos as $traslado) {
-                    if ($traslado['Impuesto'] == ComprobanteXml::IMPUESTO_IVA) {
-                        $ivaTrasladado = floatval($traslado[0]['Importe'] ?? 0);
-                    }
-                    if ($traslado['Impuesto'] == ComprobanteXml::IMPUESTO_IEPS) {
-                        $iepsTrasladado = floatval($traslado[0]['Importe'] ?? 0);
-                    }
-                }
-            }
-
-            $seAgregoIvaTraslado = true;
-            array_push($linea, $ivaTrasladado);
-            $seAgregoIepsTraslado = true;
-            array_push($linea, $iepsTrasladado);
-        }
-        if (!$seAgregoIvaTraslado) {
-            array_push($linea, 0);
-        }
-        if (!$seAgregoIepsTraslado) {
-            array_push($linea, 0);
-        }
-
-        $seAgregoIvaRetenido = false;
-        $seAgregoIsrRetenido = false;
-
-        if (
-            $comprobante &&
-            isset($comprobante->comprobante['Impuestos']) &&
-            isset($comprobante->comprobante['Impuestos']['Retenciones'])
-        ) {
-            $ivaRetenido = 0;
-            $isrRetenido = 0;
-            foreach($comprobante->comprobante['Impuestos']['Retenciones'] as $clave => $impuestos) {
-                foreach ($impuestos as $retencion) {
-                    if ($retencion['Impuesto'] == ComprobanteXml::IMPUESTO_IVA) {
-                        $ivaRetenido += floatval($retencion[0]['Importe'] ?? 0);
-                    }
-                    if ($retencion['Impuesto'] == ComprobanteXml::IMPUESTO_ISR) {
-                        $isrRetenido += floatval($retencion[0]['Importe'] ?? 0);
-                    }
-                }
-            }
-
-            $seAgregoIvaRetenido = true;
-            array_push($linea, $ivaRetenido);
-            $seAgregoIsrRetenido =  true;
-            array_push($linea, $isrRetenido);
-        }
-        if (!$seAgregoIvaRetenido) {
-            array_push($linea, 0);
-        }
-        if (!$seAgregoIsrRetenido) {
-            array_push($linea, 0);
-        }
+        $impuestosRetenidos = $comprobante->obtenerImpuestosRetenidos();
+        array_push($linea, $impuestosRetenidos['iva']);
+        array_push($linea, $impuestosRetenidos['isr']);
 
         array_push($linea, $factura->descuento);
         array_push($linea, $factura->total);
@@ -932,7 +816,7 @@ class ReporteSimplificado implements Reporte
             foreach($pagos as $pago) {
                 foreach($pago['DoctoRelacionado'] as $documento) {
                     $documento = [
-                        $pago['FechaPago'] ?? '',
+                        substr($pago['FechaPago'], 0, 10) ?? '',
                         $documento['IdDocumento'] ?? '',
                         $documento['Serie'] ?? '',
                         $documento['Folio'] ?? '',

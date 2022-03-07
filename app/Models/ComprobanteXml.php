@@ -28,4 +28,56 @@ class ComprobanteXml extends Model
     {
         return $this->belongsTo(Factura::class);
     }
+
+    public function obtenerImpuestosTraslados()
+    {
+        $impuestos = [
+            'iva' => 0,
+            'isr' => 0,
+            'ieps' => 0,
+        ];
+
+        if (
+            !isset($this->comprobante['Impuestos']['Traslados']) &&
+            !isset($this->comprobante['Impuestos']['Traslados']['Traslado'])
+        ) return $impuestos;
+
+        foreach($this->comprobante['Impuestos']['Traslados']['Traslado'] as $impuesto) {
+            if ($impuesto['Impuesto'] == self::IMPUESTO_IVA) {
+                $impuestos['iva'] += $impuesto['Importe'];
+            } elseif ($impuesto['Impuesto'] == self::IMPUESTO_ISR) {
+                $impuestos['isr'] += $impuesto['Importe'];
+            } elseif ($impuesto['Impuesto'] == self::IMPUESTO_IEPS) {
+                $impuestos['ieps'] += $impuesto['Importe'];
+            }
+        }
+
+        return $impuestos;
+    }
+
+    public function obtenerImpuestosRetenidos()
+    {
+        $impuestos = [
+            'iva' => 0,
+            'isr' => 0,
+            'ieps' => 0,
+        ];
+
+        if (
+            !isset($this->comprobante['Impuestos']['Retenciones']) &&
+            !isset($this->comprobante['Impuestos']['Retenciones']['Retencion'])
+        ) return $impuestos;
+
+        foreach($this->comprobante['Impuestos']['Retenciones']['Retencion'] as $impuesto) {
+            if ($impuesto['Impuesto'] == self::IMPUESTO_IVA) {
+                $impuestos['iva'] += $impuesto['Importe'];
+            } elseif ($impuesto['Impuesto'] == self::IMPUESTO_ISR) {
+                $impuestos['isr'] += $impuesto['Importe'];
+            } elseif ($impuesto['Impuesto'] == self::IMPUESTO_IEPS) {
+                $impuestos['ieps'] += $impuesto['Importe'];
+            }
+        }
+
+        return $impuestos;
+    }
 }
