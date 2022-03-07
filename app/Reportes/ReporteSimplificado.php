@@ -40,7 +40,7 @@ class ReporteSimplificado implements Reporte
     public function informacionCliente()
     {
         return [
-            'nombre' => $this->cliente->nombre ?? '',
+            'nombre' => $this->cliente->razon_social ?? '',
             'rfc' => $this->rfc ?? '',
         ];
     }
