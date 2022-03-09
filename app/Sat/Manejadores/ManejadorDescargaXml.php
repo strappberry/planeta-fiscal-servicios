@@ -16,6 +16,7 @@ class ManejadorDescargaXml implements ResourceDownloadHandlerInterface
     public function onSuccess(string $uuid, string $content, ResponseInterface $response): void
     {
         try {
+            libxml_use_internal_errors(true);
             $cfdi = FacturaArray::convertirXmlAArray($content);
             FacturaArray::guardarCfdiArray($uuid, $cfdi);
         } catch (Exception $e) {
