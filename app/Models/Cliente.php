@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TipoPersona;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -40,6 +41,15 @@ class Cliente extends Model
         }
 
         return '';
+    }
+
+    public function getTipoPersonaAttribute()
+    {
+        if (strlen($this->rfc) == 12) {
+            return TipoPersona::MORAL;
+        }
+
+        return TipoPersona::FISICA;
     }
 
     public function clavesSat()

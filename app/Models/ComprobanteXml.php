@@ -12,6 +12,8 @@ class ComprobanteXml extends Model
     const IMPUESTO_ISR = '001';
     const IMPUESTO_IVA = '002';
     const IMPUESTO_IEPS = '003';
+    const TIPO_FACTOR_EXENTO = 'Exento';
+    const TIPO_FACTOR_TASA = 'Tasa';
 
     const OTRO_PAGO_SUBSIDIO_AL_EMPLEO = '002';
 
@@ -27,6 +29,53 @@ class ComprobanteXml extends Model
     public function factura()
     {
         return $this->belongsTo(Factura::class);
+    }
+
+    public function obtenerConceptos()
+    {
+        if (!isset($this->comprobante['Conceptos'])) {
+            return [];
+        }
+
+        return $this->comprobante['Conceptos']['Concepto'];
+    }
+
+    public function obtenerDescripcionPrimerConcepto()
+    {
+        if (
+            isset($this->comprobante['Conceptos']) &&
+            isset($this->comprobante['Conceptos']['Concepto']) &&
+            isset($this->comprobante['Conceptos']['Concepto'][0])
+        ) {
+            return $this->comprobante['Conceptos']['Concepto'][0]['Descripcion'];
+        }
+
+        return '';
+    }
+
+    public function obtenerDocumentosPagados()
+    {
+        $pagos = $this->obtenerPagosDelComplemento();
+        $documentos = [];
+
+        foreach ($pagos as $pago) {
+            foreach ($pago['DoctoRelacionado'] as $documento) {
+                $datosDocumento= [];
+
+                foreach ($documento as $clave => $valor) {
+                    $datosDocumento[$clave] = $valor;
+                }
+
+                array_push($documentos, $datosDocumento);
+            }
+        }
+
+        return $documentos;
+    }
+
+    public function obtenerFormaDePago()
+    {
+        return $this->comprobante['FormaPago'];
     }
 
     public function obtenerImpuestosTraslados()
@@ -49,6 +98,28 @@ class ComprobanteXml extends Model
                 $impuestos['isr'] += $impuesto['Importe'];
             } elseif ($impuesto['Impuesto'] == self::IMPUESTO_IEPS) {
                 $impuestos['ieps'] += $impuesto['Importe'];
+            }
+        }
+
+        return $impuestos;
+    }
+
+    public function obtenerImpuestosTrasladosDeConceptos()
+    {
+        $conceptos = $this->obtenerConceptos();
+        $impuestos = [];
+
+        foreach ($conceptos as $concepto) {
+            if (
+                !isset($concepto['Impuestos']) &&
+                !isset($concepto['Impuestos']['Traslados']) &&
+                !isset($concepto['Impuestos']['Traslados']['Traslado'])
+            ) {
+                continue;
+            }
+
+            foreach ($concepto['Impuestos']['Traslados']['Traslado'] as $impuesto) {
+                array_push($impuestos, $impuesto);
             }
         }
 
@@ -80,4 +151,57 @@ class ComprobanteXml extends Model
 
         return $impuestos;
     }
+
+    public function obtenerImpuestosRetenidosDeConceptos()
+    {
+        $conceptos = $this->obtenerConceptos();
+        $impuestos = [];
+
+        foreach ($conceptos as $concepto) {
+            if (
+                !isset($concepto['Impuestos']) &&
+                !isset($concepto['Impuestos']['Retenciones']) &&
+                !isset($concepto['Impuestos']['Retenciones']['Retencion'])
+            )  {
+                continue;
+            }
+
+            foreach ($concepto['Impuestos']['Retenciones']['Retencion'] as $impuesto) {
+                array_push($impuestos, $impuesto);
+            }
+        }
+
+        return $impuestos;
+    }
+
+    public function obtenerMetodoDePago()
+    {
+        return $this->comprobante['MetodoPago'];
+    }
+
+    public function obtenerPagosDelComplemento()
+    {
+        if (
+            !isset($this->comprobante['Complemento']) &&
+            !isset($this->comprobante['Complemento']['Pagos'])
+        ) return [];
+
+        return $this->comprobante['Complemento']['Pagos']['Pago'];
+    }
+
+    public function obtenerRegimenEmisor()
+    {
+        return $this->comprobante['Emisor']['RegimenFiscal'];
+    }
+
+    public function obtenerUsoCfdi()
+    {
+        return $this->comprobante['Receptor']['UsoCFDI'];
+    }
+
+    public function tieneIvaExento()
+    {}
+
+    public function tieneIvaTasa0()
+    {}
 }

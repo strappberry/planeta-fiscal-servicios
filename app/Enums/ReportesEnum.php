@@ -4,4 +4,5 @@ namespace App\Enums;
 abstract class ReportesEnum
 {
     const SIMPLIFICADO = 'simplificado';
+    const ELECTRONICA = 'electronica';
 }

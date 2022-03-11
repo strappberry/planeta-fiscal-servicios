@@ -4,6 +4,7 @@ namespace App\Reportes;
 use App\Models\Cliente;
 use App\Models\ComprobanteXml;
 use App\Models\Factura;
+use CfdiUtils\Elements\Cfdi33\Comprobante;
 use DateTimeImmutable;
 
 class ReporteSimplificado implements Reporte
@@ -103,6 +104,8 @@ class ReporteSimplificado implements Reporte
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
+                __('dashboard.reportes.iva_tasa_0'),
+                __('dashboard.reportes.iva_exento'),
             ],
             'lineas' => [],
         ];
@@ -141,17 +144,14 @@ class ReporteSimplificado implements Reporte
             $factura->nombre_emisor,
         ];
 
-        if ($comprobante) {
-            array_push($linea, $comprobante->comprobante['MetodoPago'] ?? '');
-            array_push($linea, $comprobante->comprobante['FormaPago'] ?? '');
-            array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
-            array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
-        } else {
-            array_push($linea, '');
-            array_push($linea, '');
-            array_push($linea, '');
-            array_push($linea, '');
+        if (!$comprobante) {
+            return $linea;
         }
+
+        array_push($linea, $comprobante->comprobante['MetodoPago'] ?? '');
+        array_push($linea, $comprobante->comprobante['FormaPago'] ?? '');
+        array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
+        array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
 
         array_push($linea, $factura->subtotal);
 
@@ -177,6 +177,10 @@ class ReporteSimplificado implements Reporte
             array_push($linea, '');
         }
 
+        $columnasIvaExentoY0 = $this->obtenerColumnasIva0YExento($comprobante);
+        array_push($linea, $columnasIvaExentoY0['iva_0']);
+        array_push($linea, $columnasIvaExentoY0['iva_exento']);
+
         return $linea;
     }
 
@@ -186,7 +190,7 @@ class ReporteSimplificado implements Reporte
      * -------------------------------------------------------------------------
      */
     private function paginaEgresosRecibidos(): array
-    {
+    { 
         $pagina = [
             'titulo' => __('dashboard.reportes.egresos_recibidos'),
             'encabezados' => [
@@ -209,6 +213,8 @@ class ReporteSimplificado implements Reporte
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
+                __('dashboard.reportes.iva_tasa_0'),
+                __('dashboard.reportes.iva_exento'),
             ],
             'lineas' => [],
         ];
@@ -516,6 +522,8 @@ class ReporteSimplificado implements Reporte
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
+                __('dashboard.reportes.iva_tasa_0'),
+                __('dashboard.reportes.iva_exento'),
             ],
             'lineas' => [],
         ];
@@ -554,17 +562,14 @@ class ReporteSimplificado implements Reporte
             $factura->nombre_receptor,
         ];
 
-        if ($comprobante) {
-            array_push($linea, $comprobante->comprobante['MetodoPago'] ?? '');
-            array_push($linea, $comprobante->comprobante['FormaPago'] ?? '');
-            array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
-            array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
-        } else {
-            array_push($linea, '');
-            array_push($linea, '');
-            array_push($linea, '');
-            array_push($linea, '');
+        if (!$comprobante) {
+            return $linea;
         }
+
+        array_push($linea, $comprobante->comprobante['MetodoPago'] ?? '');
+        array_push($linea, $comprobante->comprobante['FormaPago'] ?? '');
+        array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
+        array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
 
         array_push($linea, $factura->subtotal);
 
@@ -589,6 +594,10 @@ class ReporteSimplificado implements Reporte
         } else {
             array_push($linea, '');
         }
+
+        $columnasIvaExentoY0 = $this->obtenerColumnasIva0YExento($comprobante);
+        array_push($linea, $columnasIvaExentoY0['iva_0']);
+        array_push($linea, $columnasIvaExentoY0['iva_exento']);
 
         return $linea;
     }
@@ -622,6 +631,8 @@ class ReporteSimplificado implements Reporte
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
+                __('dashboard.reportes.iva_tasa_0'),
+                __('dashboard.reportes.iva_exento'),
             ],
             'lineas' => [],
         ];
@@ -899,5 +910,33 @@ class ReporteSimplificado implements Reporte
 
         return $pagina;
     }
+
+    private function obtenerColumnasIva0YExento($comprobante)
+    {
+        $columnas = [
+            'iva_0' => 0,
+            'iva_exento' => 0,
+        ];
+
+        $impuestosConceptos = $comprobante->obtenerImpuestosTrasladosDeConceptos();
+
+        foreach ($impuestosConceptos as $impuesto) {
+            if ($impuesto['Impuesto'] == ComprobanteXml::IMPUESTO_IVA) {
+                if ($impuesto['TipoFactor']  == ComprobanteXml::TIPO_FACTOR_EXENTO) {
+                    $columnas['iva_exento'] = 1;
+                }
+                if (
+                    isset($impuesto['TasaOCuota']) &&
+                    $impuesto['TasaOCuota'] == ComprobanteXml::TIPO_FACTOR_TASA &&
+                    $impuesto['TipoFactor'] == 0
+                ) {
+                    $columnas['iva_0'] = 1;
+                }
+            }
+        }
+
+        return $columnas;
+    }
+
 }
 //http://localhost:8081/reportes/simplificado/AVI740228GY8/2022-02-01/2022-02-28#F52

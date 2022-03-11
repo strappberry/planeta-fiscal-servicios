@@ -41,6 +41,7 @@ return [
         'tipo_cambio' => 'Tipo Cambio',
         'tipo_comprobante' => 'Tipo Comprobante',
         'total' => 'Total',
+        'uso_cfdi' => 'Uso CFDI',
         'uuid' => 'UUID',
         'uuid_pago' => 'UUID Pago',
     ],
@@ -59,6 +60,7 @@ return [
     'reportes' => [
         'carta_porte_emitidos' => 'Carta Porte Emitidos',
         'carta_porte_recibidos' => 'Carta Porte Recibidos',
+        'corregir_uso_cfdi' => 'Corregir Uso CFDI',
         'ingresos_emitidos' => 'Ingresos Emitidos',
         'ingresos_recibidos' => 'Ingresos Recibidos',
         'impuesto_trasladado_ieps' => 'Impuesto Trasladado IEPS',
@@ -66,6 +68,8 @@ return [
         'impuesto_retenido_de_importe' => 'Impuesto Retenido de Importe',
         'impuesto_retenido_isr' => 'Impuesto Retenido ISR',
         'impuesto_retenido_iva' => 'Impuesto Retenido IVA',
+        'iva_exento' => 'IVA Exento',
+        'iva_tasa_0' => 'IVA Tasa 0',
         'egresos_emitidos' => 'Egresos Emitidos',
         'egresos_recibidos' => 'Egresos Recibidos',
         'nomina_emitidos' => 'Nómina Emitidos',
@@ -73,6 +77,11 @@ return [
         'pagos_recibidos' => 'Pagos Recibidos',
         'pagos_emitidos' => 'Pagos Emitidos',
         'primer_concepto' => 'Primer Concepto',
+        'regimen_contribuyente' => 'Régimen Contribuyente',
+        'regimen_emisor_invalido' => 'Régimen Emisor Inválido',
+        'tipo_contribuyente' => 'Tipo Contribuyente',
+        'validacion_rfc_emisor' => 'Validación RFC Emisor',
+        'validacion_uso_cfdi' => 'Validación Uso CFDI',
     ],
 
     'sat' => [
