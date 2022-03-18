@@ -2,6 +2,7 @@
 
 return [
     'clientes' => [
+        'buscar_cliente_placeholder' => 'Buscar cliente RFC o razón social',
         'fiel' => 'Fiel',
         'razon_social' => 'Razón Social',
         'regimen_fiscal' => 'Régimen Fiscal',

@@ -3,6 +3,7 @@
     <div class="mb-4 row">
         <div class="col-md-3 offset-md-9">
             <input
+                placeholder="{{ __('dashboard.clientes.buscar_cliente_placeholder') }}"
                 wire:model="busqueda"
                 class="form-control"
             />
