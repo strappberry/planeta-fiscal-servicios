@@ -62,6 +62,14 @@ class Cliente extends Model
         return $this->hasMany(Factura::class);
     }
 
+    public function scopeAplicarBusqueda($query, $busqueda)
+    {
+        if ($busqueda) {
+            $query->where('razon_social', 'like', "%{$busqueda}%")
+                ->orWhere('rfc', 'like', "%{$busqueda}%");
+        }
+    }
+
     public function scopeObtenerFacturasAutomaticamente()
     {
         return $this->where('obtener_facturas', true);

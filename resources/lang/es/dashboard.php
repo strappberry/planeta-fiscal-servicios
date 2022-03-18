@@ -90,6 +90,11 @@ return [
         'validacion_uso_cfdi' => 'Validación Uso CFDI',
     ],
 
+    'tipo_persona' => [
+        'fisica' => 'FISICA',
+        'moral' => 'MORAL',
+    ],
+
     'sat' => [
         'archivo_cer' => 'Archivo CER',
         'archivo_key' => 'Archivo KEY',

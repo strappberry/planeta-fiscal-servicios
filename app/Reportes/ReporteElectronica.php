@@ -75,7 +75,7 @@ class ReporteElectronica implements ReporteFacturacionPF
     private function paginaIngresosEmitidos(): array
     {
         $pagina = [
-            'titulo' => __('dashboard.reportes.ingresos_recibidos'),
+            'titulo' => __('dashboard.reportes.ingresos_emitidos'),
             'encabezados' => [
                 __('dashboard.facturas.uuid'),
                 __('dashboard.general.fecha'),
@@ -173,7 +173,7 @@ class ReporteElectronica implements ReporteFacturacionPF
     private function paginaEgresosEmitidos(): array
     {
         $pagina = [
-            'titulo' => __('dashboard.reportes.ingresos_recibidos'),
+            'titulo' => __('dashboard.reportes.egresos_emitidos'),
             'encabezados' => [
                 __('dashboard.facturas.uuid'),
                 __('dashboard.general.fecha'),
@@ -226,10 +226,8 @@ class ReporteElectronica implements ReporteFacturacionPF
      */
     private function paginaPagosEmitidos(): array
     {
-        $pagina = [];
-
         $pagina = [
-            'titulo' => __('dashboard.reportes.pagos_recibidos'),
+            'titulo' => __('dashboard.reportes.pagos_emitidos'),
             'encabezados' => [
                 __('dashboard.facturas.uuid'),
                 __('dashboard.facturas.rfc_receptor'),

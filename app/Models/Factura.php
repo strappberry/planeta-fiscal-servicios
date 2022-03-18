@@ -55,6 +55,23 @@ class Factura extends Model
         return $this->hasOne(ComprobanteXml::class);
     }
 
+    public function scopeAplicarFiltros($query, $filtros)
+    {
+        $filtros = collect($filtros);
+
+        if ($filtros->has('uuid')) {
+            $query->where('uuid', $filtros->get('uuid'));
+        }
+
+        if ($filtros->has('fechaInicio') && $filtros->get('fechaInicio')) {
+            $query->where('fecha_emision', '>=', $filtros->get('fechaInicio'));
+        }
+
+        if ($filtros->has('fechaFin') && $filtros->get('fechaFin')) {
+            $query->where('fecha_emision', '<=', $filtros->get('fechaFin'));
+        }
+    }
+
     public function scopeVigentes($query)
     {
         return $query

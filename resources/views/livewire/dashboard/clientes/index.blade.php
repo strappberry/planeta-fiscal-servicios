@@ -1,5 +1,14 @@
 <x-adminlte-card class="shadow-none">
 
+    <div class="mb-4 row">
+        <div class="col-md-3 offset-md-9">
+            <input
+                wire:model="busqueda"
+                class="form-control"
+            />
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-striped table-borderless">
             <thead>

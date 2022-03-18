@@ -1,5 +1,41 @@
 <x-adminlte-card class="shadow-none">
 
+    <div class="mb-4 row">
+        <div class="col-md-4"></div>
+        <div class="col-md-2">
+            <input
+                type="date"
+                class="form-control"
+                wire:model="fechaInicio"
+            />
+        </div>
+        <div class="col-md-2">
+            <input
+                type="date"
+                class="form-control"
+                wire:model="fechaFin"
+            />
+        </div>
+        <div class="col-md-2 text-right">
+            <a
+                href="{{ $this->enlaceReporteSimplificado }}"
+                target="_blank"
+                class="btn btn-dark bg-navy"
+            >
+                <i class="fas fa-download"></i> Simplificado
+            </a>
+        </div>
+        <div class="col-md-2 text-right">
+            <a
+                href="{{ $this->enlaceReporteElectronica }}"
+                target="_blank"
+                class="btn btn-dark bg-navy"
+            >
+                <i class="fas fa-download"></i> Electronica
+            </a>
+        </div>
+    </div>
+
     <div class="table-responsive mb-4">
         <table class="table table-sm table-striped table-borderless">
             <thead>

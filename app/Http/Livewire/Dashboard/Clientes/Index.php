@@ -12,11 +12,19 @@ class Index extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+    public $busqueda = '';
+
+    public function updatedBusqueda()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         $clientes = Cliente::query()
+            ->aplicarBusqueda($this->busqueda)
             ->orderBy('rfc')
-            ->paginate(20);
+            ->paginate(40);
 
         return view('livewire.dashboard.clientes.index', compact('clientes'));
     }

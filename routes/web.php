@@ -47,6 +47,9 @@ Route::middleware('auth')
         });
     });
 
+    Route::prefix('reportes')->as('reportes_web.')->group(function () {
+        Route::get('web/{tipo}/{rfc}/{fechaInicio}/{fechaFin}' , [ReportesController::class, 'reporteWeb'])->name('reporte');
+    });
 });
 
 Route::prefix('reportes')->as('reportes.')->group(function() {
@@ -54,8 +57,4 @@ Route::prefix('reportes')->as('reportes.')->group(function() {
         'atender-solicitud-reporte/{token}',
         [ReportesController::class, 'atenderSolicitudReporte']
     )->name('atender-solicitud-reporte');
-    // Route::get(
-    //     '/simplificado/{rfc}/{fechaInicio}/{fechaFin}',
-    //     [App\Http\Controllers\ReportesController::class, 'simplificado']
-    // )->name('reporte.simplificado');
 });
