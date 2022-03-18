@@ -7,6 +7,7 @@ use App\Exports\ReporteSimplificadoExport;
 use App\Http\Requests\Api\SolicitudReporteRequest;
 use App\Models\Cliente;
 use App\Models\SolicitudReporte;
+use App\Reportes\ReporteElectronica;
 use App\Reportes\ReporteSimplificado;
 use DateTimeImmutable;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class ReportesController extends Controller
     {
         if (!in_array($request->tipo, [
             ReportesEnum::SIMPLIFICADO,
+            ReportesEnum::ELECTRONICA,
         ])) {
             return response()->json([
                 'message' => 'Tipo de reporte no soportado',
@@ -68,13 +70,31 @@ class ReportesController extends Controller
         abort(404);
     }
 
-    public function simplificado(string $rfc, string $fechaInicio, string $fechaFin)
+    public function reporteWeb(string $tipo, string $rfc, string $fechaInicio, string $fechaFin)
     {
-        $reporte = new ReporteSimplificado (
-            $rfc,
-            new DateTimeImmutable($fechaInicio . ' 00:00:00'),
-            new DateTimeImmutable($fechaFin . ' 23:59:59')
-        );
+        if (!in_array($tipo, [
+            ReportesEnum::SIMPLIFICADO,
+            ReportesEnum::ELECTRONICA,
+        ])) {
+            abort(404);
+        }
+
+        if ($tipo == ReportesEnum::SIMPLIFICADO) {
+            $reporte = new ReporteSimplificado(
+                $rfc,
+                new DateTimeImmutable($fechaInicio . ' 00:00:00'),
+                new DateTimeImmutable($fechaFin . ' 23:59:59')
+            );
+        }
+
+        if ($tipo == ReportesEnum::ELECTRONICA) {
+            $reporte = new ReporteElectronica(
+                $rfc,
+                new DateTimeImmutable($fechaInicio . ' 00:00:00'),
+                new DateTimeImmutable($fechaFin . ' 23:59:59')
+            );
+        }
+
 
         return Excel::download(
             new ReporteSimplificadoExport($reporte),
