@@ -7,7 +7,7 @@ use App\Models\Factura;
 use CfdiUtils\Elements\Cfdi33\Comprobante;
 use DateTimeImmutable;
 
-class ReporteSimplificado implements Reporte
+class ReporteSimplificado implements ReporteFacturacionPF
 {
     /** @var DateTimeImmutable */
     private $fechaInicio;
@@ -38,7 +38,7 @@ class ReporteSimplificado implements Reporte
             '.xlsx';
     }
 
-    public function informacionCliente()
+    public function informacionCliente(): array
     {
         return [
             'nombre' => $this->cliente->razon_social ?? '',

@@ -176,7 +176,7 @@ class ComprobanteXml extends Model
 
     public function obtenerMetodoDePago()
     {
-        return $this->comprobante['MetodoPago'];
+        return $this->comprobante['MetodoPago'] ?? '';
     }
 
     public function obtenerPagosDelComplemento()
@@ -199,9 +199,5 @@ class ComprobanteXml extends Model
         return $this->comprobante['Receptor']['UsoCFDI'];
     }
 
-    public function tieneIvaExento()
-    {}
-
-    public function tieneIvaTasa0()
-    {}
+    
 }

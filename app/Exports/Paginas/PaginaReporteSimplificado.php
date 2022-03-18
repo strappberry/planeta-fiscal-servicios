@@ -57,13 +57,13 @@ class PaginaReporteSimplificado implements FromView, WithTitle, WithStyles
             ->setARGB('FFFFFF');
 
         // Color fondo linea de encabezado
-        $sheet->getStyle('A4:U4')
+        $sheet->getStyle('A4:Z4')
             ->getFill()
             ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()
             ->setARGB('212770');
         // Color texto encabezados
-        $sheet->getStyle('A4:U4')
+        $sheet->getStyle('A4:Z4')
             ->getFont()
             ->getColor()
             ->setARGB('FFFFFF');

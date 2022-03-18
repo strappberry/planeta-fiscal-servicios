@@ -3,14 +3,14 @@
 namespace App\Exports;
 
 use App\Exports\Paginas\PaginaReporteSimplificado;
-use App\Reportes\ReporteSimplificado;
+use App\Reportes\ReporteFacturacionPF;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class ReporteSimplificadoExport implements WithMultipleSheets
 {
     private $reporte;
 
-    public function __construct(ReporteSimplificado $reporte)
+    public function __construct(ReporteFacturacionPF $reporte)
     {
         $this->reporte = $reporte;
     }
