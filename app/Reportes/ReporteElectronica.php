@@ -328,6 +328,10 @@ class ReporteElectronica implements ReporteFacturacionPF
                 __('dashboard.reportes.validacion_rfc_emisor'),
                 __('dashboard.facturas.uso_cfdi'),
                 __('dashboard.reportes.validacion_uso_cfdi'),
+                __('dashboard.reportes.validacion_metodo_forma_pago'),
+                __('dashboard.reportes.uuid_complemento_relacionado'),
+                __('dashboard.facturas.mes_pago'),
+                __('dashboard.facturas.pagos'),
             ],
             'lineas' => [],
         ];
@@ -509,7 +513,7 @@ class ReporteElectronica implements ReporteFacturacionPF
                 __('dashboard.facturas.pago'),
                 __('dashboard.facturas.saldo_insoluto'),
                 __('dashboard.facturas.mes_pago'),
-                __('dashboard.facturas.mes_de_emision_cfdi'),
+                __('dashboard.facturas.mes_emision_cfdi'),
             ],
             'lineas' => [],
         ];
@@ -564,7 +568,6 @@ class ReporteElectronica implements ReporteFacturacionPF
         array_push($linea, $primerPago['ImpSaldoAnt'] ?? '');
         array_push($linea, $primerPago['ImpPagado'] ?? '');
         array_push($linea, $primerPago['ImpSaldoInsoluto'] ?? '');
-        array_push($linea, $primerPago['MonedaP'] ?? '');
         array_push($linea, $fechaPago->monthName);
         $facturaRelacionada = Factura::query()
             ->where('uuid', $primerPago['DoctoRelacionado'][0]['IdDocumento'])
