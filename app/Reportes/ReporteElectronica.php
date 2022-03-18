@@ -565,9 +565,9 @@ class ReporteElectronica implements ReporteFacturacionPF
         array_push($linea, $primerPago['DoctoRelacionado'][0]['Serie'] ?? '');
         array_push($linea, $primerPago['DoctoRelacionado'][0]['Folio'] ?? '');
         array_push($linea, $primerPago['MonedaP'] ?? '');
-        array_push($linea, $primerPago['ImpSaldoAnt'] ?? '');
-        array_push($linea, $primerPago['ImpPagado'] ?? '');
-        array_push($linea, $primerPago['ImpSaldoInsoluto'] ?? '');
+        array_push($linea, $primerPago['DoctoRelacionado'][0]['ImpSaldoAnt'] ?? '');
+        array_push($linea, $primerPago['DoctoRelacionado'][0]['ImpPagado'] ?? '');
+        array_push($linea, $primerPago['DoctoRelacionado'][0]['ImpSaldoInsoluto'] ?? '');
         array_push($linea, $fechaPago->monthName);
         $facturaRelacionada = Factura::query()
             ->where('uuid', $primerPago['DoctoRelacionado'][0]['IdDocumento'])
