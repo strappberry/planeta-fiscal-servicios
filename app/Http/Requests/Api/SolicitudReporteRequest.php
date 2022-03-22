@@ -32,7 +32,7 @@ class SolicitudReporteRequest extends FormRequest
     public function rules()
     {
         return [
-            'tipo' => 'required|in:simplificado',
+            'tipo' => 'required|in:simplificado,electronica',
             'rfc' => 'required|string|max:13',
             'fecha_inicio' => 'required',
             'fecha_fin' => 'required',

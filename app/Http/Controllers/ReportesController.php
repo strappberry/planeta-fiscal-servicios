@@ -67,6 +67,21 @@ class ReportesController extends Controller
             );
         }
 
+        if ($solicitudReporte->tipo === ReportesEnum::ELECTRONICA) {
+            $reporte = new ReporteElectronica(
+                $solicitudReporte->rfc,
+                new DateTimeImmutable($solicitudReporte->fecha_inicio . ' 00:00:00'),
+                new DateTimeImmutable($solicitudReporte->fecha_fin . ' 23:59:59')
+            );
+
+            $solicitudReporte->delete();
+
+            return Excel::download(
+                new ReporteSimplificadoExport($reporte),
+                $reporte->nombreArchivo()
+            );
+        }
+
         abort(404);
     }
 
