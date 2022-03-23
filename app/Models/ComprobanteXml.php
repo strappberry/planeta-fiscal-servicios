@@ -111,8 +111,8 @@ class ComprobanteXml extends Model
 
         foreach ($conceptos as $concepto) {
             if (
-                !isset($concepto['Impuestos']) &&
-                !isset($concepto['Impuestos']['Traslados']) &&
+                !isset($concepto['Impuestos']) ||
+                !isset($concepto['Impuestos']['Traslados']) ||
                 !isset($concepto['Impuestos']['Traslados']['Traslado'])
             ) {
                 continue;
@@ -159,8 +159,8 @@ class ComprobanteXml extends Model
 
         foreach ($conceptos as $concepto) {
             if (
-                !isset($concepto['Impuestos']) &&
-                !isset($concepto['Impuestos']['Retenciones']) &&
+                !isset($concepto['Impuestos']) ||
+                !isset($concepto['Impuestos']['Retenciones']) ||
                 !isset($concepto['Impuestos']['Retenciones']['Retencion'])
             )  {
                 continue;
