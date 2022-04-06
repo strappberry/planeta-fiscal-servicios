@@ -182,7 +182,7 @@ class ComprobanteXml extends Model
     public function obtenerPagosDelComplemento()
     {
         if (
-            !isset($this->comprobante['Complemento']) &&
+            !isset($this->comprobante['Complemento']) ||
             !isset($this->comprobante['Complemento']['Pagos'])
         ) return [];
 

@@ -1,9 +1,12 @@
 <?php
 namespace App\Reportes;
 
+use App\Enums\TipoPersona;
 use App\Models\Cliente;
 use App\Models\ComprobanteXml;
 use App\Models\Factura;
+use App\Reportes\Helpers\ConvertirMontoAPesos;
+use App\Reportes\Validaciones\ValidacionesFacturasRecibidas;
 use CfdiUtils\Elements\Cfdi33\Comprobante;
 use DateTimeImmutable;
 
@@ -106,6 +109,12 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.reportes.primer_concepto'),
                 __('dashboard.reportes.iva_tasa_0'),
                 __('dashboard.reportes.iva_exento'),
+                __('dashboard.reportes.tipo_contribuyente'),
+                __('dashboard.reportes.regimen_contribuyente'),
+                __('dashboard.reportes.validacion_rfc_emisor'),
+                __('dashboard.facturas.uso_cfdi'),
+                __('dashboard.reportes.validacion_uso_cfdi'),
+                __('dashboard.reportes.validacion_metodo_forma_pago'),
             ],
             'lineas' => [],
         ];
@@ -124,7 +133,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
         foreach ($ingresos as $ingreso) {
             array_push(
                 $pagina['lineas'],
-                $this->generarLineaIngresosRecibido($ingreso)
+                array_merge(
+                    $this->generarLineaIngresosRecibido($ingreso),
+                    $this->generarColumnasValidaciones($ingreso)
+                )
             );
         }
 
@@ -153,18 +165,42 @@ class ReporteSimplificado implements ReporteFacturacionPF
         array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
         array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
 
-        array_push($linea, $factura->subtotal);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->subtotal,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
-        array_push($linea, $impuestosTraslados['iva']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosTraslados['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
         array_push($linea, $impuestosTraslados['ieps']);
 
         $impuestosRetenidos = $comprobante->obtenerImpuestosRetenidos();
-        array_push($linea, $impuestosRetenidos['iva']);
-        array_push($linea, $impuestosRetenidos['isr']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['isr'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
-        array_push($linea, $factura->descuento);
-        array_push($linea, $factura->total);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->descuento,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->total,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         if (
             $comprobante &&
@@ -524,6 +560,13 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.reportes.primer_concepto'),
                 __('dashboard.reportes.iva_tasa_0'),
                 __('dashboard.reportes.iva_exento'),
+                __('dashboard.reportes.tipo_contribuyente'),
+                __('dashboard.reportes.regimen_contribuyente'),
+                __('dashboard.reportes.validacion_rfc_emisor'),
+                __('dashboard.facturas.uso_cfdi'),
+                __('dashboard.reportes.validacion_uso_cfdi'),
+                __('dashboard.reportes.validacion_metodo_forma_pago'),
+                
             ],
             'lineas' => [],
         ];
@@ -542,7 +585,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
         foreach ($ingresos as $ingreso) {
             array_push(
                 $pagina['lineas'],
-                $this->generarLineaIngresosEmitidos($ingreso)
+                array_merge(
+                    $this->generarLineaIngresosEmitidos($ingreso),
+                    $this->generarColumnasValidaciones($ingreso)
+                )
             );
         }
 
@@ -571,18 +617,46 @@ class ReporteSimplificado implements ReporteFacturacionPF
         array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
         array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
 
-        array_push($linea, $factura->subtotal);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->subtotal,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
-        array_push($linea, $impuestosTraslados['iva']);
-        array_push($linea, $impuestosTraslados['ieps']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosTraslados['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosTraslados['ieps'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         $impuestosRetenidos = $comprobante->obtenerImpuestosRetenidos();
-        array_push($linea, $impuestosRetenidos['iva']);
-        array_push($linea, $impuestosRetenidos['isr']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['isr'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
-        array_push($linea, $factura->descuento);
-        array_push($linea, $factura->total);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->descuento,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->total,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         if (
             $comprobante &&
@@ -936,6 +1010,47 @@ class ReporteSimplificado implements ReporteFacturacionPF
         }
 
         return $columnas;
+    }
+
+    private function generarColumnasValidaciones(Factura $factura)
+    {
+        $comprobante = $factura->comprobanteXml;
+        $linea = [];
+
+        $regimenEmisor = $comprobante->obtenerRegimenEmisor();
+        $formaDePago = $comprobante->obtenerFormaDePago();
+        $metodoDePago = $comprobante->obtenerMetodoDePago();
+
+        array_push($linea, ucfirst(TipoPersona::obtenerTipoPersona($factura->rfc_emisor)));
+        array_push($linea, $regimenEmisor);
+
+        array_push(
+            $linea,
+            ValidacionesFacturasRecibidas::validacionRfcContraRegimenFiscal(
+                $factura->rfc_emisor,
+                $regimenEmisor
+            ) ? '' : __('dashboard.reportes.regimen_emisor_invalido')
+        );
+
+        $usoCfdi = $comprobante->obtenerUsoCfdi();
+        array_push($linea, $usoCfdi);
+
+        array_push(
+            $linea,
+            ValidacionesFacturasRecibidas::usoCfdiCorrecto($usoCfdi) ? '':
+                __('dashboard.reportes.corregir_uso_cfdi')
+        );
+
+        if (
+            ($metodoDePago == 'PPD' && $formaDePago != 99) ||
+            ($metodoDePago == 'PUE' && $formaDePago == 99)
+        ) {
+            array_push($linea, __('dashboard.reportes.myf_erroneo'));
+        } else {
+            array_push($linea, '');
+        }
+
+        return $linea;
     }
 
 }

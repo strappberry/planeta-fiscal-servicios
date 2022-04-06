@@ -4,6 +4,7 @@ namespace App\Reportes;
 use App\Enums\TipoPersona;
 use App\Models\Cliente;
 use App\Models\Factura;
+use App\Reportes\Helpers\ConvertirMontoAPesos;
 use App\Reportes\Validaciones\ValidacionesFacturasRecibidas;
 use Carbon\Carbon;
 use DateTimeImmutable;
@@ -96,6 +97,15 @@ class ReporteElectronica implements ReporteFacturacionPF
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
+                __('dashboard.reportes.tipo_contribuyente'),
+                __('dashboard.reportes.regimen_contribuyente'),
+                __('dashboard.reportes.validacion_rfc_emisor'),
+                __('dashboard.facturas.uso_cfdi'),
+                __('dashboard.reportes.validacion_uso_cfdi'),
+                __('dashboard.reportes.validacion_metodo_forma_pago'),
+                __('dashboard.reportes.uuid_complemento_relacionado'),
+                __('dashboard.facturas.mes_pago'),
+                __('dashboard.facturas.pagos'),
             ],
             'lineas' => [],
         ];
@@ -142,25 +152,143 @@ class ReporteElectronica implements ReporteFacturacionPF
             return $linea;
         }
 
-        array_push($linea, $comprobante->comprobante['MetodoPago'] ?? '');
-        array_push($linea, $comprobante->comprobante['FormaPago'] ?? '');
-        array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
-        array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
 
-        array_push($linea, $factura->subtotal);
+        $formaDePago = $comprobante->obtenerFormaDePago();
+        $metodoDePago = $comprobante->obtenerMetodoDePago();
+        array_push($linea, $metodoDePago);
+        array_push($linea, $formaDePago);
+        array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
+        array_push($linea, $comprobante->comprobante['TipoCambio'] ?? 1);
+
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->subtotal,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
-        array_push($linea, $impuestosTraslados['iva']);
-        array_push($linea, $impuestosTraslados['ieps']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosTraslados['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosTraslados['ieps'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         $impuestosRetenidos = $comprobante->obtenerImpuestosRetenidos();
-        array_push($linea, $impuestosRetenidos['iva']);
-        array_push($linea, $impuestosRetenidos['isr']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['isr'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
-        array_push($linea, $factura->descuento);
-        array_push($linea, $factura->total);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->descuento,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->total,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         array_push($linea, $comprobante->obtenerDescripcionPrimerConcepto());
+
+        array_push($linea, ucfirst(TipoPersona::obtenerTipoPersona($factura->rfc_emisor)));
+
+        $regimenEmisor = $comprobante->obtenerRegimenEmisor();
+        array_push($linea, $regimenEmisor);
+
+        if (
+            ValidacionesFacturasRecibidas::validacionRfcContraRegimenFiscal(
+                $factura->rfc_emisor,
+                $regimenEmisor
+            )
+        ) {
+            array_push($linea, '');
+        } else {
+            array_push($linea, __('dashboard.reportes.regimen_emisor_invalido'));
+        }
+
+        $usoCfdi = $comprobante->obtenerUsoCfdi();
+        array_push($linea, $usoCfdi);
+
+        if (ValidacionesFacturasRecibidas::usoCfdiCorrecto($usoCfdi)) {
+            array_push($linea, '');
+        } else {
+            array_push($linea, __('dashboard.reportes.corregir_uso_cfdi'));
+        }
+
+        if (
+            ($metodoDePago == 'PPD' && $formaDePago != 99) ||
+            ($metodoDePago == 'PUE' && $formaDePago == 99)
+        ) {
+            array_push($linea, __('dashboard.reportes.myf_erroneo'));
+        } else {
+            array_push($linea, '');
+        }
+
+        $uuidsRelacionados = '';
+        $totalPagos = null;
+        $mesCfdi = null;
+
+        if ($metodoDePago == 'PPD') {
+            $facturasRelacionadas = Factura::whereHas('comprobanteXml', function (Builder $query) use ($factura) {
+                $query->where('comprobante', "LIKE", "%" . $factura->uuid . "%");
+            })->where('tipo_comprobante', 'P')->get();
+            $uuidsRelacionados = $facturasRelacionadas->pluck('uuid')->implode(', ');
+
+            $mesesCfdi = $facturasRelacionadas->map(function ($factura) {
+                $comprobante = $factura->comprobanteXml;
+                $totalPagos = '';
+
+                if ($comprobante) {
+                    $documentosPagados = collect($comprobante->obtenerDocumentosPagados());
+                    $totalPagos = $documentosPagados->sum('ImpPagado');
+                }
+
+                return [
+                    'emision' => $factura->fecha_emision->monthName,
+                    'total' => $totalPagos,
+                ];
+            });
+
+            $mesCfdi = $mesesCfdi->pluck('emision')->unique()->implode(', ');
+            $totalPagos = $mesesCfdi->pluck('total')->sum();
+        } else if ($metodoDePago == 'PUE') {
+            $mesCfdi = $factura->fecha_emision->monthName;
+        }
+
+        /**
+         * Si el Método de pago es PPD buscar el UUID en la base de datos ACUMULADA
+         * de cmplementos de pago (emitidos o recibidos según corresponda)
+         */
+        array_push($linea, $uuidsRelacionados);
+
+        /**
+         * Si el Método de pago es PUE: Poner el nombre del mes de emisión.                                                                                         Si el 
+         * Método es PPD y se encontró UUID en la validación anterior anotar el mes 
+         *  y año correspondiente a la fecha de pago
+         * Si el Método es PPD y no hay complemento encontrado arrojar mensaje "Complemento".
+         * Si en VAL_MFP Arrojó error entonces arrojar mensjae "MYF Erróneo"
+         */
+        array_push($linea, $mesCfdi);
+
+        /**
+         * Sumar el importe de la columna "Pago" de todos los complementos de pago que coincidan
+         * con el UUID identificado con Complemento de pago relacionado y el importe resultante
+         * restarlo al TOTAL de la factura original. Mostrar el resultado
+         */
+        array_push($linea, $totalPagos);
 
         return $linea;
     }
@@ -275,20 +403,31 @@ class ReporteElectronica implements ReporteFacturacionPF
             $factura->nombre_receptor,
         ];
 
-        if (!$comprobante) {
-            array_push(
-                $lineas,
-                array_merge($linea, ['', '', '', '', '', '', '', ''])
-            );
-            return $lineas;
-        }
+        $pagos = $comprobante->obtenerPagosDelComplemento();
+        
+        foreach ($pagos as $pago) {
+            $fecha = new DateTimeImmutable($pago['FechaPago']);
 
-        $documentosPagados = $comprobante->obtenerDocumentosPagados();
-        foreach ($documentosPagados as $documento) {
-            array_push(
-                $lineas,
-                array_merge($linea, $documento)
-            );
+            foreach ($pago['DoctoRelacionado'] as $documento) {
+                $datos = [
+                    $documento['IdDocumento'],
+                    $documento['Serie'],
+                    $documento['Folio'],
+                    $documento['MonedaDR'],
+                    $documento['ImpSaldoAnt'],
+                    $documento['ImpPagado'],
+                    $documento['ImpSaldoInsoluto'],
+                ];
+
+                array_push(
+                    $lineas,
+                    array_merge(
+                        $linea,
+                        [$fecha->format('Y-m-d')],
+                        $datos
+                    )
+                );
+            }
         }
 
         return $lineas;
@@ -385,18 +524,42 @@ class ReporteElectronica implements ReporteFacturacionPF
         array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
         array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
 
-        array_push($linea, $factura->subtotal);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->subtotal,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
-        array_push($linea, $impuestosTraslados['iva']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosTraslados['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
         array_push($linea, $impuestosTraslados['ieps']);
 
         $impuestosRetenidos = $comprobante->obtenerImpuestosRetenidos();
-        array_push($linea, $impuestosRetenidos['iva']);
-        array_push($linea, $impuestosRetenidos['isr']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['isr'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
-        array_push($linea, $factura->descuento);
-        array_push($linea, $factura->total);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->descuento,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->total,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         array_push($linea, $comprobante->obtenerDescripcionPrimerConcepto());
 
@@ -658,15 +821,35 @@ class ReporteElectronica implements ReporteFacturacionPF
         array_push($linea, $comprobante->comprobante['Moneda'] ?? '');
         array_push($linea, $comprobante->comprobante['TipoCambio'] ?? '');
 
-        array_push($linea, $factura->subtotal);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->subtotal,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
-        array_push($linea, $impuestosTraslados['iva']);
-        array_push($linea, $impuestosTraslados['ieps']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosTraslados['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosTraslados['ieps'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         $impuestosRetenidos = $comprobante->obtenerImpuestosRetenidos();
-        array_push($linea, $impuestosRetenidos['iva']);
-        array_push($linea, $impuestosRetenidos['isr']);
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['iva'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $impuestosRetenidos['isr'],
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         array_push($linea, $factura->descuento);
         array_push($linea, $factura->total);

@@ -21,7 +21,7 @@ class ValidacionesFacturasRecibidas
             605, 606, 607, 608, 610, 611, 612, 614, 615, 616, 621, 625, 626,
         ];
         $regimenesPersonaMoral = [
-            601, 603, 620, 622, 623, 624,
+            601, 603, 620, 622, 623, 624, 626,
         ];
 
         if (
