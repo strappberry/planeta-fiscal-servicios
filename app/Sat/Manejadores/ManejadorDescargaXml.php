@@ -16,11 +16,11 @@ class ManejadorDescargaXml implements ResourceDownloadHandlerInterface
     public function onSuccess(string $uuid, string $content, ResponseInterface $response): void
     {
         try {
+            $this->guardarXml($uuid, $content, '/facturas/xmls/');
             libxml_use_internal_errors(true);
             $cfdi = FacturaArray::convertirXmlAArray($content);
             FacturaArray::guardarCfdiArray($uuid, $cfdi);
         } catch (Exception $e) {
-            $this->guardarXml($uuid, $content);
             Log::error("[PROCESAR_XML] Error al procesar el xml descargado ({$uuid}): {$e->getMessage()}");
         }
     }
@@ -38,10 +38,10 @@ class ManejadorDescargaXml implements ResourceDownloadHandlerInterface
         }
     }
 
-    private function guardarXml($uuid, $content)
+    private function guardarXml($uuid, $content, $carpeta = '/archivos/xml_errores/')
     {
         try {
-            Storage::put('/archivos/xml_errores/' . $uuid . '.xml', $content);
+            Storage::put($carpeta . $uuid . '.xml', $content);
         } catch(Exception $e) {
             Log::error("[GUARDAR_XML_ERRORES] Error al guardar el xml de la factura {$uuid}: {$e->getMessage()}");
         }

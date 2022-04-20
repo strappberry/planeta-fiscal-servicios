@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArchivosController;
 use App\Http\Controllers\Dashboard\ClientesController;
 use App\Http\Controllers\Dashboard\FacturasClienteController;
 use App\Http\Controllers\ReportesController;
@@ -57,4 +58,11 @@ Route::prefix('reportes')->as('reportes.')->group(function() {
         'atender-solicitud-reporte/{token}',
         [ReportesController::class, 'atenderSolicitudReporte']
     )->name('atender-solicitud-reporte');
+});
+
+Route::prefix('archivos')->as('archivos.')->group(function () {
+    Route::get(
+        'atender-solicitud-archivos/{token}',
+        [ArchivosController::class, 'atenderSolicitudArchivos']
+    )->name('atender-solicitud-archivos');
 });

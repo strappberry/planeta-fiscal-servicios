@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ClientesController;
 use App\Http\Controllers\Api\FacturasController;
+use App\Http\Controllers\ArchivosController;
 use App\Http\Controllers\ReportesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('clientes')->group(function () {
         Route::post('/recibir-clientes', [ClientesController::class, 'recibirClientes']);
+    });
+
+    Route::prefix('archivos')->group(function() {
+        Route::post(
+            'solicitar-archivos',
+            [ArchivosController::class, 'crearSolicitudArchivos']
+        );
     });
 
     Route::prefix('reportes')->group(function() {
