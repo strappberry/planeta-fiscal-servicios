@@ -443,6 +443,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
             $documentos = [];
 
             foreach($pagos as $pago) {
+                if (!isset($pago['DoctoRelacionado'])) {
+                    continue;
+                }
                 foreach($pago['DoctoRelacionado'] as $documento) {
                     $documento = [
                         substr($pago['FechaPago'], 0, 10) ?? '',
