@@ -9,6 +9,7 @@ use App\Reportes\Validaciones\ValidacionesFacturasRecibidas;
 use Carbon\Carbon;
 use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class ReporteElectronica implements ReporteFacturacionPF
 {
@@ -860,7 +861,12 @@ class ReporteElectronica implements ReporteFacturacionPF
             isset($comprobante->comprobante['Conceptos']['Concepto']) &&
             isset($comprobante->comprobante['Conceptos']['Concepto'][0])
         ) {
-            array_push($linea, $comprobante->comprobante['Conceptos']['Concepto'][0]['Descripcion'] ?? '');
+            array_push(
+                $linea,
+                Str::of($comprobante->comprobante['Conceptos']['Concepto'][0]['Descripcion'] ?? '')
+                    ->replace('(', '')
+                    ->replace(')', '')
+            );
         } else {
             array_push($linea, '');
         }

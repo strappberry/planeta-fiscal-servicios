@@ -15,7 +15,7 @@
         <tr>
             @foreach ($encabezados as $encabezado)
                 <td>
-                    {{ $encabezado }}
+                    {{ $encabezado ?? '' }}
                 </td>
             @endforeach
         </tr>

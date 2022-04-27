@@ -9,6 +9,7 @@ use App\Reportes\Helpers\ConvertirMontoAPesos;
 use App\Reportes\Validaciones\ValidacionesFacturasRecibidas;
 use CfdiUtils\Elements\Cfdi33\Comprobante;
 use DateTimeImmutable;
+use Illuminate\Support\Str;
 
 class ReporteSimplificado implements ReporteFacturacionPF
 {
@@ -208,7 +209,12 @@ class ReporteSimplificado implements ReporteFacturacionPF
             isset($comprobante->comprobante['Conceptos']['Concepto']) &&
             isset($comprobante->comprobante['Conceptos']['Concepto'][0])
         ) {
-            array_push($linea, $comprobante->comprobante['Conceptos']['Concepto'][0]['Descripcion'] ?? '');
+            array_push(
+                $linea,
+                Str::of($comprobante->comprobante['Conceptos']['Concepto'][0]['Descripcion'] ?? '')
+                    ->replace('(', '')
+                    ->replace(')', '')
+            );
         } else {
             array_push($linea, '');
         }
