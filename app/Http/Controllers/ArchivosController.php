@@ -22,6 +22,24 @@ class ArchivosController extends Controller
             'token' => Str::uuid(),
         ]);
 
+        $facturas =  Factura::query()
+        ->select('uuid')
+        ->where(function ($query) use($solicitudArchivos) {
+            return $query->where('rfc_emisor', $solicitudArchivos->rfc)
+                ->orWhere('rfc_receptor', $solicitudArchivos->rfc);
+        })
+        ->where('fecha_emision', '>=', $solicitudArchivos->fecha_inicio)
+        ->where('fecha_emision', '<=', $solicitudArchivos->fecha_fin)
+        ->vigentes()
+        ->get();
+        
+        $archivosEncontrados = 0;
+        foreach ($facturas as $factura) {
+            if (Storage::exists('/facturas/xmls/' . $factura->uuid . '.xml')) {
+                $archivosEncontrados++;
+            }
+        }
+
         $url = route(
             'archivos.atender-solicitud-archivos',
             [
@@ -32,6 +50,8 @@ class ArchivosController extends Controller
         return response()->json([
             'message' => 'Solicitud de reporte creada',
             'url' => $url,
+            'cantidad_facturas' => $facturas->count(),
+            'cantidad_archivos_encontrados' => $archivosEncontrados,
         ], 201);
     }
 
@@ -45,6 +65,7 @@ class ArchivosController extends Controller
                 ->where('rfc_emisor', $solicitudArchivos->rfc)
                 ->where('fecha_emision', '>=', $solicitudArchivos->fecha_inicio)
                 ->where('fecha_emision', '<=', $solicitudArchivos->fecha_fin)
+                ->vigentes()
                 ->get();
             $emitidas = $emitidas->pluck('uuid')->toArray();
 
@@ -53,6 +74,7 @@ class ArchivosController extends Controller
                 ->where('rfc_receptor', $solicitudArchivos->rfc)
                 ->where('fecha_emision', '>=', $solicitudArchivos->fecha_inicio)
                 ->where('fecha_emision', '<=', $solicitudArchivos->fecha_fin)
+                ->vigentes()
                 ->get();
             $recibidas = $recibidas->pluck('uuid')->toArray();
             if (count($emitidas) == 0 && count($recibidas) == 0) {
