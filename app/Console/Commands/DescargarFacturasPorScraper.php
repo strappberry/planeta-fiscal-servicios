@@ -47,7 +47,7 @@ class DescargarFacturasPorScraper extends Command
             ->get();
 
         $ayer = now()->subDays(1);
-        $mesAnterior = now()->subMonths(2);
+        $mesAnterior = now()->subMonths(3);
 
         foreach ($clientes as $cliente) {
             
