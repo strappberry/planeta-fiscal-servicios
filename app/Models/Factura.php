@@ -72,6 +72,13 @@ class Factura extends Model
         }
     }
 
+    public function scopeCancelados($query)
+    {
+        return $query
+            ->where('estatus_cancelacion', 'Cancelado')
+            ->orWhere('estado_comprobante', 'cancelado');
+    }
+
     public function scopeVigentes($query)
     {
         return $query

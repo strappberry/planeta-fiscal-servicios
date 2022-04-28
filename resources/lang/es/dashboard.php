@@ -65,6 +65,7 @@ return [
     ],
 
     'reportes' => [
+        'canceladas' => 'Canceladas',
         'carta_porte_emitidos' => 'Carta Porte Emitidos',
         'carta_porte_recibidos' => 'Carta Porte Recibidos',
         'cfdi_no_encontrado' => 'CFDI No Encontrado',
