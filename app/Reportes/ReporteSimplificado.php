@@ -1280,6 +1280,8 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.estatus_cancelacion'),
                 __('dashboard.facturas.fecha_proceso_cancelacion'),
                 __('dashboard.facturas.estatus_proceso_cancelacion'),
+                __('dashboard.facturas.subtotal'),
+                __('dashboard.facturas.total'),
             ],
             'lineas' => [],
         ];
@@ -1312,6 +1314,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaCanceladas(Factura $factura)
     {
         $linea = [];
+        $comprobante = $factura->comprobanteXml;
 
         array_push($linea, $factura->uuid);
         array_push($linea, $factura->fecha_emision->format('Y-m-d'));
@@ -1329,6 +1332,18 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 $factura->fecha_proceso_cancelacion->format('Y-m-d') : ''
         );
         array_push($linea, $factura->estatus_proceso_cancelacion);
+
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->subtotal,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
+
+        array_push($linea, ConvertirMontoAPesos::convertir(
+            $factura->total,
+            $comprobante->comprobante['Moneda'] ?? '',
+            $comprobante->comprobante['TipoCambio'] ?? 1
+        ));
 
         return $linea;
     }
