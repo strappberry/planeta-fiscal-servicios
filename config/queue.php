@@ -69,6 +69,7 @@ return [
             'retry_after' => 90,
             'block_for' => null,
             'after_commit' => false,
+            'password' => env('REDIS_PASSWORD', null),
         ],
 
     ],

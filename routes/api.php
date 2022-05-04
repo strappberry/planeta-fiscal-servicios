@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('clientes')->group(function () {
         Route::post('/recibir-clientes', [ClientesController::class, 'recibirClientes']);
+        Route::post('/subir-fiel', [ClientesController::class, 'subirFiel']);
     });
 
     Route::prefix('archivos')->group(function() {

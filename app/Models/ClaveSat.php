@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class ClaveSat extends Model
 {
@@ -45,5 +46,15 @@ class ClaveSat extends Model
     public function scopeSinCaducar($query)
     {
         return $query->where('caducidad', '>', now());
+    }
+
+    public function eliminarArchivos()
+    {
+        if (Storage::exists($this->cer)) {
+            Storage::delete($this->cer);
+        }
+        if (Storage::exists($this->key)) {
+            Storage::delete($this->key);
+        }
     }
 }

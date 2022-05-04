@@ -2,6 +2,7 @@
 namespace App\Sat\Descarga;
 
 use App\Models\Cliente;
+use App\Models\SolicitudDescarga;
 use App\Sat\Manejadores\ManejadorDescargaXml;
 use App\Sat\Utilidades\InsertaDatosScraper;
 use Carbon\Carbon;
@@ -22,6 +23,9 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
 {
     /** @var \App\Models\Cliente */
     private $cliente;
+
+    /** @var \App\Models\SolicitudDescarga */
+    private $solicitudDescarga;
 
     /** @var \Carbon\Carbon */
     private $fechaInicio;
@@ -44,6 +48,12 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
     public function __construct(Cliente $cliente)
     {
         $this->cliente = $cliente;
+    }
+
+    public function establecerSolicitudDescarga(SolicitudDescarga $solicitudDescarga): self
+    {
+        $this->solicitudDescarga = $solicitudDescarga;
+        return $this;
     }
 
     public function fechaInicial(Carbon $fecha) : self
@@ -142,7 +152,9 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
 
     public function procesarPaquetesCfdis()
     {
+        $conteoCfdis = 0;
         foreach ($this->paquetesCfdis as $paqueteCfdis) {
+            $conteoCfdis += count($paqueteCfdis);
             foreach ($paqueteCfdis as $uuid => $datosFactura) {
                 $factura = $this->cliente->facturas()->where('uuid', $uuid)->first();
                 $descargarXml = true;
@@ -158,6 +170,12 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
                     array_push($this->cfdisADescargar, $datosFactura);
                 }
             }
+        }
+
+        if ($this->solicitudDescarga) {
+            $this->solicitudDescarga->descargas = $conteoCfdis;
+            $this->solicitudDescarga->status = SolicitudDescarga::STATUS_DESCARGANDO;
+            $this->solicitudDescarga->save();
         }
 
         $manejarDescargar = new ManejadorDescargaXml();

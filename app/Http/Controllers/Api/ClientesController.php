@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\RecibirClientesRequest;
+use App\Http\Requests\Api\SubirFielRequest;
+use App\Jobs\ProcesarSolicitudDescargaJob;
 use App\Models\ClaveSat;
 use App\Models\Cliente;
+use App\Models\SolicitudDescarga;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -69,6 +72,84 @@ class ClientesController extends Controller
         return response()->json([
             'mensaje' => 'Clientes recibidos',
         ]);
+    }
+
+    public function subirFiel(SubirFielRequest $request)
+    {
+        $cliente = Cliente::where('rfc', $request->rfc)->firstOrFail();
+        $respuesta = [
+            'valido' => true,
+            'vigencia' => '',
+            'mensajes' => [],
+        ];
+
+        try {
+            $fiel = Credential::create(
+                base64_decode($request->archivo_cer),
+                base64_decode($request->archivo_key),
+                $request->password,
+            );
+            if (!$fiel->isFiel()) {
+                $respuesta['valido'] = false;
+                $respuesta['mensajes'][] = 'El archivo no es un fiel';
+            }
+            if (!$fiel->certificate()->validOn()) {
+                $respuesta['valido'] = false;
+                $respuesta['mensajes'][] = 'El fiel ha caducado';
+            }
+            if ($fiel->rfc() != $cliente->rfc) {
+                $respuesta['valido'] = false;
+                $respuesta['mensajes'][] = 'El fiel no corresponde al RFC del cliente';
+            }
+
+            if (!$respuesta['valido']) {
+                return response()->json($respuesta);
+            }
+
+            $respuesta['vigencia'] = $fiel->certificate()->validToDateTime()->format('Y-m-d H:i:s');
+
+            $rutaCer = 'archivos/' . $cliente->rfc . '/fiel/' . Str::uuid() . '.cer';
+            $rutaKey = 'archivos/' . $cliente->rfc . '/fiel/' . Str::uuid() . '.key';
+
+            Storage::put($rutaCer, base64_decode($request->archivo_cer));
+            Storage::put($rutaKey, base64_decode($request->archivo_key));
+
+            $certificadosFiel = $cliente->clavesSat()->where('tipo', ClaveSat::TIPO_FIEL)->get();
+            foreach ($certificadosFiel as $certificado) {
+                $certificado->eliminarArchivos();
+                $certificado->delete();
+            }
+
+            $cliente->razon_social = $fiel->legalName();
+            $cliente->regimen_fiscal = $request->regimen_fiscal;
+            $cliente->save();
+
+            $cliente->clavesSat()->create([
+                'cer' => $rutaCer,
+                'key' => $rutaKey,
+                'password' => $request->password,
+                'activo' => true,
+                'caducidad' => $fiel->certificate()->validToDateTime()->format('Y-m-d H:i:s'),
+                'tipo' => ClaveSat::TIPO_FIEL,
+            ]);
+
+            $descargarDesde = now()->startOfYear()->startOfDay();
+            $descargarHasta = now()->subDay()->endOfDay();
+            $solicitud = SolicitudDescarga::create([
+                'cliente_id'          => $cliente->id,
+                'fecha_inicio'        => $descargarDesde->format('Y-m-d H:i:s'),
+                'fecha_fin'           => $descargarHasta->format('Y-m-d H:i:s'),
+                'descarga_automatica' => true,
+                'status'              => SolicitudDescarga::STATUS_PENDIENTE,
+            ]);
+
+            dispatch(new ProcesarSolicitudDescargaJob($solicitud->id));
+        } catch (Exception $e) {
+            $respuesta['valido'] = false;
+            $respuesta['mensajes'][] = 'La contrase&ntilde;a es incorrecta';
+        }
+
+        return response()->json($respuesta);
     }
 
 }
