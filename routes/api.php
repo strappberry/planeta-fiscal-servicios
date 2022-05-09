@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ClientesController;
 use App\Http\Controllers\Api\FacturasController;
+use App\Http\Controllers\Api\SolicitudesFacturaController;
 use App\Http\Controllers\ArchivosController;
 use App\Http\Controllers\ReportesController;
 use Illuminate\Http\Request;
@@ -21,6 +22,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('facturas')->group(function () {
         Route::get('/buscar-facturas', [FacturasController::class, 'buscarFacturas']);
+
+        Route::get('listar-solicitudes-descarga', [SolicitudesFacturaController::class, 'listarSolicitudes']);
+        Route::post('solicitar-descarga', [SolicitudesFacturaController::class, 'crearSolicitudDescarga']);
     });
 
     Route::prefix('clientes')->group(function () {

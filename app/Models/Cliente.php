@@ -62,6 +62,11 @@ class Cliente extends Model
         return $this->hasMany(Factura::class);
     }
 
+    public function solicitudesDescarga()
+    {
+        return $this->hasMany(SolicitudDescarga::class, 'cliente_id');
+    }
+
     public function scopeAplicarBusqueda($query, $busqueda)
     {
         if ($busqueda) {
