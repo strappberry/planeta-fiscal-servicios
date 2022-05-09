@@ -50,11 +50,12 @@ class SolicitudesFacturaController extends Controller
             'cliente_id'          => $cliente->id,
             'fecha_inicio'        => $descargarDesde->format('Y-m-d H:i:s'),
             'fecha_fin'           => $descargarHasta->format('Y-m-d H:i:s'),
+            'solicitado_por'      => $request->ejecutivo ?? null,
             'descarga_automatica' => true,
             'status'              => SolicitudDescarga::STATUS_PENDIENTE,
         ]);
 
-        // dispatch(new ProcesarSolicitudDescargaJob($solicitud->id));
+        dispatch(new ProcesarSolicitudDescargaJob($solicitud->id));
 
         return response()->json([
             'solicitud' => $solicitud,
