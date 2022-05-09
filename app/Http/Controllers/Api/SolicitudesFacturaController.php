@@ -40,9 +40,9 @@ class SolicitudesFacturaController extends Controller
             ], 400);
         }
 
-        if ($descargarDesde->lt(Carbon::parse('2017-01-01'))) {
+        if ($descargarDesde->lt(Carbon::parse('2018-01-01'))) {
             return response()->json([
-                'error' => 'No puede descargar facturas antes del 2017',
+                'error' => 'No puede descargar facturas antes del 2018',
             ], 409);
         }
 
