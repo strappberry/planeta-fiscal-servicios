@@ -51,7 +51,7 @@ class SolicitudesFacturaController extends Controller
             'fecha_inicio'        => $descargarDesde->format('Y-m-d H:i:s'),
             'fecha_fin'           => $descargarHasta->format('Y-m-d H:i:s'),
             'solicitado_por'      => $request->ejecutivo ?? null,
-            'descarga_automatica' => true,
+            'descarga_automatica' => false,
             'status'              => SolicitudDescarga::STATUS_PENDIENTE,
         ]);
 
