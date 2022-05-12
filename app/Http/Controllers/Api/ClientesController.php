@@ -76,7 +76,19 @@ class ClientesController extends Controller
 
     public function subirFiel(SubirFielRequest $request)
     {
-        $cliente = Cliente::where('rfc', $request->rfc)->firstOrFail();
+        $cliente = Cliente::where('rfc', $request->rfc)->first();
+
+        if (!$cliente) {
+            $cliente = Cliente::create([
+                'razon_social' => '',
+                'rfc' => $request->rfc,
+                'regimen_fiscal' => $request->regimen_fiscal,
+                'obtener_facturas' => true,
+            ]);
+
+            $cliente->refresh();
+        }
+
         $respuesta = [
             'valido' => true,
             'vigencia' => '',
