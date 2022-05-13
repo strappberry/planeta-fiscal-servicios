@@ -65,4 +65,9 @@ Route::prefix('archivos')->as('archivos.')->group(function () {
         'atender-solicitud-archivos/{token}',
         [ArchivosController::class, 'atenderSolicitudArchivos']
     )->name('atender-solicitud-archivos');
+
+    Route::get(
+        'descargar-factura/{uuid}',
+        [ArchivosController::class, 'descargarFactura']
+    )->name('descargar-factura');
 });

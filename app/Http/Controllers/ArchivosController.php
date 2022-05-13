@@ -112,4 +112,16 @@ class ArchivosController extends Controller
         abort(404);
     }
 
+    public function descargarFactura(string $uuid)
+    {
+        if ( Storage::exists("/facturas/xmls/{$uuid}.xml") ) {
+            return response()->download(
+                Storage::path("/facturas/xmls/{$uuid}.xml"),
+                "{$uuid}.xml"
+            );
+        }
+
+        return "No se encontró la factura con el UUID {$uuid}";
+    }
+
 }
