@@ -70,4 +70,9 @@ Route::prefix('archivos')->as('archivos.')->group(function () {
         'descargar-factura/{uuid}',
         [ArchivosController::class, 'descargarFactura']
     )->name('descargar-factura');
+
+    Route::get(
+        'contenido-factura/{uuid}',
+        [ArchivosController::class, 'contenidoFactura']
+    )->name('contenido-factura');
 });

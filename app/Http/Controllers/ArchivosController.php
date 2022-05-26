@@ -124,4 +124,19 @@ class ArchivosController extends Controller
         return "No se encontró la factura con el UUID {$uuid}";
     }
 
+    public function contenidoFactura(string $uuid)
+    {
+        if ( Storage::exists("/facturas/xmls/{$uuid}.xml") ) {
+            return response()->json([
+                'factura' => base64_encode(
+                    Storage::get("/facturas/xmls/{$uuid}.xml")
+                ),
+            ]);
+        }
+
+        return response()->json([
+            'message' => "No se encontró la factura con el UUID {$uuid}",
+        ], 404);
+    }
+
 }

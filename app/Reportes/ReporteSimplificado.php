@@ -9,6 +9,7 @@ use App\Reportes\Helpers\ConvertirMontoAPesos;
 use App\Reportes\Validaciones\ValidacionesFacturasRecibidas;
 use CfdiUtils\Elements\Cfdi33\Comprobante;
 use DateTimeImmutable;
+use Exception;
 use Illuminate\Support\Str;
 
 class ReporteSimplificado implements ReporteFacturacionPF
@@ -1221,6 +1222,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
     {
         $comprobante = $factura->comprobanteXml;
         $linea = [];
+
+        if (!$comprobante) {
+            return [];
+        }
 
         $regimenEmisor = $comprobante->obtenerRegimenEmisor();
         $formaDePago = $comprobante->obtenerFormaDePago();
