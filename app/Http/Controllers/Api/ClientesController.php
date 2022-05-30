@@ -164,4 +164,25 @@ class ClientesController extends Controller
         return response()->json($respuesta);
     }
 
+    public function informacionCliente(string $rfc)
+    {
+        $cliente = Cliente::where('rfc', $rfc)->firstOrFail();
+        $fiel    = $cliente->clavesSat()->where('tipo', ClaveSat::TIPO_FIEL)->latest()->first();
+
+        $datos = [
+            'rfc'          => $cliente->rfc,
+            'razon_social' => $cliente->razon_social,
+            'vigencia'     => '',
+            'facturas'     => $cliente->facturas()->count(),
+        ];
+
+        if ($fiel) {
+            $datos['vigencia'] = $fiel->caducidad->format('Y-m-d H:i:s');
+        }
+
+        return response()->json([
+            'cliente' => $datos,
+        ]);
+    }
+
 }
