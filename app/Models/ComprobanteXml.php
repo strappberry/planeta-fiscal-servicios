@@ -93,11 +93,11 @@ class ComprobanteXml extends Model
 
         foreach($this->comprobante['Impuestos']['Traslados']['Traslado'] as $impuesto) {
             if ($impuesto['Impuesto'] == self::IMPUESTO_IVA) {
-                $impuestos['iva'] += $impuesto['Importe'];
+                $impuestos['iva'] += $impuesto['Importe'] ?? 0;
             } elseif ($impuesto['Impuesto'] == self::IMPUESTO_ISR) {
-                $impuestos['isr'] += $impuesto['Importe'];
+                $impuestos['isr'] += $impuesto['Importe'] ?? 0;
             } elseif ($impuesto['Impuesto'] == self::IMPUESTO_IEPS) {
-                $impuestos['ieps'] += $impuesto['Importe'];
+                $impuestos['ieps'] += $impuesto['Importe'] ?? 0;
             }
         }
 
@@ -141,11 +141,11 @@ class ComprobanteXml extends Model
 
         foreach($this->comprobante['Impuestos']['Retenciones']['Retencion'] as $impuesto) {
             if ($impuesto['Impuesto'] == self::IMPUESTO_IVA) {
-                $impuestos['iva'] += $impuesto['Importe'];
+                $impuestos['iva'] += $impuesto['Importe'] ?? 0;
             } elseif ($impuesto['Impuesto'] == self::IMPUESTO_ISR) {
-                $impuestos['isr'] += $impuesto['Importe'];
+                $impuestos['isr'] += $impuesto['Importe'] ?? 0;
             } elseif ($impuesto['Impuesto'] == self::IMPUESTO_IEPS) {
-                $impuestos['ieps'] += $impuesto['Importe'];
+                $impuestos['ieps'] += $impuesto['Importe'] ?? 0;
             }
         }
 
