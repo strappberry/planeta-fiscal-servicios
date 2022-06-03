@@ -72,6 +72,27 @@ class Factura extends Model
         }
     }
 
+    public function scopeAplicarFiltroBuscador($query, $busqueda)
+    {
+        if ($busqueda) {
+            $query
+                ->where('uuid', 'like', "%{$busqueda}%")
+                ->orWhere('rfc_emisor', 'like', "%{$busqueda}%")
+                ->orWhere('nombre_emisor', 'like', "%{$busqueda}%")
+                ->orWhere('rfc_receptor', 'like', "%{$busqueda}%")
+                ->orWhere('nombre_receptor', 'like', "%{$busqueda}%")
+                ->orWhere('estatus_cancelacion', 'like', "%{$busqueda}%")
+                ->orWhere('estado_comprobante', 'like', "%{$busqueda}%")
+                ->orWhere('descuento', 'like', "%{$busqueda}%")
+                ->orWhere('subtotal', 'like', "%{$busqueda}%")
+                ->orWhere('total', 'like', "%{$busqueda}%")
+                ->orWhere('serie', 'like', "%{$busqueda}%")
+                ->orWhere('folio', 'like', "%{$busqueda}%")
+                ->orWhere('tipo_comprobante', 'like', "%{$busqueda}%")
+                ;
+        }
+    }
+
     public function scopeCancelados($query)
     {
         return $query

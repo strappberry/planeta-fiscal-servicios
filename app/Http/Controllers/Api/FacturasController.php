@@ -24,6 +24,8 @@ class FacturasController extends Controller
             $query->where('rfc_receptor', $request->rfc);
         }
 
+        $query->aplicarFiltroBuscador($request->get('busqueda', null));
+
         $facturas = $query->orderBy('fecha_emision')->get();
 
         return response()->json([
