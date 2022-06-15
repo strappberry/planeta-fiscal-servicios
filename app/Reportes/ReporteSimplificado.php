@@ -1105,19 +1105,21 @@ class ReporteSimplificado implements ReporteFacturacionPF
             $documentos = [];
 
             foreach($pagos as $pago) {
-                foreach($pago['DoctoRelacionado'] as $documento) {
-                    $documento = [
-                        substr($pago['FechaPago'], 0, 10) ?? '',
-                        $documento['IdDocumento'] ?? '',
-                        $documento['Serie'] ?? '',
-                        $documento['Folio'] ?? '',
-                        $documento['MonedaDR'] ?? '',
-                        $documento['ImpSaldoAnt'] ?? '',
-                        $documento['ImpPagado'] ?? '',
-                        $documento['ImpSaldoInsoluto'] ?? '',
-                    ];
-
-                    array_push($documentos, $documento);
+                if (isset($pago['DoctoRelacionado'])) {
+                    foreach($pago['DoctoRelacionado'] as $documento) {
+                        $documento = [
+                            substr($pago['FechaPago'], 0, 10) ?? '',
+                            $documento['IdDocumento'] ?? '',
+                            $documento['Serie'] ?? '',
+                            $documento['Folio'] ?? '',
+                            $documento['MonedaDR'] ?? '',
+                            $documento['ImpSaldoAnt'] ?? '',
+                            $documento['ImpPagado'] ?? '',
+                            $documento['ImpSaldoInsoluto'] ?? '',
+                        ];
+    
+                        array_push($documentos, $documento);
+                    }
                 }
             }
 
