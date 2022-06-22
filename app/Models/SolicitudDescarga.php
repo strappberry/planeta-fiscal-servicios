@@ -41,12 +41,12 @@ class SolicitudDescarga extends Model
 
     public function getFechaInicioFormateadaAttribute()
     {
-        return $this->fecha_inicio->format('d/m/Y H:i:s');
+        return $this->fecha_inicio->format('Y-m-d H:i:s');
     }
 
     public function getFechaFinFormateadaAttribute()
     {
-        return $this->fecha_fin->format('d/m/Y H:i:s');
+        return $this->fecha_fin->format('Y-m-d H:i:s');
     }
 
     public function cliente()
