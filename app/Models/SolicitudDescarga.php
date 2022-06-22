@@ -34,6 +34,21 @@ class SolicitudDescarga extends Model
         'fecha_fin',
     ];
 
+    protected $appends = [
+        'fecha_fin_formateada',
+        'fecha_inicio_formateada',
+    ];
+
+    public function getFechaInicioFormateadaAttribute()
+    {
+        return $this->fecha_inicio->format('d/m/Y H:i:s');
+    }
+
+    public function getFechaFinFormateadaAttribute()
+    {
+        return $this->fecha_fin->format('d/m/Y H:i:s');
+    }
+
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
