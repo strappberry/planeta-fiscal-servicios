@@ -39,7 +39,7 @@
 
         @if ($mensajeError)
             <div class="alert alert-danger" role="alert">
-                <strong>{{ $mensaje }}</strong>
+                <strong>{{ $mensajeError }}</strong>
             </div>
         @endif
 

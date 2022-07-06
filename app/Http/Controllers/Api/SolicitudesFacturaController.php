@@ -21,6 +21,7 @@ class SolicitudesFacturaController extends Controller
         // Verificar si hay una solicitud activa
         $solicitud = $cliente->solicitudesDescarga()
             ->where('status', '!=', SolicitudDescarga::STATUS_PROCESADO)
+            ->where('status', '!=', SolicitudDescarga::STATUS_ERROR_AL_PROCESAR)
             ->count();
 
         if ($solicitud > 0) {
