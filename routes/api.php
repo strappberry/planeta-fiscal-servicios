@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\ClientesController;
 use App\Http\Controllers\Api\FacturasController;
 use App\Http\Controllers\Api\SolicitudesFacturaController;
 use App\Http\Controllers\ArchivosController;
+use App\Http\Controllers\Contafacil\VentasController;
 use App\Http\Controllers\ReportesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,13 @@ Route::middleware('auth:sanctum')->group(function () {
             'solicitar-reporte',
             [ReportesController::class, 'crearSolicitudReporte']
         );
+    });
+
+    Route::prefix('contafacil')->as('contafacil')->group(function() {
+        Route::prefix('ventas')->group(function () {
+            Route::get('impuestos', [VentasController::class, 'impuestos']);
+            Route::get('facturas', [VentasController::class, 'listadoFacturas']);
+        });
     });
 
 });

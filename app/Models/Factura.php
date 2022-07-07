@@ -44,8 +44,13 @@ class Factura extends Model
     ];
 
     protected $casts = [
-        'xml_procesado' => 'boolean',
-        'complementos' => 'array',
+        'xml_procesado'  => 'boolean',
+        'complementos'   => 'array',
+        'retencion_isr'  => 'float',
+        'retencion_iva'  => 'float',
+        'retencion_ieps' => 'float',
+        'traslado_iva'   => 'float',
+        'traslado_ieps'  => 'float',
     ];
 
     protected $dates = [
