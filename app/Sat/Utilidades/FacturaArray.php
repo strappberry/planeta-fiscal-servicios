@@ -112,9 +112,9 @@ class FacturaArray
             if (isset($cfdi['Impuestos']['Traslados']) && isset($cfdi['Impuestos']['Traslados']['Traslado'])) {
                 foreach($cfdi['Impuestos']['Traslados']['Traslado'] as $impuesto) {
                     if ($impuesto['Impuesto'] == '002') {
-                        $trasladoIva += (float) $impuesto['Importe'];
+                        $trasladoIva += (float) ($impuesto['Importe'] ?? 0);
                     } elseif ($impuesto['Impuesto'] == '003') {
-                        $trasladoIeps += (float) $impuesto['Importe'];
+                        $trasladoIeps += (float) ($impuesto['Importe'] ?? 0);
                     }
                 }
             }
@@ -122,11 +122,11 @@ class FacturaArray
             if (isset($cfdi['Impuestos']['Retenciones']) && isset($cfdi['Impuestos']['Retenciones']['Retencion'])) {
                 foreach($cfdi['Impuestos']['Retenciones']['Retencion'] as $impuesto) {
                     if ($impuesto['Impuesto'] == '001') {
-                        $retencionIsr += (float) $impuesto['Importe'];
+                        $retencionIsr += (float) ($impuesto['Importe'] ?? 0);
                     } elseif ($impuesto['Impuesto'] == '002') {
-                        $retencionIva += (float) $impuesto['Importe'];
+                        $retencionIva += (float) ($impuesto['Importe'] ?? 0);
                     } elseif ($impuesto['Impuesto'] == '003') {
-                        $retencionIeps += (float) $impuesto['Importe'];
+                        $retencionIeps += (float) ($impuesto['Importe'] ?? 0);
                     }
                 }
             }
