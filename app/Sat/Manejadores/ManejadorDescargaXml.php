@@ -25,6 +25,18 @@ class ManejadorDescargaXml implements ResourceDownloadHandlerInterface
         }
     }
 
+    public function procesarXml(string $uuid, string $content): void
+    {
+        try {
+            $this->guardarXml($uuid, $content, '/facturas/xmls/');
+            libxml_use_internal_errors(true);
+            $cfdi = FacturaArray::convertirXmlAArray($content);
+            FacturaArray::guardarCfdiArray($uuid, $cfdi);
+        } catch (Exception $e) {
+            Log::error("[PROCESAR_XML] Error al procesar el xml descargado ({$uuid}): {$e->getMessage()}");
+        }
+    }
+
     public function onError(ResourceDownloadError $error) : void
     {
         if ($error instanceof ResourceDownloadRequestExceptionError) {

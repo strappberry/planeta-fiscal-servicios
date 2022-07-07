@@ -67,16 +67,20 @@ class FacturaArray
 
     public static function obtenerDatosParaFactura(array $cfdi) {
         $datos = [
-            'total' => $cfdi['Total'] ?? 0,
-            'subtotal' => $cfdi['SubTotal'] ?? 0,
-            'descuento' => $cfdi['Descuento'] ?? 0,
-            'complementos' => array_keys($cfdi['Complemento']),
-            'serie' => $cfdi['Serie'] ?? '',
-            'folio' => $cfdi['Folio'] ?? '',
+            'total'            => $cfdi['Total'] ?? 0,
+            'subtotal'         => $cfdi['SubTotal'] ?? 0,
+            'descuento'        => $cfdi['Descuento'] ?? 0,
+            'complementos'     => array_keys($cfdi['Complemento']),
+            'serie'            => $cfdi['Serie'] ?? '',
+            'folio'            => $cfdi['Folio'] ?? '',
             'tipo_comprobante' => $cfdi['TipoDeComprobante'] ?? '',
-            'moneda' => $cfdi['Moneda'] ?? '',
-            'fecha_emision' => Carbon::parse($cfdi['Fecha'])->format('Y-m-d'),
-            'xml_procesado' => true,
+            'moneda'           => $cfdi['Moneda'] ?? '',
+            'fecha_emision'    => Carbon::parse($cfdi['Fecha'])->format('Y-m-d'),
+            'xml_procesado'    => true,
+            'forma_pago'       => $cfdi['FormaPago'] ?? '',
+            'metodo_pago'      => $cfdi['MetodoPago'] ?? '',
+            'moneda'           => $cfdi['Moneda'] ?? '',
+            'tipo_cambio'      => $cfdi['TipoCambio'] ?? 1,
         ];
 
         if ($cfdi['Emisor']) {
@@ -96,6 +100,42 @@ class FacturaArray
             $datos['pac_certifico'] = $cfdi['Complemento']['TimbreFiscalDigital']['RfcProvCertif'] ?? '';
             $datos['complementos'] = array_keys($cfdi['Complemento']);
         }
+
+        $trasladoIva  = 0;
+        $trasladoIeps = 0;
+        $retencionIsr = 0;
+        $retencionIva = 0;
+        $retencionIeps = 0;
+
+        // Procesar los impuestos trasladados y retenidos
+        if (isset($cfdi['Impuestos'])) {
+            if (isset($cfdi['Impuestos']['Traslados']) && isset($cfdi['Impuestos']['Traslados']['Traslado'])) {
+                foreach($cfdi['Impuestos']['Traslados']['Traslado'] as $impuesto) {
+                    if ($impuesto['Impuesto'] == '002') {
+                        $trasladoIva += (float) $impuesto['Importe'];
+                    } elseif ($impuesto['Impuesto'] == '003') {
+                        $trasladoIeps += (float) $impuesto['Importe'];
+                    }
+                }
+            }
+
+            if (isset($cfdi['Impuestos']['Retenciones']) && isset($cfdi['Impuestos']['Retenciones']['Retencion'])) {
+                if ($impuesto['Impuesto'] == '001') {
+                    $retencionIsr += (float) $impuesto['Importe'];
+                } elseif ($impuesto['Impuesto'] == '002') {
+                    $retencionIva += (float) $impuesto['Importe'];
+                } elseif ($impuesto['Impuesto'] == '003') {
+                    $retencionIeps += (float) $impuesto['Importe'];
+                }
+            }
+        }
+
+        $datos['retencion_isr']  = $retencionIsr;
+        $datos['retencion_iva']  = $retencionIva;
+        $datos['retencion_ieps'] = $retencionIeps;
+        $datos['traslado_ieps']  = $trasladoIeps;
+        $datos['traslado_iva']   = $trasladoIva;
+
 
         return $datos;
     }

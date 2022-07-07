@@ -32,6 +32,15 @@ class Factura extends Model
         'complementos',
         'xml_procesado',
         'cliente_id',
+        'forma_pago',
+        'metodo_pago',
+        'moneda',
+        'tipo_cambio',
+        'retencion_isr',
+        'retencion_iva',
+        'retencion_ieps',
+        'traslado_iva',
+        'traslado_ieps',
     ];
 
     protected $casts = [
