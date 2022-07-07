@@ -120,12 +120,14 @@ class FacturaArray
             }
 
             if (isset($cfdi['Impuestos']['Retenciones']) && isset($cfdi['Impuestos']['Retenciones']['Retencion'])) {
-                if ($impuesto['Impuesto'] == '001') {
-                    $retencionIsr += (float) $impuesto['Importe'];
-                } elseif ($impuesto['Impuesto'] == '002') {
-                    $retencionIva += (float) $impuesto['Importe'];
-                } elseif ($impuesto['Impuesto'] == '003') {
-                    $retencionIeps += (float) $impuesto['Importe'];
+                foreach($cfdi['Impuestos']['Retenciones']['Retencion'] as $impuesto) {
+                    if ($impuesto['Impuesto'] == '001') {
+                        $retencionIsr += (float) $impuesto['Importe'];
+                    } elseif ($impuesto['Impuesto'] == '002') {
+                        $retencionIva += (float) $impuesto['Importe'];
+                    } elseif ($impuesto['Impuesto'] == '003') {
+                        $retencionIeps += (float) $impuesto['Importe'];
+                    }
                 }
             }
         }
