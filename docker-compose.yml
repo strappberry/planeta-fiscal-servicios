@@ -1,0 +1,47 @@
+version: '3.7'
+
+services:
+    pfservicios:
+        image: "planetafiscal/servicios:${TAG:-latest}"
+        build:
+            args:
+                user: planetafiscal
+                uid: 1000
+            context: ./
+            dockerfile: Dockerfile
+        working_dir: /var/www/app
+        volumes:
+            - ./:/var/www/app
+        networks:
+            - default
+
+    webservicios:
+        image: nginx:1.21.6
+        ports:
+            - ${SERVER_PORT:-80}:80
+        volumes:
+            - ./:/var/www/app
+            - ./docker-compose/nginx:/etc/nginx/conf.d/
+        networks:
+            - default
+
+    dbservicios:
+        image: mysql:8.0.28
+        volumes:
+            - dbdata:/var/lib/mysql
+        environment:
+            - MYSQL_DATABASE=${DB_DATABASE:-homestead}
+            - MYSQL_USER=${DB_USERNAME:-homestead}
+            - MYSQL_PASSWORD=${DB_PASSWORD:-secret}
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-secret}
+        ports:
+            - ${DB_MAPPED_PORT:-3306}:3306
+        networks:
+            - default
+
+networks:
+    default:
+        driver: bridge
+
+volumes:
+    dbdata:
