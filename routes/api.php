@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\ClientesController;
 use App\Http\Controllers\Api\FacturasController;
 use App\Http\Controllers\Api\SolicitudesFacturaController;
 use App\Http\Controllers\ArchivosController;
+use App\Http\Controllers\Contafacil\ComentariosController;
+use App\Http\Controllers\Contafacil\ComplementosController;
 use App\Http\Controllers\Contafacil\VentasController;
 use App\Http\Controllers\ReportesController;
 use Illuminate\Http\Request;
@@ -52,6 +54,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('ventas')->group(function () {
             Route::get('impuestos', [VentasController::class, 'impuestos']);
             Route::get('facturas', [VentasController::class, 'listadoFacturas']);
+        });
+
+        Route::prefix('comentarios')->group(function () {
+            Route::prefix('facturas')->group(function () {
+                Route::post('/agregar', [ComentariosController::class, 'agregarComentarioFactura']);
+                Route::get('/{factura}', [ComentariosController::class, 'comentariosFactura']);
+            });
+        });
+
+        Route::prefix('complementos')->group(function () {
+            Route::get('pago/{factura}', [ComplementosController::class, 'obtenerComplementoPagos']);
+            Route::get('nomina/{factura}', [ComplementosController::class, 'obtenerComplementoNomina']);
         });
     });
 

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TieneComentarios;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Factura extends Model
 {
     use HasFactory;
+    use TieneComentarios;
 
     protected $fillable = [
         'uuid',

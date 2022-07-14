@@ -14,6 +14,7 @@ class CompNominaDeduccion extends Model
         'clave',
         'concepto',
         'importe',
+        'comp_nomina_id',
     ];
 
     protected $casts = [
