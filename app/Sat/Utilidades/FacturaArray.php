@@ -5,6 +5,8 @@ use App\Models\Cliente;
 use App\Models\Factura;
 use Carbon\Carbon;
 use DOMDocument;
+use Exception;
+use Illuminate\Support\Facades\Log;
 use PhpCfdi\CfdiToJson\Factory;
 
 class FacturaArray
@@ -63,6 +65,78 @@ class FacturaArray
                 ]);
             }
         }
+
+        // Agregar datos de nomina
+        try {
+            $complementoNomina = self::obtenerComplementoNomina($cfdi);
+            if ($complementoNomina !== null) {
+                $nomina = $factura->complementoNomina()->first();
+                $nomina = $factura->complementoNomina()->updateOrCreate(
+                    [
+                        'id' => ($nomina) ? $nomina->id : null,
+                    ],
+                    $complementoNomina['nomina'],
+                );
+
+                $nomina->percepciones()->delete();
+                foreach ($complementoNomina['percepciones'] as $datosPercepcion) {
+                    $nomina->percepciones()->create($datosPercepcion);
+                }
+
+                $nomina->deducciones()->delete();
+                foreach ($complementoNomina['deducciones'] as $datosDeduccion) {
+                    $nomina->deducciones()->create($datosDeduccion);
+                }
+
+                $nomina->otrosPagos()->delete();
+                foreach ($complementoNomina['otros_pagos'] as $datosOtroPago) {
+                    $nomina->otrosPagos()->create($datosOtroPago);
+                }
+            }
+        } catch (Exception $e) {
+            Log::error("Error al procesar la nomina {$uuid} " . $e->getMessage());
+        }
+
+        // Agregar datos de pagos
+        try {
+            $complementoPagos = self::obtenerComplementoPagos($cfdi);
+            if ($complementoPagos !== null) {
+                $compPago = $factura->complementoPagos()->first();
+                $compPago = $factura->complementoPagos()->updateOrCreate(
+                    [
+                        'id' => ($compPago) ? $compPago->id : null,
+                    ],
+                    $complementoPagos['complemento'],
+                );
+
+                $compPago->pagos()->delete();
+                foreach($complementoPagos['pagos'] as $datosPago) {
+                    $pago = $compPago->pagos()->create($datosPago['pago']);
+
+                    foreach($datosPago['documentos'] as $documento) {
+                        $documentoPagado = $pago->documentosRelacionados()->create($documento['documento']);
+
+                        foreach($documento['traslados'] as $traslado) {
+                            $documentoPagado->traslados()->create($traslado);
+                        }
+
+                        foreach($documento['retenciones'] as $retencion) {
+                            $documentoPagado->retenciones()->create($retencion);
+                        }
+                    }
+
+                    foreach($datosPago['traslados'] as $traslado) {
+                        $pago->traslados()->create($traslado);
+                    }
+
+                    foreach($datosPago['retenciones'] as $retencion) {
+                        $pago->retenciones()->create($retencion);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            Log::error("Error al procesar los pagos {$uuid} " . $e->getMessage());
+        }
     }
 
     public static function obtenerDatosParaFactura(array $cfdi)
@@ -87,11 +161,13 @@ class FacturaArray
         if ($cfdi['Emisor']) {
             $datos['rfc_emisor'] = $cfdi['Emisor']['Rfc'] ?? '';
             $datos['nombre_emisor'] = $cfdi['Emisor']['Nombre'] ?? '';
+            $datos['regimen_fiscal_emisor'] = $cfdi['Emisor']['RegimenFiscal'] ?? '';
         }
 
         if ($cfdi['Receptor']) {
             $datos['rfc_receptor'] = $cfdi['Receptor']['Rfc'] ?? '';
             $datos['nombre_receptor'] = $cfdi['Receptor']['Nombre'] ?? '';
+            $datos['uso_cfdi_receptor'] = $cfdi['Receptor']['UsoCFDI'] ?? '';
         }
 
         if (isset($cfdi['Complemento']['TimbreFiscalDigital'])) {
@@ -146,17 +222,17 @@ class FacturaArray
     public static function obtenerComplementoNomina(array $cfdi): ?array
     {
         if (!isset($cfdi['Complemento'])) return null;
-        if (!isset($cfdi['Complemento'][0]['Nomina'])) return null;
+        if (!isset($cfdi['Complemento']['Nomina'])) return null;
 
-        $nomina = $cfdi['Complemento'][0]['Nomina'];
+        $nomina = $cfdi['Complemento']['Nomina'];
         $complemento = [
             'nomina'       => [
                 'version'            => $nomina['Version'] ?? '',
                 'tipo_nomina'        => $nomina['TipoNomina'] ?? '',
-                'fecha_pago'         => $nomina['FechaPago'] ?? '',
-                'fecha_inicial'      => $nomina['FechaInicialPago'] ?? '',
-                'fecha_final'        => $nomina['FechaFinalPago'] ?? '',
-                'num_dias_pagados'   => $nomina['NumDiasPagados'] ?? '',
+                'fecha_pago'         => $nomina['FechaPago'] ?? null,
+                'fecha_inicial'      => $nomina['FechaInicialPago'] ?? null,
+                'fecha_final'        => $nomina['FechaFinalPago'] ?? null,
+                'num_dias_pagados'   => $nomina['NumDiasPagados'] ?? 0,
                 'total_percepciones' => (float) ($nomina['TotalPercepciones'] ?? 0),
                 'total_deducciones'  => (float) ($nomina['TotalDeducciones'] ?? 0),
                 'total_otros_pagos'  => (float) ($nomina['TotalOtrosPagos'] ?? 0),
@@ -222,9 +298,9 @@ class FacturaArray
     public static function obtenerComplementoPagos(array $cfdi): ?array
     {
         if (!isset($cfdi['Complemento'])) return null;
-        if (!isset($cfdi['Complemento'][0]['Pagos'])) return null;
+        if (!isset($cfdi['Complemento']['Pagos'])) return null;
 
-        $pagos = $cfdi['Complemento'][0]['Pagos'];
+        $pagos = $cfdi['Complemento']['Pagos'];
 
         $complemento= [
             'complemento' => [
@@ -238,9 +314,12 @@ class FacturaArray
 
         if (isset($pagos['Totales'])) {
             $totales = $pagos['Totales'];
-            $complemento['monto_total_pagos']               = (float) ($totales['MontoTotalPagos'] ?? 0);
-            $complemento['total_traslados_base_iva_16']     = (float) ($totales['TotalTrasladosBaseIVA16'] ?? 0);
-            $complemento['total_traslados_impuesto_iva_16'] = (float) ($totales['TotalTrasladosImpuestoIVA16'] ?? 0);
+            $complemento['complemento']['total_retenciones_isr'] = (float) ($totales['TotalRetencionesISR'] ?? 0);
+            $complemento['complemento']['monto_total_pagos'] = (float) ($totales['MontoTotalPagos'] ?? 0);
+            $complemento['complemento']['total_traslados_base_iva_16'] =
+                (float) ($totales['TotalTrasladosBaseIVA16'] ?? 0);
+            $complemento['complemento']['total_traslados_impuesto_iva_16'] =
+                (float) ($totales['TotalTrasladosImpuestoIVA16'] ?? 0);
         }
 
         // Procesar los nodos de pagos
@@ -260,16 +339,16 @@ class FacturaArray
             // Procesar los nodos de documentos relacionados
             foreach($pago['DoctoRelacionado'] as $documento) {
                 $datosDocumento = [
-                    'equivalencia'           => $documento['EquivalenciaDR'] ?? '',
+                    'equivalencia'           => (float) ($documento['EquivalenciaDR'] ?? 0),
                     'folio'                  => $documento['Folio'] ?? '',
+                    'serie'                  => $documento['Serie'] ?? '',
                     'uuid'                   => $documento['IdDocumento'] ?? '',
                     'importe_pagado'         => (float) ($documento['ImpPagado'] ?? 0),
                     'importe_saldo_anterior' => (float) ($documento['ImpSaldoAnt'] ?? 0),
                     'importe_saldo_insoluto' => (float) ($documento['ImpSaldoInsoluto'] ?? 0),
                     'moneda'                 => $documento['MonedaDR'] ?? '',
-                    'numero_parcialiadad'    => $documento['NumParcialidad'] ?? '',
+                    'numero_parcialidad'    => $documento['NumParcialidad'] ?? '',
                     'objeto_impuesto'        => $documento['ObjetoImpDR'] ?? '',
-                    'serie'                  => $documento['Serie'] ?? '',
                 ];
 
                 $datosTraslados   = [];
@@ -283,11 +362,11 @@ class FacturaArray
                     ) {
                         foreach($documento['ImpuestosDR']['TrasladosDR']['TrasladoDR'] as $traslado) {
                             $datosTraslados[] = [
-                                'base'        => (float) ($traslado['BaseP'] ?? 0),
-                                'importe'     => (float) ($traslado['ImporteP'] ?? 0),
-                                'impuesto'    => $traslado['ImpuestoP'] ?? '',
-                                'tasa_cuota'  => (float) ($traslado['TasaOCuotaP'] ?? 0),
-                                'tipo_factor' => $traslado['TipoFactorP'] ?? '',
+                                'base'        => (float) ($traslado['BaseDR'] ?? 0),
+                                'importe'     => (float) ($traslado['ImporteDR'] ?? 0),
+                                'impuesto'    => $traslado['ImpuestoDR'] ?? '',
+                                'tasa_cuota'  => (float) ($traslado['TasaOCuotaDR'] ?? 0),
+                                'tipo_factor' => $traslado['TipoFactorDR'] ?? '',
                             ];
                         }
                     }
@@ -298,8 +377,11 @@ class FacturaArray
                     ) {
                         foreach($documento['ImpuestosDR']['RetencionesDR']['RetencionDR'] as $retencion) {
                             $datosRetenciones[] = [
-                                'impuesto' => $retencion['ImpuestoP'] ?? '',
-                                'importe'  => (float) ($retencion['ImporteP'] ?? 0),
+                                'base'        => (float) ($retencion['BaseDR'] ?? 0),
+                                'importe'     => (float) ($retencion['ImporteDR'] ?? 0),
+                                'impuesto'    => $retencion['ImpuestoDR'] ?? '',
+                                'tasa_cuota'  => (float) ($retencion['TasaOCuotaDR'] ?? 0),
+                                'tipo_factor' => $retencion['TipoFactorDR'] ?? '',
                             ];
                         }
                     }

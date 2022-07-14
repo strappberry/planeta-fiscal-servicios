@@ -13,8 +13,10 @@ class Factura extends Model
         'uuid',
         'rfc_emisor',
         'nombre_emisor',
+        'regimen_fiscal_emisor',
         'rfc_receptor',
         'nombre_receptor',
+        'uso_cfdi_receptor',
         'fecha_emision',
         'fecha_certificacion',
         'pac_certifico',
@@ -67,6 +69,16 @@ class Factura extends Model
     public function comprobanteXml()
     {
         return $this->hasOne(ComprobanteXml::class);
+    }
+
+    public function complementoPagos()
+    {
+        return $this->hasOne(CompPago::class);
+    }
+
+    public function complementoNomina()
+    {
+        return $this->hasOne(CompNomina::class);
     }
 
     public function scopeAplicarFiltros($query, $filtros)
