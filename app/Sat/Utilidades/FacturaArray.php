@@ -47,7 +47,7 @@ class FacturaArray
         $factura = Factura::query()
             ->where('uuid', $uuid)
             ->first();
-            
+
         $datos = self::obtenerDatosParaFactura($cfdi);
         $data['uuid'] = $uuid;
 
@@ -65,7 +65,8 @@ class FacturaArray
         }
     }
 
-    public static function obtenerDatosParaFactura(array $cfdi) {
+    public static function obtenerDatosParaFactura(array $cfdi)
+    {
         $datos = [
             'total'            => $cfdi['Total'] ?? 0,
             'subtotal'         => $cfdi['SubTotal'] ?? 0,
@@ -140,5 +141,213 @@ class FacturaArray
 
 
         return $datos;
+    }
+
+    public static function obtenerComplementoNomina(array $cfdi): ?array
+    {
+        if (!isset($cfdi['Complemento'])) return null;
+        if (!isset($cfdi['Complemento'][0]['Nomina'])) return null;
+
+        $nomina = $cfdi['Complemento'][0]['Nomina'];
+        $complemento = [
+            'nomina'       => [
+                'version'            => $nomina['Version'] ?? '',
+                'tipo_nomina'        => $nomina['TipoNomina'] ?? '',
+                'fecha_pago'         => $nomina['FechaPago'] ?? '',
+                'fecha_inicial'      => $nomina['FechaInicialPago'] ?? '',
+                'fecha_final'        => $nomina['FechaFinalPago'] ?? '',
+                'num_dias_pagados'   => $nomina['NumDiasPagados'] ?? '',
+                'total_percepciones' => (float) ($nomina['TotalPercepciones'] ?? 0),
+                'total_deducciones'  => (float) ($nomina['TotalDeducciones'] ?? 0),
+                'total_otros_pagos'  => (float) ($nomina['TotalOtrosPagos'] ?? 0),
+                // Totales nodos percepciones y deducciones
+                'percepciones_total_sueldos'          => 0,
+                'percepciones_total_gravado'          => 0,
+                'percepciones_total_exento'           => 0,
+                'deducciones_total_otras_deducciones' => 0,
+                'deducciones_total_imp_retenidos'     => 0,
+            ],
+            'percepciones' => [],
+            'deducciones'  => [],
+            'otros_pagos'  => [],
+        ];
+
+        if (isset($nomina['Percepciones']) && isset($nomina['Percepciones']['Percepcion']))
+        {
+            $complemento['nomina']['percepciones_total_sueldos'] = (float) ($nomina['Percepciones']['TotalSueldos'] ?? 0);
+            $complemento['nomina']['percepciones_total_gravado'] = (float) ($nomina['Percepciones']['TotalGravado'] ?? 0);
+            $complemento['nomina']['percepciones_total_exento']  = (float) ($nomina['Percepciones']['TotalExento'] ?? 0);
+
+            foreach($nomina['Percepciones']['Percepcion'] as $percepcion) {
+                $complemento['percepciones'][] = [
+                    'tipo_percepcion' => $percepcion['TipoPercepcion'] ?? '',
+                    'clave'           => $percepcion['Clave'] ?? '',
+                    'concepto'        => $percepcion['Concepto'] ?? '',
+                    'importe_gravado' => (float) ($percepcion['ImporteGravado'] ?? 0),
+                    'importe_exento'  => (float) ($percepcion['ImporteExento'] ?? 0),
+                ];
+            }
+        }
+
+        if (isset($nomina['Deducciones']) && isset($nomina['Deducciones']['Deduccion']))
+        {
+            $complemento['nomina']['deducciones_total_otras_deducciones'] = (float) ($nomina['Deducciones']['TotalOtrasDeducciones'] ?? 0);
+            $complemento['nomina']['deducciones_total_imp_retenidos']     = (float) ($nomina['Deducciones']['TotalImpuestosRetenidos'] ?? 0);
+
+            foreach($nomina['Deducciones']['Deduccion'] as $deduccion) {
+                $complemento['deducciones'][] = [
+                    'tipo_deduccion' => $deduccion['TipoDeduccion'] ?? '',
+                    'clave'          => $deduccion['Clave'] ?? '',
+                    'concepto'       => $deduccion['Concepto'] ?? '',
+                    'importe'        => (float) ($deduccion['Importe'] ?? 0),
+                ];
+            }
+        }
+
+        if (isset($nomina['OtrosPagos']) && isset($nomina['OtrosPagos']['OtroPago']))
+        {
+            foreach($nomina['OtrosPagos']['OtroPago'] as $percepcion) {
+                $complemento['otros_pagos'][] = [
+                    'tipo_otro_pago' => $percepcion['TipoOtroPago'] ?? '',
+                    'clave'          => $percepcion['Clave'] ?? '',
+                    'concepto'       => $percepcion['Concepto'] ?? '',
+                    'importe'        => (float) ($percepcion['Importe'] ?? 0),
+                ];
+            }
+        }
+
+        return $complemento;
+    }
+
+    public static function obtenerComplementoPagos(array $cfdi): ?array
+    {
+        if (!isset($cfdi['Complemento'])) return null;
+        if (!isset($cfdi['Complemento'][0]['Pagos'])) return null;
+
+        $pagos = $cfdi['Complemento'][0]['Pagos'];
+
+        $complemento= [
+            'complemento' => [
+                'version'                         => $pagos['Version'] ?? '',
+                'monto_total_pagos'               => 0,
+                'total_traslados_base_iva_16'     => 0,
+                'total_traslados_impuesto_iva_16' => 0,
+            ],
+            'pagos' => [],
+        ];
+
+        if (isset($pagos['Totales'])) {
+            $totales = $pagos['Totales'];
+            $complemento['monto_total_pagos']               = (float) ($totales['MontoTotalPagos'] ?? 0);
+            $complemento['total_traslados_base_iva_16']     = (float) ($totales['TotalTrasladosBaseIVA16'] ?? 0);
+            $complemento['total_traslados_impuesto_iva_16'] = (float) ($totales['TotalTrasladosImpuestoIVA16'] ?? 0);
+        }
+
+        // Procesar los nodos de pagos
+        foreach($pagos['Pago'] as $pago) {
+            $datosPago = [
+                'pago'        => [
+                    'fecha_pago'  => $pago['FechaPago'] ?? '',
+                    'forma_pago'  => $pago['FormaDePagoP'] ?? '',
+                    'moneda'      => $pago['MonedaP'] ?? '',
+                    'monto'       => (float) ($pago['Monto'] ?? 0),
+                    'tipo_cambio' => (float) ($pago['TipoCambioP'] ?? 0),
+                ],
+                'documentos'  => [],
+                'traslados'   => [],
+                'retenciones' => [],
+            ];
+            // Procesar los nodos de documentos relacionados
+            foreach($pago['DoctoRelacionado'] as $documento) {
+                $datosDocumento = [
+                    'equivalencia'           => $documento['EquivalenciaDR'] ?? '',
+                    'folio'                  => $documento['Folio'] ?? '',
+                    'uuid'                   => $documento['IdDocumento'] ?? '',
+                    'importe_pagado'         => (float) ($documento['ImpPagado'] ?? 0),
+                    'importe_saldo_anterior' => (float) ($documento['ImpSaldoAnt'] ?? 0),
+                    'importe_saldo_insoluto' => (float) ($documento['ImpSaldoInsoluto'] ?? 0),
+                    'moneda'                 => $documento['MonedaDR'] ?? '',
+                    'numero_parcialiadad'    => $documento['NumParcialidad'] ?? '',
+                    'objeto_impuesto'        => $documento['ObjetoImpDR'] ?? '',
+                    'serie'                  => $documento['Serie'] ?? '',
+                ];
+
+                $datosTraslados   = [];
+                $datosRetenciones = [];
+
+                // Procesar los nodos de los impuestos del documento relacionado
+                if (isset($documento['ImpuestosDR'])) {
+                    if (
+                        isset($documento['ImpuestosDR']['TrasladosDR']) &&
+                        isset($documento['ImpuestosDR']['TrasladosDR']['TrasladoDR'])
+                    ) {
+                        foreach($documento['ImpuestosDR']['TrasladosDR']['TrasladoDR'] as $traslado) {
+                            $datosTraslados[] = [
+                                'base'        => (float) ($traslado['BaseP'] ?? 0),
+                                'importe'     => (float) ($traslado['ImporteP'] ?? 0),
+                                'impuesto'    => $traslado['ImpuestoP'] ?? '',
+                                'tasa_cuota'  => (float) ($traslado['TasaOCuotaP'] ?? 0),
+                                'tipo_factor' => $traslado['TipoFactorP'] ?? '',
+                            ];
+                        }
+                    }
+
+                    if (
+                        isset($documento['ImpuestosDR']['RetencionesDR']) &&
+                        isset($documento['ImpuestosDR']['RetencionesDR']['RetencionDR'])
+                    ) {
+                        foreach($documento['ImpuestosDR']['RetencionesDR']['RetencionDR'] as $retencion) {
+                            $datosRetenciones[] = [
+                                'impuesto' => $retencion['ImpuestoP'] ?? '',
+                                'importe'  => (float) ($retencion['ImporteP'] ?? 0),
+                            ];
+                        }
+                    }
+                }
+
+                $datosPago['documentos'][] = [
+                    'documento'   => $datosDocumento,
+                    'traslados'   => $datosTraslados,
+                    'retenciones' => $datosRetenciones,
+                ];
+            }
+
+            // Procesar los nodos de impuestos trasladados del pago
+            if (
+                isset($pago['ImpuestosP']) &&
+                isset($pago['ImpuestosP']['TrasladosP']) &&
+                isset($pago['ImpuestosP']['TrasladosP']['TrasladoP'])
+            ) {
+                $trasladosP = $pago['ImpuestosP']['TrasladosP']['TrasladoP'];
+                foreach($trasladosP as $traslado) {
+                    $datosPago['traslados'][] = [
+                        'base'        => (float) ($traslado['BaseP'] ?? 0),
+                        'importe'     => (float) ($traslado['ImporteP'] ?? 0),
+                        'impuesto'    => $traslado['ImpuestoP'] ?? '',
+                        'tasa_cuota'  => (float) ($traslado['TasaOCuotaP'] ?? 0),
+                        'tipo_factor' => $traslado['TipoFactorP'] ?? '',
+                    ];
+                }
+            }
+
+            // Procesar los nodos de impuestos retenidos del pago
+            if (
+                isset($pago['ImpuestosP']) &&
+                isset($pago['ImpuestosP']['RetencionesP']) &&
+                isset($pago['ImpuestosP']['RetencionesP']['RetencionP'])
+            ) {
+                $retencionesP = $pago['ImpuestosP']['RetencionesP']['RetencionP'];
+                foreach($retencionesP as $retencion) {
+                    $datosPago['retenciones'][] = [
+                        'impuesto' => $retencion['ImpuestoP'] ?? '',
+                        'importe'  => (float) ($retencion['ImporteP'] ?? 0),
+                    ];
+                }
+            }
+
+            $complemento['pagos'][] = $datosPago;
+        }
+
+        return $complemento;
     }
 }
