@@ -15,7 +15,7 @@ class ImpuestosViewModel extends ViewModel
 
     public function __construct(string $rfc, Carbon $fechaInicio, Carbon $fechaFin)
     {
-        $this->rfc = $rfc;
+        $this->rfc         = $rfc;
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin    = $fechaFin;
     }
@@ -32,8 +32,8 @@ class ImpuestosViewModel extends ViewModel
                 "SUM(retencion_isr) as total"
             )
             ->whereBetween('fecha_emision', [
-                Carbon::parse($this->fechaInicio)->startOfMonth(),
-                Carbon::parse($this->fechaFin)->endOfMonth(),
+                $this->fechaInicio,
+                $this->fechaFin,
             ])
             ->where('rfc_emisor', $this->rfc)
             ->first();
@@ -137,8 +137,8 @@ class ImpuestosViewModel extends ViewModel
                 "SUM(retencion_isr) as total"
             )
             ->whereBetween('fecha_emision', [
-                Carbon::parse($this->fechaInicio)->startOfMonth(),
-                Carbon::parse($this->fechaFin)->endOfMonth(),
+                $this->fechaInicio,
+                $this->fechaFin,
             ])
             ->where('rfc_emisor', $this->rfc)
             ->where('regimen_fiscal_emisor', '606')
@@ -157,8 +157,8 @@ class ImpuestosViewModel extends ViewModel
         $facturasNomina = Factura::query()
             ->where('tipo_comprobante', 'N')
             ->whereBetween('fecha_emision', [
-                Carbon::parse($this->fechaInicio)->startOfMonth(),
-                Carbon::parse($this->fechaFin)->endOfMonth(),
+                $this->fechaInicio,
+                $this->fechaFin
             ])
             ->where('rfc_emisor', $this->rfc)
             ->get();

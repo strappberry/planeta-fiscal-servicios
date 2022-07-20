@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Contafacil;
 
 use App\Contafacil\Ventas\ViewModels\ImpuestosViewModel;
+use App\Contafacil\Ventas\ViewModels\ListadoFacturasVentas;
 use App\Http\Controllers\Controller;
-use App\Models\CompNominaDeduccion;
-use App\Models\Factura;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -25,18 +24,15 @@ class VentasController extends Controller
 
     public function listadoFacturas(Request $request)
     {
-        $query = Factura::query()
-            ->whereBetween('fecha_emision', [
-                Carbon::parse($request->fecha_inicio)->startOfMonth(),
-                Carbon::parse($request->fecha_fin)->endOfMonth(),
-            ])
-            ->where('rfc_emisor', $request->rfc)
-            ->aplicarFiltroBuscador($request->get('busqueda', null))
-            ->orderBy('fecha_emision')
-            ->get();
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfMonth();
+        $fechaFin    = Carbon::parse($request->fecha_fin)->endOfMonth();
+        $rfc         = $request->rfc;
+        $busqueda    = $request->get('busqueda', '');
 
-        return response()->json([
-            'facturas' => $query,
-        ]);
+        $modelo = new ListadoFacturasVentas($rfc, $fechaInicio, $fechaFin, $busqueda);
+
+        return response()->json(
+            $modelo->toArray()
+        );
     }
 }
