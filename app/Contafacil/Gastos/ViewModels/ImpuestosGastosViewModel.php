@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Contafacil\Ventas\ViewModels;
+namespace App\Contafacil\Gastos\ViewModels;
 
 use App\Models\Factura;
 use Carbon\Carbon;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\CompNominaDeduccion;
 
-class ImpuestosViewModel extends ViewModel
+class ImpuestosGastosViewModel extends ViewModel
 {
     private $fechaInicio;
     private $fechaFin;
@@ -35,7 +35,7 @@ class ImpuestosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin,
             ])
-            ->where('rfc_emisor', $this->rfc)
+            ->where('rfc_receptor', $this->rfc)
             ->facturaPue()
             ->vigentes()
             ->first();
@@ -58,7 +58,7 @@ class ImpuestosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin,
             ])
-            ->where('rfc_emisor', $this->rfc)
+            ->where('rfc_receptor', $this->rfc)
             ->facturaPue()
             ->vigentes()
             ->first();
@@ -81,7 +81,7 @@ class ImpuestosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin,
             ])
-            ->where('rfc_emisor', $this->rfc)
+            ->where('rfc_receptor', $this->rfc)
             ->facturaPue()
             ->vigentes()
             ->first();
@@ -104,7 +104,7 @@ class ImpuestosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin,
             ])
-            ->where('rfc_emisor', $this->rfc)
+            ->where('rfc_receptor', $this->rfc)
             ->facturaPue()
             ->vigentes()
             ->first();
@@ -127,7 +127,7 @@ class ImpuestosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin,
             ])
-            ->where('rfc_emisor', $this->rfc)
+            ->where('rfc_receptor', $this->rfc)
             ->facturaPue()
             ->vigentes()
             ->first();
@@ -150,7 +150,7 @@ class ImpuestosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin,
             ])
-            ->where('rfc_emisor', $this->rfc)
+            ->where('rfc_receptor', $this->rfc)
             ->where('regimen_fiscal_emisor', '606')
             ->facturaPue()
             ->vigentes()
@@ -172,7 +172,7 @@ class ImpuestosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin
             ])
-            ->where('rfc_emisor', $this->rfc)
+            ->where('rfc_receptor', $this->rfc)
             ->vigentes()
             ->get();
 
