@@ -128,6 +128,12 @@ class Factura extends Model
             ->orWhere('estado_comprobante', 'cancelado');
     }
 
+    public function scopeFacturaPue($query)
+    {
+        return $query
+            ->where('metodo_pago', 'PUE');
+    }
+
     public function scopeVigentes($query)
     {
         return $query

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\SolicitudesFacturaController;
 use App\Http\Controllers\ArchivosController;
 use App\Http\Controllers\Contafacil\ComentariosController;
 use App\Http\Controllers\Contafacil\ComplementosController;
+use App\Http\Controllers\Contafacil\GastosController;
 use App\Http\Controllers\Contafacil\VentasController;
 use App\Http\Controllers\ReportesController;
 use Illuminate\Http\Request;
@@ -54,6 +55,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('ventas')->group(function () {
             Route::get('impuestos', [VentasController::class, 'impuestos']);
             Route::get('facturas', [VentasController::class, 'listadoFacturas']);
+        });
+
+        Route::prefix('gastos')->group(function () {
+            Route::get('impuestos', [GastosController::class, 'impuestos']);
+            Route::get('facturas', [GastosController::class, 'listadoFacturas']);
         });
 
         Route::prefix('comentarios')->group(function () {
