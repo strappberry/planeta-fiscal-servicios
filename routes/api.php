@@ -4,9 +4,12 @@ use App\Http\Controllers\Api\ClientesController;
 use App\Http\Controllers\Api\FacturasController;
 use App\Http\Controllers\Api\SolicitudesFacturaController;
 use App\Http\Controllers\ArchivosController;
+use App\Http\Controllers\Contafacil\BalanzaComprobacionController;
 use App\Http\Controllers\Contafacil\ComentariosController;
 use App\Http\Controllers\Contafacil\ComplementosController;
+use App\Http\Controllers\Contafacil\FacturasClienteController;
 use App\Http\Controllers\Contafacil\GastosController;
+use App\Http\Controllers\Contafacil\NumerosCuentasController;
 use App\Http\Controllers\Contafacil\VentasController;
 use App\Http\Controllers\ReportesController;
 use Illuminate\Http\Request;
@@ -72,6 +75,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('complementos')->group(function () {
             Route::get('pago/{factura}', [ComplementosController::class, 'obtenerComplementoPagos']);
             Route::get('nomina/{factura}', [ComplementosController::class, 'obtenerComplementoNomina']);
+        });
+
+        Route::prefix('numeros-cuentas')->group(function () {
+            Route::get('listar', [NumerosCuentasController::class, 'numerosCuenta']);
+        });
+
+        Route::prefix('facturas-cliente')->group(function () {
+            Route::post('/numero-cuenta/{factura}', [FacturasClienteController::class, 'asignarNumeroCuenta']);
+            Route::post('/establecer-consideracion/{factura}', [FacturasClienteController::class, 'establecerConsideracion']);
+        });
+
+        Route::prefix('balanza-comprobacion')->group(function () {
+            Route::get('/{cliente}', [BalanzaComprobacionController::class, 'balanza']);
         });
     });
 
