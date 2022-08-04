@@ -21,6 +21,10 @@ class FacturaCliente extends Model
         'considerado' => 'boolean',
     ];
 
+    protected $dates = [
+        'fecha_emision',
+    ];
+
     public function factura()
     {
         return $this->belongsTo(Factura::class);

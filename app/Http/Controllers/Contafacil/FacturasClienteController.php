@@ -35,6 +35,7 @@ class FacturasClienteController extends Controller
     public function establecerConsideracion(Request $request, Factura $factura)
     {
         $considerado = $request->considerado;
+        $clienteId    = $request->cliente_id;
 
         $factura = FacturaCliente::updateOrCreate(
             [
@@ -43,6 +44,7 @@ class FacturasClienteController extends Controller
             [
                 'factura_id'    => $factura->id,
                 'fecha_emision' => $factura->fecha_emision,
+                'cliente_id'    => $clienteId,
                 'considerado'   => $considerado,
             ]
         );

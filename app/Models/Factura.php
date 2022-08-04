@@ -48,6 +48,9 @@ class Factura extends Model
     ];
 
     protected $casts = [
+        'total'          => 'float',
+        'subtotal'       => 'float',
+        'descuento'      => 'float',
         'xml_procesado'  => 'boolean',
         'complementos'   => 'array',
         'retencion_isr'  => 'float',
@@ -81,6 +84,11 @@ class Factura extends Model
     public function complementoNomina()
     {
         return $this->hasOne(CompNomina::class);
+    }
+
+    public function facturasCliente()
+    {
+        return $this->hasMany(FacturaCliente::class);
     }
 
     public function scopeAplicarFiltros($query, $filtros)
