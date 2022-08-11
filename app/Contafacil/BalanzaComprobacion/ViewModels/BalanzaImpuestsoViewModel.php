@@ -57,7 +57,7 @@ class BalanzaImpuestsoViewModel extends ViewModel
             ->vigentes()
             ->get();
 
-        $emitido = (float) $facturasEmitidas->sum('total');
+        $emitido  = (float) $facturasEmitidas->sum('total');
         $recibido = (float) $facturasRecibidas->sum('total');
 
         return $emitido - $recibido;

@@ -103,6 +103,10 @@ Route::prefix('contafacil')->group(function() {
     });
 
     Route::prefix('provisional')->group(function() {
+        Route::prefix('facturas-cliente')->group(function() {
+            Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
+        });
+
         Route::prefix('ventas')->group(function() {
             Route::get('facturas', [VentasController::class, 'listadoFacturasProvisional']);
         });

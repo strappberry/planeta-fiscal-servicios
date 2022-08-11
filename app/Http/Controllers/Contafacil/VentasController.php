@@ -50,6 +50,9 @@ class VentasController extends Controller
             'facturasCliente' => function ($query) use ($clienteId) {
                 $query->where('cliente_id', $clienteId);
             },
+            'complementoPagos',
+            'complementoPagos.pagos',
+            'complementoPagos.pagos.documentosRelacionados',
         ])
         ->whereBetween('fecha_emision', [
             $fechaInicio,

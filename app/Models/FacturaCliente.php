@@ -15,6 +15,7 @@ class FacturaCliente extends Model
         'cliente_id',
         'factura_id',
         'numero_cuenta_id',
+        'fecha_pago',
     ];
 
     protected $casts = [
@@ -23,6 +24,7 @@ class FacturaCliente extends Model
 
     protected $dates = [
         'fecha_emision',
+        'fecha_pago',
     ];
 
     public function factura()

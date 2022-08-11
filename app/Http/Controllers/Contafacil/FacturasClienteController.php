@@ -24,6 +24,7 @@ class FacturasClienteController extends Controller
                 'cliente_id'       => $clienteId,
                 'numero_cuenta_id' => $numeroCuenta,
                 'fecha_emision'    => $factura->fecha_emision,
+                'fecha_pago'       => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : null,
             ]
         );
 
@@ -46,11 +47,34 @@ class FacturasClienteController extends Controller
                 'fecha_emision' => $factura->fecha_emision,
                 'cliente_id'    => $clienteId,
                 'considerado'   => $considerado,
+                'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : null,
             ]
         );
 
         return response()->json([
             'factura' => $factura,
+        ]);
+    }
+
+    public function establecerFechaPago(Request $request, Factura $factura)
+    {
+        $fechaPago = $request->fecha_pago;
+        $clienteId = $request->cliente_id;
+
+        $facturaCliente = FacturaCliente::updateOrCreate(
+            [
+                'factura_id' => $factura->id,
+            ],
+            [
+                'factura_id'    => $factura->id,
+                'fecha_emision' => $factura->fecha_emision,
+                'cliente_id'    => $clienteId,
+                'fecha_pago'    => $fechaPago,
+            ]
+        );
+
+        return response()->json([
+            'factura' => $facturaCliente,
         ]);
     }
 
