@@ -60,6 +60,7 @@ class GastosController extends Controller
             $fechaFin,
         ])
         ->where('rfc_receptor', $rfc)
+        ->whereIn('tipo_comprobante', ['I', 'E', 'i', 'e'])
         ->orderBy('fecha_emision')
         ->get();
 

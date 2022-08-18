@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\FacturasController;
 use App\Http\Controllers\Api\SolicitudesFacturaController;
 use App\Http\Controllers\ArchivosController;
 use App\Http\Controllers\Contafacil\BalanzaComprobacionController;
+use App\Http\Controllers\Contafacil\BancosController;
+use App\Http\Controllers\Contafacil\BancosProyectosController;
 use App\Http\Controllers\Contafacil\ComentariosController;
 use App\Http\Controllers\Contafacil\ComplementosController;
 use App\Http\Controllers\Contafacil\FacturasClienteController;
@@ -105,6 +107,7 @@ Route::prefix('contafacil')->group(function() {
     Route::prefix('provisional')->group(function() {
         Route::prefix('facturas-cliente')->group(function() {
             Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
+            Route::post('/establecer-cuenta-poliza/{factura}', [FacturasClienteController::class, 'asignarNumeroCuentaPolizaSemiautomatica']);
         });
 
         Route::prefix('ventas')->group(function() {
@@ -115,5 +118,14 @@ Route::prefix('contafacil')->group(function() {
             Route::get('facturas', [GastosController::class, 'listadoFacturasProvisional']);
         });
     });
-});
 
+    Route::prefix('bancos')->group(function() {
+        Route::get('/', [BancosController::class, 'listarBancos']);
+        Route::post('/crear', [BancosController::class, 'crearBanco']);
+    });
+
+    Route::prefix('bancos-proyectos')->group(function() {
+        Route::get('/{cliente}', [BancosProyectosController::class, 'listar']);
+        Route::post('/crear', [BancosProyectosController::class, 'crearProyecto']);
+    });
+});

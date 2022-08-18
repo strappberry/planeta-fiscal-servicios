@@ -33,6 +33,29 @@ class FacturasClienteController extends Controller
         ]);
     }
 
+    public function asignarNumeroCuentaPolizaSemiautomatica(Request $request, Factura $factura)
+    {
+        $numeroCuenta = $request->numero_cuenta;
+        $clienteId    = $request->cliente_id;
+
+        $factura = FacturaCliente::updateOrCreate(
+            [
+                'factura_id' => $factura->id,
+            ],
+            [
+                'factura_id'       => $factura->id,
+                'cliente_id'       => $clienteId,
+                'cuenta_poliza'    => $numeroCuenta,
+                'fecha_emision'    => $factura->fecha_emision,
+                'fecha_pago'       => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : null,
+            ]
+        );
+
+        return response()->json([
+            'factura' => $factura,
+        ]);
+    }
+
     public function establecerConsideracion(Request $request, Factura $factura)
     {
         $considerado = $request->considerado;

@@ -59,6 +59,7 @@ class VentasController extends Controller
             $fechaFin,
         ])
         ->where('rfc_emisor', $rfc)
+        ->whereIn('tipo_comprobante', ['I', 'E', 'i', 'e'])
         ->orderBy('fecha_emision')
         ->get();
 

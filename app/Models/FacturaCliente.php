@@ -16,6 +16,7 @@ class FacturaCliente extends Model
         'factura_id',
         'numero_cuenta_id',
         'fecha_pago',
+        'cuenta_poliza',
     ];
 
     protected $casts = [
@@ -35,5 +36,10 @@ class FacturaCliente extends Model
     public function numeroCuenta()
     {
         return $this->belongsTo(NumeroCuenta::class);
+    }
+
+    public function cuentaPoliza()
+    {
+        return $this->belongsTo(NumeroCuenta::class, 'cuenta_poliza');
     }
 }

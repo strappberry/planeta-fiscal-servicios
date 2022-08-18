@@ -9,15 +9,25 @@ class NumeroCuenta extends Model
 {
     use HasFactory;
 
+    const TIPO_GASTO = 'gasto';
+    const TIPO_VENTA = 'venta';
+    const TIPO_POLIZA = 'poliza';
+
+    const SUBTIPO_POLIZA_VENTA = 'poliza_venta';
+    const SUBTIPO_POLIZA_GASTO = 'poliza_gasto';
+
     protected $fillable = [
         'numero_cuenta',
         'descripcion',
-        'ventas',
-        'gastos',
+        'tipo_cuenta',
+        'subtipo',
+        'poliza',
+        'cargo',
     ];
 
     protected $casts = [
-        'considerado' => 'boolean',
+        'poliza' => 'boolean',
+        'cargo'  => 'boolean',
     ];
 
     protected $hidden = [
