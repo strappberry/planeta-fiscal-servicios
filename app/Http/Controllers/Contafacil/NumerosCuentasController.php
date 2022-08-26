@@ -12,6 +12,7 @@ class NumerosCuentasController extends Controller
     public function numerosCuenta()
     {
         $numerosCuenta = NumeroCuenta::query()
+            ->orderBy('tipo_cuenta', 'asc')
             ->orderBy('descripcion', 'asc')
             ->get();
 

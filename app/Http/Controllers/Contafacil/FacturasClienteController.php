@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Contafacil;
 
+use App\Acciones\Facturas\ActualizarMontoComprobacion;
 use App\Http\Controllers\Controller;
 use App\Models\Factura;
 use App\Models\FacturaCliente;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class FacturasClienteController extends Controller
 {
@@ -61,7 +64,13 @@ class FacturasClienteController extends Controller
         $considerado = $request->considerado;
         $clienteId    = $request->cliente_id;
 
-        $factura = FacturaCliente::updateOrCreate(
+        try {
+            ActualizarMontoComprobacion::ejecutar($factura);
+        } catch (Exception $e) {
+            Log::error($e);
+        }
+
+        $facturaCliente = FacturaCliente::updateOrCreate(
             [
                 'factura_id' => $factura->id,
             ],
@@ -75,7 +84,47 @@ class FacturasClienteController extends Controller
         );
 
         return response()->json([
-            'factura' => $factura,
+            'factura' => $facturaCliente,
+        ]);
+    }
+
+    public function establecerConsideracionMultiples(Request $request)
+    {
+        $this->validate($request, [
+            'facturas'    => 'required',
+            'cliente_id'  => 'required|integer',
+            'considerado' => 'required',
+        ]);
+
+        $clienteId = $request->cliente_id;
+        $considerado = $request->considerado;
+        $idsFacturas = explode(',', $request->facturas);
+
+        foreach ($idsFacturas as $id) {
+            $factura = Factura::find($id);
+
+            try {
+                ActualizarMontoComprobacion::ejecutar($factura);
+            } catch (Exception $e) {
+                Log::error($e);
+            }
+
+            FacturaCliente::updateOrCreate(
+                [
+                    'factura_id' => $factura->id,
+                ],
+                [
+                    'factura_id'    => $factura->id,
+                    'fecha_emision' => $factura->fecha_emision,
+                    'cliente_id'    => $clienteId,
+                    'considerado'   => $considerado,
+                    'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : null,
+                ]
+            );
+        }
+
+        return response()->json([
+            'success' => true,
         ]);
     }
 

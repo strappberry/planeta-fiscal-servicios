@@ -45,19 +45,27 @@ class Factura extends Model
         'retencion_ieps',
         'traslado_iva',
         'traslado_ieps',
+        'traslados_exentos',
+        'otros_impuestos',
+        'tasa_cero',
+        'monto_comprobacion',
     ];
 
     protected $casts = [
-        'total'          => 'float',
-        'subtotal'       => 'float',
-        'descuento'      => 'float',
-        'xml_procesado'  => 'boolean',
-        'complementos'   => 'array',
-        'retencion_isr'  => 'float',
-        'retencion_iva'  => 'float',
-        'retencion_ieps' => 'float',
-        'traslado_iva'   => 'float',
-        'traslado_ieps'  => 'float',
+        'total'              => 'float',
+        'subtotal'           => 'float',
+        'descuento'          => 'float',
+        'xml_procesado'      => 'boolean',
+        'complementos'       => 'array',
+        'retencion_isr'      => 'float',
+        'retencion_iva'      => 'float',
+        'retencion_ieps'     => 'float',
+        'traslado_iva'       => 'float',
+        'traslado_ieps'      => 'float',
+        'traslados_exentos'  => 'float',
+        'otros_impuestos'    => 'float',
+        'tasa_cero'             => 'float',
+        'monto_comprobacion' => 'float',
     ];
 
     protected $dates = [

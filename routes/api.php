@@ -10,6 +10,7 @@ use App\Http\Controllers\Contafacil\BancosProyectosController;
 use App\Http\Controllers\Contafacil\ComentariosController;
 use App\Http\Controllers\Contafacil\ComplementosController;
 use App\Http\Controllers\Contafacil\FacturasClienteController;
+use App\Http\Controllers\Contafacil\FacturasController as ContafacilFacturasController;
 use App\Http\Controllers\Contafacil\GastosController;
 use App\Http\Controllers\Contafacil\NumerosCuentasController;
 use App\Http\Controllers\Contafacil\VentasController;
@@ -106,6 +107,7 @@ Route::prefix('contafacil')->group(function() {
 
     Route::prefix('provisional')->group(function() {
         Route::prefix('facturas-cliente')->group(function() {
+            Route::post('/consideracion-multiple', [FacturasClienteController::class, 'establecerConsideracionMultiples']);
             Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
             Route::post('/establecer-cuenta-poliza/{factura}', [FacturasClienteController::class, 'asignarNumeroCuentaPolizaSemiautomatica']);
         });
@@ -117,6 +119,10 @@ Route::prefix('contafacil')->group(function() {
         Route::prefix('gastos')->group(function() {
             Route::get('facturas', [GastosController::class, 'listadoFacturasProvisional']);
         });
+    });
+
+    Route::prefix('facturas')->group(function() {
+        Route::post('/actualizar-montos/{factura}', [ContafacilFacturasController::class, 'actualizarMontos']);
     });
 
     Route::prefix('bancos')->group(function() {
