@@ -21,4 +21,15 @@ class NumerosCuentasController extends Controller
         ]);
     }
 
+    public function crearNumeroCuenta(Request $request)
+    {
+        $campos = $request->all();
+
+        $numeroCuenta = NumeroCuenta::create($campos);
+
+        return response()->json([
+            'numero_cuenta' => $numeroCuenta,
+        ]);
+    }
+
 }

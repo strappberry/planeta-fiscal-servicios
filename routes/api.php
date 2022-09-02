@@ -80,18 +80,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('nomina/{factura}', [ComplementosController::class, 'obtenerComplementoNomina']);
         });
 
-        Route::prefix('numeros-cuentas')->group(function () {
-            Route::get('listar', [NumerosCuentasController::class, 'numerosCuenta']);
-        });
-
         Route::prefix('facturas-cliente')->group(function () {
             Route::post('/numero-cuenta/{factura}', [FacturasClienteController::class, 'asignarNumeroCuenta']);
             Route::post('/establecer-consideracion/{factura}', [FacturasClienteController::class, 'establecerConsideracion']);
         });
 
-        Route::prefix('balanza-comprobacion')->group(function () {
-            Route::get('/{cliente}', [BalanzaComprobacionController::class, 'balanza']);
-        });
     });
 
 });
@@ -102,7 +95,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('contafacil')->group(function() {
     Route::prefix('balanza')->group(function () {
+        Route::get('/balanza/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'balanza']);
         Route::get('/impuestos/{cliente}', [BalanzaComprobacionController::class, 'impuestos']);
+        Route::get('/polizas-ventas-gastos/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentas']);
     });
 
     Route::prefix('provisional')->group(function() {
@@ -123,6 +118,11 @@ Route::prefix('contafacil')->group(function() {
 
     Route::prefix('facturas')->group(function() {
         Route::post('/actualizar-montos/{factura}', [ContafacilFacturasController::class, 'actualizarMontos']);
+    });
+
+    Route::prefix('numeros-cuentas')->group(function () {
+        Route::get('listar', [NumerosCuentasController::class, 'numerosCuenta']);
+        Route::post('crear', [NumerosCuentasController::class, 'crearNumeroCuenta']);
     });
 
     Route::prefix('bancos')->group(function() {

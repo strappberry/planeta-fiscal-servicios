@@ -13,21 +13,26 @@ class NumeroCuenta extends Model
     const TIPO_VENTA = 'venta';
     const TIPO_POLIZA = 'poliza';
 
-    const SUBTIPO_POLIZA_VENTA = 'poliza_venta';
-    const SUBTIPO_POLIZA_GASTO = 'poliza_gasto';
+    const SUBTIPO_FECHA_EMISION = 'fecha_emision';
+    const SUBTIPO_FECHA_PAGO = 'fecha_pago';
+
+    const COLUMNA_CALCULO_CARGO = 'cargo';
+    const COLUMNA_CALCULO_ABONO = 'abono';
 
     protected $fillable = [
         'numero_cuenta',
         'descripcion',
         'tipo_cuenta',
         'subtipo',
-        'poliza',
-        'cargo',
+        'automatico',
+        'columna_calculo',
+        'formula',
+        'cliente_id'
     ];
 
     protected $casts = [
-        'poliza' => 'boolean',
-        'cargo'  => 'boolean',
+        'automatico' => 'boolean',
+        'formula'    => 'array',
     ];
 
     protected $hidden = [

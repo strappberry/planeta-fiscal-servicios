@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Facturas\ActualizarMontoComprobacion;
+use App\Clientes\KontafacilApi;
 use App\Http\Controllers\Controller;
 use App\Models\Factura;
 use App\Models\FacturaCliente;
@@ -27,7 +28,6 @@ class FacturasClienteController extends Controller
                 'cliente_id'       => $clienteId,
                 'numero_cuenta_id' => $numeroCuenta,
                 'fecha_emision'    => $factura->fecha_emision,
-                'fecha_pago'       => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : null,
             ]
         );
 
@@ -50,7 +50,6 @@ class FacturasClienteController extends Controller
                 'cliente_id'       => $clienteId,
                 'cuenta_poliza'    => $numeroCuenta,
                 'fecha_emision'    => $factura->fecha_emision,
-                'fecha_pago'       => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : null,
             ]
         );
 
@@ -70,6 +69,15 @@ class FacturasClienteController extends Controller
             Log::error($e);
         }
 
+        $fechaPago = null;
+        $facturaCliente = FacturaCliente::query()
+            ->where('factura_id', $factura->id)
+            ->where('cliente_id', $clienteId)
+            ->first();
+        if ($facturaCliente) {
+            $fechaPago = $facturaCliente->fecha_pago;
+        }
+
         $facturaCliente = FacturaCliente::updateOrCreate(
             [
                 'factura_id' => $factura->id,
@@ -79,7 +87,7 @@ class FacturasClienteController extends Controller
                 'fecha_emision' => $factura->fecha_emision,
                 'cliente_id'    => $clienteId,
                 'considerado'   => $considerado,
-                'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : null,
+                'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : $fechaPago,
             ]
         );
 
@@ -102,6 +110,14 @@ class FacturasClienteController extends Controller
 
         foreach ($idsFacturas as $id) {
             $factura = Factura::find($id);
+            $fechaPago = null;
+            $facturaCliente = FacturaCliente::query()
+                ->where('factura_id', $factura->id)
+                ->where('cliente_id', $clienteId)
+                ->first();
+            if ($facturaCliente) {
+                $fechaPago = $facturaCliente->fecha_pago;
+            }
 
             try {
                 ActualizarMontoComprobacion::ejecutar($factura);
@@ -118,7 +134,7 @@ class FacturasClienteController extends Controller
                     'fecha_emision' => $factura->fecha_emision,
                     'cliente_id'    => $clienteId,
                     'considerado'   => $considerado,
-                    'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : null,
+                    'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : $fechaPago,
                 ]
             );
         }
@@ -148,6 +164,32 @@ class FacturasClienteController extends Controller
         return response()->json([
             'factura' => $facturaCliente,
         ]);
+    }
+
+    /**
+     * Verificar sl la factura es de ingreso o egreso.
+     *
+     * @param Factura $factura
+     * @param string $cliente
+     * @return ?string
+     */
+    private function varificarFacturaTipo($factura, $cliente)
+    {
+        $kontafacilApi = new KontafacilApi();
+        $response= $kontafacilApi->obtenerCliente($cliente);
+
+        if ($response->ok()) {
+            return null;
+        }
+
+        $cliente = $response->json();
+
+        if ($cliente['rfc'] == $factura->rfc_emisor) {
+            return 'venta';
+        }
+        if ($cliente['rfc'] == $factura->rfc_receptor) {
+            return 'gasto';
+        }
     }
 
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Contafacil;
 
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
+use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,9 +12,11 @@ use Illuminate\Http\Request;
 class BalanzaComprobacionController extends Controller
 {
 
-    public function balanza(int $cliente)
+    public function balanza(int $cliente, string $fecha)
     {
-        $viewModel = new BalanzaComprobacionViewModel($cliente);
+        $fechaInicio = Carbon::parse($fecha)->startOfMonth();
+        $fechaFin    = Carbon::parse($fecha)->endOfMonth();
+        $viewModel = new BalanzaComprobacionViewModel($fechaInicio, $fechaFin, $cliente);
 
         return response()->json([
             'balanza_comprobacion' => $viewModel->toArray(),
@@ -37,6 +40,23 @@ class BalanzaComprobacionController extends Controller
 
         return response()->json([
             'impuestos' => $viewModel->toArray(),
+        ]);
+    }
+
+    public function polizasAutomaticasGastosYVentas(Request $request, string $cliente, string $fecha)
+    {
+        $fechaInicio = Carbon::parse($fecha)->startOfMonth();
+        $fechaFin    = Carbon::parse($fecha)->endOfMonth();
+        $clienteId   = $cliente;
+
+        $modelo = new PolizasAutomaticasVentasYGastosViewModel(
+            $fechaInicio,
+            $fechaFin,
+            $clienteId
+        );
+
+        return response()->json([
+            'poliza_automatica' => $modelo->toArray(),
         ]);
     }
 

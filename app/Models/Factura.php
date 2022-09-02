@@ -64,7 +64,7 @@ class Factura extends Model
         'traslado_ieps'      => 'float',
         'traslados_exentos'  => 'float',
         'otros_impuestos'    => 'float',
-        'tasa_cero'             => 'float',
+        'tasa_cero'          => 'float',
         'monto_comprobacion' => 'float',
     ];
 
@@ -73,6 +73,16 @@ class Factura extends Model
         'fecha_certificacion',
         'fecha_proceso_cancelacion',
     ];
+
+    protected $appends = [
+        'traslado_iva_sobre_dieciseis',
+    ];
+
+    /**
+     |--------------------------------------------------------------------------
+     | Relationships
+     |--------------------------------------------------------------------------
+     */
 
     public function cliente()
     {
@@ -98,6 +108,12 @@ class Factura extends Model
     {
         return $this->hasMany(FacturaCliente::class);
     }
+
+    /**
+     |--------------------------------------------------------------------------
+     | Scopes
+     |--------------------------------------------------------------------------
+     */
 
     public function scopeAplicarFiltros($query, $filtros)
     {
@@ -155,5 +171,19 @@ class Factura extends Model
         return $query
             ->where('estado_comprobante', '=', 'Vigente')
             ->orWhere('estado_comprobante', '=', 'vigente');
+    }
+
+    /**
+     |--------------------------------------------------------------------------
+     | Attributes
+     |--------------------------------------------------------------------------
+     */
+
+    public function getTrasladoIvaSobreDieciseisAttribute()
+    {
+        if ($this->traslado_iva > 0) {
+            return $this->traslado_iva / 0.16;
+        }
+        return 0;
     }
 }
