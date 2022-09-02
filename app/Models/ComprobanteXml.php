@@ -75,7 +75,7 @@ class ComprobanteXml extends Model
 
     public function obtenerFormaDePago()
     {
-        return $this->comprobante['FormaPago'];
+        return $this->comprobante['FormaPago'] ?? '';
     }
 
     public function obtenerImpuestosTraslados()
@@ -199,5 +199,5 @@ class ComprobanteXml extends Model
         return $this->comprobante['Receptor']['UsoCFDI'];
     }
 
-    
+
 }
