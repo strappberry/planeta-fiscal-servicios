@@ -60,29 +60,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('contafacil')->as('contafacil')->group(function() {
         Route::prefix('ventas')->group(function () {
             Route::get('impuestos', [VentasController::class, 'impuestos']);
-            Route::get('facturas', [VentasController::class, 'listadoFacturas']);
         });
 
         Route::prefix('gastos')->group(function () {
             Route::get('impuestos', [GastosController::class, 'impuestos']);
-            Route::get('facturas', [GastosController::class, 'listadoFacturas']);
-        });
-
-        Route::prefix('comentarios')->group(function () {
-            Route::prefix('facturas')->group(function () {
-                Route::post('/agregar', [ComentariosController::class, 'agregarComentarioFactura']);
-                Route::get('/{factura}', [ComentariosController::class, 'comentariosFactura']);
-            });
         });
 
         Route::prefix('complementos')->group(function () {
             Route::get('pago/{factura}', [ComplementosController::class, 'obtenerComplementoPagos']);
             Route::get('nomina/{factura}', [ComplementosController::class, 'obtenerComplementoNomina']);
-        });
-
-        Route::prefix('facturas-cliente')->group(function () {
-            Route::post('/numero-cuenta/{factura}', [FacturasClienteController::class, 'asignarNumeroCuenta']);
-            Route::post('/establecer-consideracion/{factura}', [FacturasClienteController::class, 'establecerConsideracion']);
         });
 
     });
@@ -94,26 +80,26 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('contafacil')->group(function() {
+    Route::prefix('ventas')->group(function() {
+        Route::get('facturas', [VentasController::class, 'listadoFacturasProvisional']);
+    });
+
+    Route::prefix('gastos')->group(function() {
+        Route::get('facturas', [GastosController::class, 'listadoFacturasProvisional']);
+    });
+
     Route::prefix('balanza')->group(function () {
         Route::get('/balanza/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'balanza']);
         Route::get('/impuestos/{cliente}', [BalanzaComprobacionController::class, 'impuestos']);
         Route::get('/polizas-ventas-gastos/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentas']);
     });
 
-    Route::prefix('provisional')->group(function() {
-        Route::prefix('facturas-cliente')->group(function() {
-            Route::post('/consideracion-multiple', [FacturasClienteController::class, 'establecerConsideracionMultiples']);
-            Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
-            Route::post('/establecer-cuenta-poliza/{factura}', [FacturasClienteController::class, 'asignarNumeroCuentaPolizaSemiautomatica']);
-        });
-
-        Route::prefix('ventas')->group(function() {
-            Route::get('facturas', [VentasController::class, 'listadoFacturasProvisional']);
-        });
-
-        Route::prefix('gastos')->group(function() {
-            Route::get('facturas', [GastosController::class, 'listadoFacturasProvisional']);
-        });
+    Route::prefix('facturas-cliente')->group(function () {
+        Route::post('/numero-cuenta/{factura}', [FacturasClienteController::class, 'asignarNumeroCuenta']);
+        Route::post('/establecer-consideracion/{factura}', [FacturasClienteController::class, 'establecerConsideracion']);
+        Route::post('/consideracion-multiple', [FacturasClienteController::class, 'establecerConsideracionMultiples']);
+        Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
+        Route::post('/establecer-cuenta-poliza/{factura}', [FacturasClienteController::class, 'asignarNumeroCuentaPolizaSemiautomatica']);
     });
 
     Route::prefix('facturas')->group(function() {
@@ -133,5 +119,12 @@ Route::prefix('contafacil')->group(function() {
     Route::prefix('bancos-proyectos')->group(function() {
         Route::get('/{cliente}', [BancosProyectosController::class, 'listar']);
         Route::post('/crear', [BancosProyectosController::class, 'crearProyecto']);
+    });
+
+    Route::prefix('comentarios')->group(function () {
+        Route::prefix('facturas')->group(function () {
+            Route::post('/agregar', [ComentariosController::class, 'agregarComentarioFactura']);
+            Route::get('/{factura}', [ComentariosController::class, 'comentariosFactura']);
+        });
     });
 });
