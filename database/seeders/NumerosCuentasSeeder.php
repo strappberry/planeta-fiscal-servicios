@@ -16,227 +16,16 @@ class NumerosCuentasSeeder extends Seeder
     public function run()
     {
         $cuentas = [
-            // [
-            //     'numero_cuenta' => '601-34',
-            //     'descripcion'   => 'Honorarios pagados a personas físicas',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-45',
-            //     'descripcion'   => 'Uso o goce temporal de bienes pagados a personas físicas',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-48',
-            //     'descripcion'   => 'Gasolina y mantenimiento de transporte',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-49',
-            //     'descripcion'   => 'Viáticos y gastos de viaje',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-57',
-            //     'descripcion'   => 'Seguros y fianzas',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-72',
-            //     'descripcion'   => 'Fletes y acarreos pagados a personas físicas',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-73',
-            //     'descripcion'   => 'Intereses pagados sin ajuste alguno e intereses moratorios',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-74',
-            //     'descripcion'   => 'Combustibles y lubricantes',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-75',
-            //     'descripcion'   => 'Deducción por los pagos efectuados por el uso o goce temporal de automóviles',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-76',
-            //     'descripcion'   => 'Consumo en restaurantes',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-77',
-            //     'descripcion'   => 'Regalías y asistencia técnica',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-78',
-            //     'descripcion'   => 'Pagos efectuados por el uso o goce temporal de automóviles cuya propulsión sea a través de baterias eléctricas recargables y automóviles eléctricos con motor de combustión interna',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-80',
-            //     'descripcion'   => 'Maniobras, empaques y fletes en el campo para la enajenación de productos alimenticios',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-81',
-            //     'descripcion'   => 'GASTOS NO DEDUCIBLES',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-82',
-            //     'descripcion'   => 'Compra de mercancías',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-84',
-            //     'descripcion'   => 'Otros gastos',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '601-84',
-            //     'descripcion'   => 'Otros Impuestos y Derechos',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '115-01',
-            //     'descripcion'   => 'Inventario',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '150-01',
-            //     'descripcion'   => 'Terrenos',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '150-02',
-            //     'descripcion'   => 'Construcciones',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '150-03',
-            //     'descripcion'   => 'Maquinaría y equipo',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '150-04',
-            //     'descripcion'   => 'Mobiliario y equipo de oficina',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '150-05',
-            //     'descripcion'   => 'Equipo de transporte',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '150-06',
-            //     'descripcion'   => 'Otros activos fijos',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '150-07',
-            //     'descripcion'   => 'Cargos y gastos diferidos',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => true,
-            // ],
-            // [
-            //     'numero_cuenta' => '201-01',
-            //     'descripcion'   => 'Proveedores',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => false,
-            // ],
-            // [
-            //     'numero_cuenta' => '503-01',
-            //     'descripcion'   => 'Devoluciones, Descuentos o Bonificaciones Sobre Compras',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_GASTO,
-            //     'poliza'        => false,
-            //     'cargo'         => false,
-            // ],
-            // [
-            //     'numero_cuenta' => '400-01',
-            //     'descripcion'   => 'Ventas y/o servicios gravados a la tasa general',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_VENTA,
-            //     'poliza'        => false,
-            //     'cargo'         => false,
-            // ],
-            // [
-            //     'numero_cuenta' => '401-04',
-            //     'descripcion'   => 'Ventas y/o servicios gravados a la tasa cero',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_VENTA,
-            //     'poliza'        => false,
-            //     'cargo'         => false,
-            // ],
-            // [
-            //     'numero_cuenta' => '401-07',
-            //     'descripcion'   => 'Ventas y/o servicios exentos',
-            //     'tipo_cuenta'   => NumeroCuenta::TIPO_VENTA,
-            //     'poliza'        => false,
-            //     'cargo'         => false,
-            // ],
-
             /*
              |------------------------------------------------------------------
-             | Polizas automaticos - Fecha Emisión - Columna izquierda
+             | Polizas automaticos - Ventas - Fecha Emisión - Columna izquierda
              |------------------------------------------------------------------
              */
             [
                 'numero_cuenta'   => '105-01',
                 'descripcion'     => 'Clientes',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -247,7 +36,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '401-01',
                 'descripcion'     => 'Ventas y/o servicios gravados a la tasa general',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -258,7 +47,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '401-04',
                 'descripcion'     => 'Ventas y/o servicios gravados al 0%',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -269,7 +58,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '401-07',
                 'descripcion'     => 'Ventas y/o servicios exentos',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -280,7 +69,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '402-01',
                 'descripcion'     => 'Devoluciones descuentos o bonificaciones sobre ingresos',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -291,7 +80,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '209-01',
                 'descripcion'     => 'IVA Trasladado No Cobrado',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -302,7 +91,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '113-01-01',
                 'descripcion'     => 'Retencion de IVA (ingresos No cobrados)',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -313,7 +102,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '113-02-01',
                 'descripcion'     => 'Retencion de ISR (Ingresos No Cobrados)',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -323,14 +112,14 @@ class NumerosCuentasSeeder extends Seeder
 
             /*
              |------------------------------------------------------------------
-             | Polizas automaticos - Fecha Pago - Columna derecha
+             | Polizas automaticos - Gastos - Fecha Pago - Columna derecha
              |------------------------------------------------------------------
              */
             [
                 'numero_cuenta'   => '102-01',
                 'descripcion'     => 'Efectivo en caja y depósitos en instituciones de crédito',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -341,7 +130,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '105-01',
                 'descripcion'     => 'Clientes',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -352,7 +141,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '209-01',
                 'descripcion'     => 'IVA Trasladado No Cobrado',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -363,7 +152,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '208-01',
                 'descripcion'     => 'IVA trasladado cobrado',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -374,7 +163,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '113-01-01',
                 'descripcion'     => 'Retencion de IVA (ingresos No cobrados)',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -385,7 +174,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '113-01-02',
                 'descripcion'     => 'Retencion de IVA (ingresos cobrados)',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -396,7 +185,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '113-02-01',
                 'descripcion'     => 'Retencion de ISR (Ingresos No Cobrados)',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -407,7 +196,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '113-02-02',
                 'descripcion'     => 'Retencion de ISR (Ingresos Cobrados)',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -424,7 +213,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '119-01',
                 'descripcion'     => 'IVA Acreditable Pendiente de Pago',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_GASTO,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -435,7 +224,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '601-84',
                 'descripcion'     => 'Otros Impuestos y Derechos',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_GASTO,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
                 'formula'         => [
@@ -453,7 +242,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '216-10',
                 'descripcion'     => 'Impuestos retenidos de IVA',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_GASTO,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -464,7 +253,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '201-01',
                 'descripcion'     => 'Proveedores',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_GASTO,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
@@ -475,11 +264,57 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '503-01',
                 'descripcion'     => 'Devoluciones, Descuentos o Bonificaciones Sobre Compras',
                 'automatico'      => true,
-                'tipo_cuenta'     => NumeroCuenta::TIPO_GASTO,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
                 'formula'         => [
                     ['operacion' => 'suma', 'clave_monto' => 'descuento'],
+                ],
+            ],
+            // -----------------------------------
+
+            [
+                'numero_cuenta'   => '201-01',
+                'descripcion'     => 'Proveedores',
+                'automatico'      => true,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
+                'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
+                'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
+                'formula'         => [
+                    ['operacion' => 'suma', 'clave_monto' => 'total'],
+                ],
+            ],
+            [
+                'numero_cuenta'   => '102-01',
+                'descripcion'     => 'Efectivo en caja y depósitos en instituciones de crédito',
+                'automatico'      => true,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
+                'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
+                'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
+                'formula'         => [
+                    ['operacion' => 'suma', 'clave_monto' => 'total'],
+                ],
+            ],
+            [
+                'numero_cuenta'   => '118-01',
+                'descripcion'     => 'IVA Acreditable Pagado',
+                'automatico'      => true,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
+                'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
+                'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
+                'formula'         => [
+                    ['operacion' => 'suma', 'clave_monto' => 'traslado_iva'],
+                ],
+            ],
+            [
+                'numero_cuenta'   => '119-01',
+                'descripcion'     => 'IVA Acreditable Pendiente de Pago',
+                'automatico'      => true,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
+                'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
+                'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_ABONO,
+                'formula'         => [
+                    ['operacion' => 'suma', 'clave_monto' => 'traslado_iva'],
                 ],
             ],
         ];

@@ -11,7 +11,8 @@ class NumeroCuenta extends Model
 
     const TIPO_GASTO = 'gasto';
     const TIPO_VENTA = 'venta';
-    const TIPO_POLIZA = 'poliza';
+    const TIPO_POLIZA_VENTAS = 'poliza_ventas';
+    const TIPO_POLIZA_GASTOS = 'poliza_gastos';
 
     const SUBTIPO_FECHA_EMISION = 'fecha_emision';
     const SUBTIPO_FECHA_PAGO = 'fecha_pago';
@@ -24,6 +25,7 @@ class NumeroCuenta extends Model
         'descripcion',
         'tipo_cuenta',
         'subtipo',
+        'tercer_tipo',
         'automatico',
         'columna_calculo',
         'formula',

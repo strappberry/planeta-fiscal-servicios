@@ -13,14 +13,20 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
     private $fechaInicio;
     private $fechaFin;
     private $cliente;
+    private $tipoPoliza;
     private $facturasPorEmision = [];
     private $facturasPorPago = [];
 
-    public function __construct(Carbon $fechaInicio, Carbon $fechaFin, string $cliente)
-    {
+    public function __construct(
+        string $tipoPoliza,
+        Carbon $fechaInicio,
+        Carbon $fechaFin,
+        string $cliente,
+    ) {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin    = $fechaFin;
         $this->cliente     = $cliente;
+        $this->tipoPoliza  = $tipoPoliza;
 
         $this->facturasPorEmision = FacturaCliente::query()
             ->whereBetween('fecha_emision', [
@@ -47,7 +53,7 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
     {
         /** @var NumeroCuenta[] $numerosCuenta */
         $numerosCuenta = NumeroCuenta::query()
-            ->where('tipo_cuenta', NumeroCuenta::TIPO_POLIZA)
+            ->where('tipo_cuenta', $this->tipoPoliza)
             ->where('subtipo' , NumeroCuenta::SUBTIPO_FECHA_EMISION)
             ->where('automatico', true)
             ->get();
@@ -75,7 +81,7 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
     {
         /** @var NumeroCuenta[] $numerosCuenta */
         $numerosCuenta = NumeroCuenta::query()
-            ->where('tipo_cuenta', NumeroCuenta::TIPO_POLIZA)
+            ->where('tipo_cuenta', $this->tipoPoliza)
             ->where('subtipo' , NumeroCuenta::SUBTIPO_FECHA_PAGO)
             ->where('automatico', true)
             ->get();

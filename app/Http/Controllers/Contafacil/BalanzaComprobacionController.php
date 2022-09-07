@@ -6,7 +6,9 @@ use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Http\Controllers\Controller;
+use App\Models\NumeroCuenta;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
 
 class BalanzaComprobacionController extends Controller
@@ -49,14 +51,67 @@ class BalanzaComprobacionController extends Controller
         $fechaFin    = Carbon::parse($fecha)->endOfMonth();
         $clienteId   = $cliente;
 
-        $modelo = new PolizasAutomaticasVentasYGastosViewModel(
+        $polizasVentas = new PolizasAutomaticasVentasYGastosViewModel(
+            NumeroCuenta::TIPO_POLIZA_VENTAS,
+            $fechaInicio,
+            $fechaFin,
+            $clienteId
+        );
+        $polizasGastos = new PolizasAutomaticasVentasYGastosViewModel(
+            NumeroCuenta::TIPO_POLIZA_GASTOS,
             $fechaInicio,
             $fechaFin,
             $clienteId
         );
 
         return response()->json([
-            'poliza_automatica' => $modelo->toArray(),
+            'poliza_automatica_ventas' => $polizasVentas->toArray(),
+            'poliza_automatica_gastos' => $polizasGastos->toArray(),
+        ]);
+    }
+
+    public function polizasAutomaticasGastosYVentasAnual(string $cliente, string $fecha)
+    {
+        Carbon::setLocale('es');
+
+        $clienteId   = $cliente;
+        $periodo = CarbonInterval::month(1)
+            ->toPeriod(
+                Carbon::parse($fecha)->startOfYear(),
+                Carbon::parse($fecha)->endOfYear()
+            );
+
+        $polizasAnuales = [];
+
+        foreach ($periodo as $mes) {
+            $fechaInicio = Carbon::parse($mes)->startOfMonth();
+            $fechaFin    = Carbon::parse($mes)->endOfMonth();
+
+            $polizasVentas = new PolizasAutomaticasVentasYGastosViewModel(
+                NumeroCuenta::TIPO_POLIZA_VENTAS,
+                $fechaInicio,
+                $fechaFin,
+                $clienteId
+            );
+            $polizasGastos = new PolizasAutomaticasVentasYGastosViewModel(
+                NumeroCuenta::TIPO_POLIZA_GASTOS,
+                $fechaInicio,
+                $fechaFin,
+                $clienteId
+            );
+
+            array_push($polizasAnuales, [
+                'mes'   => $mes->monthName,
+                'anio'  => $mes->year,
+                'desde' => $fechaInicio->format('Y-m-d'),
+                'hasta' => $fechaFin->format('Y-m-d'),
+                'poliza_automatica_ventas' => $polizasVentas->toArray(),
+                'poliza_automatica_gastos' => $polizasGastos->toArray(),
+            ]);
+        }
+
+        return response()->json([
+            'polizas_anuales' => $polizasAnuales,
         ]);
     }
 
