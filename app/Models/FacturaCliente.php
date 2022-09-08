@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\QueryBuilders\FacturaClienteQueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class FacturaCliente extends Model
 {
     use HasFactory;
+
+    const TIPO_VENTA = 'venta';
+    const TIPO_GASTO = 'gasto';
 
     protected $fillable = [
         'fecha_emision',
@@ -17,6 +21,7 @@ class FacturaCliente extends Model
         'numero_cuenta_id',
         'fecha_pago',
         'cuenta_poliza',
+        'tipo_factura',
     ];
 
     protected $casts = [
@@ -27,6 +32,11 @@ class FacturaCliente extends Model
         'fecha_emision',
         'fecha_pago',
     ];
+
+    public function newEloquentBuilder($query)
+    {
+        return new FacturaClienteQueryBuilder($query);
+    }
 
     public function factura()
     {

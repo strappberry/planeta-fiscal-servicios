@@ -29,6 +29,7 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
         $this->tipoPoliza  = $tipoPoliza;
 
         $this->facturasPorEmision = FacturaCliente::query()
+            ->aplicarTipoNumeroCuenta($tipoPoliza)
             ->whereBetween('fecha_emision', [
                 $this->fechaInicio,
                 $this->fechaFin,
@@ -39,6 +40,7 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
             ->get();
 
         $this->facturasPorPago = FacturaCliente::query()
+            ->aplicarTipoNumeroCuenta($tipoPoliza)
             ->whereBetween('fecha_pago', [
                 $this->fechaInicio,
                 $this->fechaFin,

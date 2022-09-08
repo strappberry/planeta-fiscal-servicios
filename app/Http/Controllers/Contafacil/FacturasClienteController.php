@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class FacturasClienteController extends Controller
 {
+    private $cliente;
 
     public function asignarNumeroCuenta(Request $request, Factura $factura)
     {
@@ -78,6 +79,8 @@ class FacturasClienteController extends Controller
             $fechaPago = $facturaCliente->fecha_pago;
         }
 
+        $tipoFactura = $this->varificarFacturaTipo($factura, $clienteId);
+
         $facturaCliente = FacturaCliente::updateOrCreate(
             [
                 'factura_id' => $factura->id,
@@ -88,6 +91,7 @@ class FacturasClienteController extends Controller
                 'cliente_id'    => $clienteId,
                 'considerado'   => $considerado,
                 'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : $fechaPago,
+                'tipo_factura'  => $tipoFactura,
             ]
         );
 
@@ -110,6 +114,8 @@ class FacturasClienteController extends Controller
 
         foreach ($idsFacturas as $id) {
             $factura = Factura::find($id);
+            $tipoFactura = $this->varificarFacturaTipo($factura, $clienteId);
+
             $fechaPago = null;
             $facturaCliente = FacturaCliente::query()
                 ->where('factura_id', $factura->id)
@@ -135,6 +141,7 @@ class FacturasClienteController extends Controller
                     'cliente_id'    => $clienteId,
                     'considerado'   => $considerado,
                     'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : $fechaPago,
+                    'tipo_factura'  => $tipoFactura,
                 ]
             );
         }
@@ -173,23 +180,26 @@ class FacturasClienteController extends Controller
      * @param string $cliente
      * @return ?string
      */
-    private function varificarFacturaTipo($factura, $cliente)
+    private function varificarFacturaTipo($factura, $clienteId)
     {
-        $kontafacilApi = new KontafacilApi();
-        $response= $kontafacilApi->obtenerCliente($cliente);
+        if ($this->cliente == null) {
+            $kontafacilApi = new KontafacilApi();
+            $response      = $kontafacilApi->obtenerCliente($clienteId);
+            $this->cliente = $response->json();
 
-        if ($response->ok()) {
-            return null;
+            if (!$response->ok()) {
+                return null;
+            }
         }
 
-        $cliente = $response->json();
+        if ($this->cliente['rfc'] == $factura->rfc_emisor) {
+            return FacturaCliente::TIPO_VENTA;
+        }
+        if ($this->cliente['rfc'] == $factura->rfc_receptor) {
+            return FacturaCliente::TIPO_GASTO;
+        }
 
-        if ($cliente['rfc'] == $factura->rfc_emisor) {
-            return 'venta';
-        }
-        if ($cliente['rfc'] == $factura->rfc_receptor) {
-            return 'gasto';
-        }
+        return null;
     }
 
 }
