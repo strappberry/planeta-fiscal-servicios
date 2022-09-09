@@ -93,6 +93,7 @@ Route::prefix('contafacil')->group(function() {
         Route::get('/impuestos/{cliente}', [BalanzaComprobacionController::class, 'impuestos']);
         Route::get('/polizas-ventas-gastos/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentas']);
         Route::get('/polizas-ventas-gastos/anual/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentasAnual']);
+        Route::post('actualizar-saldos', [BalanzaComprobacionController::class, 'actualizarSaldosBalanza']);
     });
 
     Route::prefix('facturas-cliente')->group(function () {

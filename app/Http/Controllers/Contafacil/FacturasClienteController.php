@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Contafacil;
 
+use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Acciones\Facturas\ActualizarMontoComprobacion;
 use App\Clientes\KontafacilApi;
 use App\Http\Controllers\Controller;
@@ -182,20 +183,16 @@ class FacturasClienteController extends Controller
      */
     private function varificarFacturaTipo($factura, $clienteId)
     {
-        if ($this->cliente == null) {
-            $kontafacilApi = new KontafacilApi();
-            $response      = $kontafacilApi->obtenerCliente($clienteId);
-            $this->cliente = $response->json();
+        if (!$this->cliente) {
+            $this->cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
 
-            if (!$response->ok()) {
-                return null;
-            }
+            if (!$this->cliente) return null;
         }
 
-        if ($this->cliente['rfc'] == $factura->rfc_emisor) {
+        if ($this->cliente->rfc == $factura->rfc_emisor) {
             return FacturaCliente::TIPO_VENTA;
         }
-        if ($this->cliente['rfc'] == $factura->rfc_receptor) {
+        if ($this->cliente->rfc == $factura->rfc_receptor) {
             return FacturaCliente::TIPO_GASTO;
         }
 

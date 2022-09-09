@@ -71,7 +71,9 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 'subtipo'       => $numeroCuenta->subtipo,
             ];
 
-            $poliza['montos'] = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorEmision);
+            $montos = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorEmision);
+            $poliza['cargo'] = $montos['cargo'];
+            $poliza['abono'] = $montos['abono'];
 
             $resultado[] = $poliza;
         }
@@ -99,7 +101,9 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 'subtipo'       => $numeroCuenta->subtipo,
             ];
 
-            $poliza['montos'] = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorPago);
+            $montos = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorPago);
+            $poliza['cargo'] = $montos['cargo'];
+            $poliza['abono'] = $montos['abono'];
 
             $resultado[] = $poliza;
         }

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Contafacil;
 
+use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Http\Controllers\Controller;
+use App\Models\BalanzaComprobacionCliente;
 use App\Models\NumeroCuenta;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
@@ -18,10 +20,41 @@ class BalanzaComprobacionController extends Controller
     {
         $fechaInicio = Carbon::parse($fecha)->startOfMonth();
         $fechaFin    = Carbon::parse($fecha)->endOfMonth();
-        $viewModel = new BalanzaComprobacionViewModel($fechaInicio, $fechaFin, $cliente);
+
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($cliente);
+        $balanzaModelo = new BalanzaComprobacionViewModel($fechaInicio, $fechaFin, $cliente);
+
+        return response()->json(
+            $balanzaModelo->toArray()
+        );
+    }
+
+    public function actualizarSaldosBalanza(Request $request)
+    {
+        $this->validate($request, [
+            'cliente' => 'required|integer',
+            'fecha'   => 'required|date',
+            'cuentas' => 'required|array',
+        ]);
+
+        $fecha = Carbon::parse($request->fecha)->startOfMonth();
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($request->cliente);
+
+        foreach ($request->cuentas as $cuenta) {
+            BalanzaComprobacionCliente::updateOrCreate(
+                [
+                    'balanza_comprobacion_id' => $cuenta['id'],
+                    'cliente_id'              => $cliente->id,
+                    'fecha'                   => $fecha,
+                ],
+                [
+                    'saldo_inicial' => floatval($cuenta['saldo_inicial']),
+                ]
+            );
+        }
 
         return response()->json([
-            'balanza_comprobacion' => $viewModel->toArray(),
+            'message' => 'Saldos actualizados correctamente',
         ]);
     }
 

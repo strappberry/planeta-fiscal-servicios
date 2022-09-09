@@ -21,6 +21,7 @@ class Cliente extends Model
         'rfc',
         'regimen_fiscal',
         'obtener_facturas',
+        'planetafiscal_id',
     ];
 
     protected $casts = [
@@ -65,6 +66,11 @@ class Cliente extends Model
     public function solicitudesDescarga()
     {
         return $this->hasMany(SolicitudDescarga::class, 'cliente_id');
+    }
+
+    public function balanzasComprobacion()
+    {
+        return $this->hasMany(BalanzaComprobacionCliente::class);
     }
 
     public function scopeAplicarBusqueda($query, $busqueda)

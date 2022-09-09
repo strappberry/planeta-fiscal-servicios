@@ -4,93 +4,95 @@ namespace App\Contafacil\BalanzaComprobacion\ViewModels;
 
 use App\Acciones\NumerosCuentas\ResolverFormulaNumeroCuenta;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
+use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
+use App\Models\BalanzaComprobacion;
+use App\Models\BalanzaComprobacionCliente;
+use App\Models\Cliente;
 use App\Models\FacturaCliente;
 use App\Models\NumeroCuenta;
 use Carbon\Carbon;
 
 class BalanzaComprobacionViewModel extends ViewModel
 {
-    private $clienteId;
+    /** @var Cliente $cliente */
+    private $cliente;
+    /** @var Carbon $fechaInicio */
     private $fechaInicio;
+    /** @var Carbon $fechaFin */
     private $fechaFin;
 
-    public function __construct(Carbon $fechaInicio, Carbon $fechaFin, $clienteId)
+    /** @var array $polizasVentas*/
+    private $polizasVentas;
+    /** @var array $polizasGastos*/
+    private $polizasGastos;
+
+    public function __construct(Carbon $fechaInicio, Carbon $fechaFin, Cliente $cliente)
     {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin    = $fechaFin;
-        $this->clienteId   = $clienteId;
+        $this->cliente   = $cliente;
+
+        $this->polizasVentas = (new PolizasAutomaticasVentasYGastosViewModel(
+            NumeroCuenta::TIPO_POLIZA_VENTAS,
+            $fechaInicio,
+            $fechaFin,
+            $cliente->planetafiscal_id
+        ))->toArray();
+
+        $this->polizasGastos = (new PolizasAutomaticasVentasYGastosViewModel(
+            NumeroCuenta::TIPO_POLIZA_GASTOS,
+            $fechaInicio,
+            $fechaFin,
+            $cliente->planetafiscal_id
+        ))->toArray();
     }
 
-    public function cuentasAutomaticas(): array
+    public function balanzaComprobacion(): array
     {
-        /** @var NumeroCuenta[] $numerosCuenta */
-        $numerosCuenta = NumeroCuenta::query()
-            ->where('tipo_cuenta', NumeroCuenta::TIPO_GASTO)
-            ->where('automatico', true)
-            ->get();
+        $cuentasBalanza = BalanzaComprobacion::all();
 
-        $facturasCliente = FacturaCliente::query()
-            ->whereBetween('fecha_emision', [
-                $this->fechaInicio,
-                $this->fechaFin,
-            ])
-            ->where('cliente_id', $this->clienteId)
-            ->where('considerado', true)
-            ->get();
+        $ventasPorEmision = collect($this->polizasVentas['fecha_emision']);
+        $ventasPorPago    = collect($this->polizasVentas['fecha_pago']);
+        $gastosPorEmision = collect($this->polizasGastos['fecha_emision']);
+        $gastosPorPago    = collect($this->polizasGastos['fecha_pago']);
 
-        $cuentas = [];
-
-        foreach ($numerosCuenta as $numeroCuenta) {
-            $datos = [
-                'id'            => $numeroCuenta->id,
-                'numero_cuenta' => $numeroCuenta->numero_cuenta,
-                'descripcion'   => $numeroCuenta->descripcion,
-                'tipo_cuenta'   => $numeroCuenta->tipo_cuenta,
-                'subtipo'       => $numeroCuenta->subtipo,
-            ];
-
-            $datos['montos'] = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $facturasCliente);
-            $cuentas[] = $datos;
-        }
-
-        return $cuentas;
-    }
-
-    public function cuentasManuales()
-    {
-        $cuentas = NumeroCuenta::query()
-            ->where('automatico', false)
-            ->get();
-
-        $listado = collect();
-
-        foreach ($cuentas as $cuenta) {
-            $datos = [
-                'id'            => $cuenta->id,
-                'numero_cuenta' => $cuenta->numero_cuenta,
-                'descripcion'   => $cuenta->descripcion,
+        $datos = [];
+        foreach ($cuentasBalanza as $cuentaBalanza) {
+            $linea = [
+                'id'            => $cuentaBalanza->id,
+                'numero_cuenta' => $cuentaBalanza->numero_cuenta,
+                'descripcion'   => $cuentaBalanza->descripcion,
                 'cargo'         => 0,
                 'abono'         => 0,
+                'saldo_inicial' => 0,
+                'saldo_final'   => 0,
             ];
 
-            $facturasCliente = FacturaCliente::query()
-                ->whereBetween('fecha_emision', [
-                    $this->fechaInicio,
-                    $this->fechaFin,
-                ])
-                ->where('numero_cuenta_id', $cuenta->id)
-                ->where('cliente_id', $this->clienteId)
-                ->where('considerado', true)
-                ->get();
+            $linea['cargo'] += $ventasPorEmision->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
+            $linea['abono'] += $ventasPorEmision->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+            $linea['cargo'] += $ventasPorPago->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
+            $linea['abono'] += $ventasPorPago->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
 
-            foreach($facturasCliente as $facturaCliente) {
-                $datos['cargo'] += $facturaCliente->factura->total;
+            $linea['cargo'] += $gastosPorEmision->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
+            $linea['abono'] += $gastosPorEmision->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+            $linea['cargo'] += $gastosPorPago->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
+            $linea['abono'] += $gastosPorPago->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+
+            $cuentaBalanzaCliente = $this->cliente->balanzasComprobacion()
+                ->where('balanza_comprobacion_id', $cuentaBalanza->id)
+                ->whereMonth('fecha', $this->fechaInicio->format('m'))
+                ->whereYear('fecha', $this->fechaInicio->year)
+                ->first();
+
+            if ($cuentaBalanzaCliente) {
+                $linea['saldo_inicial'] = $cuentaBalanzaCliente->saldo_inicial;
             }
 
-            $listado->push($datos);
+            $linea['saldo_final']   = $linea['saldo_inicial'] + $linea['cargo'] - $linea['abono'];
+            $datos[] = $linea;
         }
 
-        return $listado->toArray();
+        return $datos;
     }
 
 }
