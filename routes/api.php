@@ -11,7 +11,9 @@ use App\Http\Controllers\Contafacil\ComentariosController;
 use App\Http\Controllers\Contafacil\ComplementosController;
 use App\Http\Controllers\Contafacil\FacturasClienteController;
 use App\Http\Controllers\Contafacil\FacturasController as ContafacilFacturasController;
+use App\Http\Controllers\Contafacil\FacturasNumeroCuentaController;
 use App\Http\Controllers\Contafacil\GastosController;
+use App\Http\Controllers\Contafacil\MesTrabajoController;
 use App\Http\Controllers\Contafacil\NumerosCuentasController;
 use App\Http\Controllers\Contafacil\VentasController;
 use App\Http\Controllers\ReportesController;
@@ -89,11 +91,27 @@ Route::prefix('contafacil')->group(function() {
     });
 
     Route::prefix('balanza')->group(function () {
-        Route::get('/balanza/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'balanza']);
-        Route::get('/impuestos/{cliente}', [BalanzaComprobacionController::class, 'impuestos']);
-        Route::get('/polizas-ventas-gastos/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentas']);
-        Route::get('/polizas-ventas-gastos/anual/{cliente}/{fecha}', [BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentasAnual']);
-        Route::post('actualizar-saldos', [BalanzaComprobacionController::class, 'actualizarSaldosBalanza']);
+        Route::get('/balanza/{cliente}/{fecha}', [
+            BalanzaComprobacionController::class, 'balanza'
+        ]);
+        Route::get('/impuestos/{cliente}', [
+            BalanzaComprobacionController::class, 'impuestos'
+        ]);
+        Route::get('/polizas-ventas-gastos/{cliente}/{fecha}', [
+            BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentas'
+        ]);
+        Route::get('/polizas-ventas-gastos/anual/{cliente}/{fecha}',[
+            BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentasAnual'
+        ]);
+        Route::post('actualizar-saldos', [
+            BalanzaComprobacionController::class, 'actualizarSaldosBalanza'
+        ]);
+    });
+
+    Route::prefix('meses-trabajo/{cliente}')->group(function () {
+        Route::get('verificar/{fecha}', [MesTrabajoController::class, 'verificarMesTrabajo']);
+        Route::post('bloquear/{fecha}', [MesTrabajoController::class, 'bloquearMesTrabajo']);
+        Route::post('desbloquear/{fecha}', [MesTrabajoController::class, 'desbloquearMesTrabajo']);
     });
 
     Route::prefix('facturas-cliente')->group(function () {
@@ -102,6 +120,18 @@ Route::prefix('contafacil')->group(function() {
         Route::post('/consideracion-multiple', [FacturasClienteController::class, 'establecerConsideracionMultiples']);
         Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
         Route::post('/establecer-cuenta-poliza/{factura}', [FacturasClienteController::class, 'asignarNumeroCuentaPolizaSemiautomatica']);
+    });
+
+    Route::prefix('facturas-numeros-cuentas/{clienteId}')->group(function () {
+        Route::get('/numeros-cuentas-manuales/{factura}', [
+            FacturasNumeroCuentaController::class, 'obtenerCuentasManuales'
+        ]);
+        Route::post('/agregar-cuenta/{factura}', [
+            FacturasNumeroCuentaController::class, 'agregarNumeroCuentaManual'
+        ]);
+        Route::delete('/eliminar-cuenta-manual/{factura}/{numeroCuenta}', [
+            FacturasNumeroCuentaController::class, 'eliminarNumeroCuentaManual'
+        ]);
     });
 
     Route::prefix('facturas')->group(function() {

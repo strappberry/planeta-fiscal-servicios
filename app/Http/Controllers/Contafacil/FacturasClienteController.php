@@ -8,10 +8,12 @@ use App\Clientes\KontafacilApi;
 use App\Http\Controllers\Controller;
 use App\Models\Factura;
 use App\Models\FacturaCliente;
+use App\Models\NumeroCuenta;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+/* TODO:  cambiar la relacion con cliente */
 class FacturasClienteController extends Controller
 {
     private $cliente;
@@ -38,6 +40,9 @@ class FacturasClienteController extends Controller
         ]);
     }
 
+    /*
+     * TODO: verificar si es necesario continuar con este método
+     */
     public function asignarNumeroCuentaPolizaSemiautomatica(Request $request, Factura $factura)
     {
         $numeroCuenta = $request->numero_cuenta;

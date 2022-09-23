@@ -48,6 +48,16 @@ class FacturaCliente extends Model
         return $this->belongsTo(NumeroCuenta::class);
     }
 
+    public function numerosCuentas()
+    {
+        return $this->belongsToMany(NumeroCuenta::class)
+            ->withPivot([
+                'monto',
+            ])
+            ->as('relacion_numero_cuenta')
+            ->using(FacturaClienteNumeroCuenta::class);
+    }
+
     public function cuentaPoliza()
     {
         return $this->belongsTo(NumeroCuenta::class, 'cuenta_poliza');

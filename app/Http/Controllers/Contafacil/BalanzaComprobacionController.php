@@ -6,6 +6,7 @@ use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
+use App\Contafacil\Polizas\ViewModels\PolizasManualesVentasYGastosViewModel;
 use App\Http\Controllers\Controller;
 use App\Models\BalanzaComprobacionCliente;
 use App\Models\NumeroCuenta;
@@ -97,9 +98,24 @@ class BalanzaComprobacionController extends Controller
             $clienteId
         );
 
+        $polizasVentasManuales = new PolizasManualesVentasYGastosViewModel(
+            NumeroCuenta::TIPO_POLIZA_VENTAS,
+            $fechaInicio,
+            $fechaFin,
+            $clienteId
+        );
+        $polizasGastosManuales = new PolizasManualesVentasYGastosViewModel(
+            NumeroCuenta::TIPO_POLIZA_GASTOS,
+            $fechaInicio,
+            $fechaFin,
+            $clienteId
+        );
+
         return response()->json([
             'poliza_automatica_ventas' => $polizasVentas->toArray(),
             'poliza_automatica_gastos' => $polizasGastos->toArray(),
+            'poliza_manual_ventas'     => $polizasVentasManuales->toArray(),
+            'poliza_manual_gastos'     => $polizasGastosManuales->toArray(),
         ]);
     }
 
@@ -108,6 +124,7 @@ class BalanzaComprobacionController extends Controller
         Carbon::setLocale('es');
 
         $clienteId   = $cliente;
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($cliente);
         $periodo = CarbonInterval::month(1)
             ->toPeriod(
                 Carbon::parse($fecha)->startOfYear(),
@@ -120,17 +137,40 @@ class BalanzaComprobacionController extends Controller
             $fechaInicio = Carbon::parse($mes)->startOfMonth();
             $fechaFin    = Carbon::parse($mes)->endOfMonth();
 
-            $polizasVentas = new PolizasAutomaticasVentasYGastosViewModel(
+            $polizasVentasAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
                 NumeroCuenta::TIPO_POLIZA_VENTAS,
                 $fechaInicio,
                 $fechaFin,
                 $clienteId
-            );
-            $polizasGastos = new PolizasAutomaticasVentasYGastosViewModel(
+            ))->toArray();
+            $polizasGastosAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
                 NumeroCuenta::TIPO_POLIZA_GASTOS,
                 $fechaInicio,
                 $fechaFin,
                 $clienteId
+            ))->toArray();
+
+            $polizasVentasManuales = (new PolizasManualesVentasYGastosViewModel(
+                NumeroCuenta::TIPO_POLIZA_VENTAS,
+                $fechaInicio,
+                $fechaFin,
+                $clienteId
+            ));
+            $polizasGastosManuales = (new PolizasManualesVentasYGastosViewModel(
+                NumeroCuenta::TIPO_POLIZA_GASTOS,
+                $fechaInicio,
+                $fechaFin,
+                $clienteId
+            ))->toArray();
+
+            $balanza = new BalanzaComprobacionViewModel(
+                $fechaInicio,
+                $fechaFin,
+                $cliente,
+                $polizasVentasAutomaticas,
+                $polizasGastosAutomaticas,
+                $polizasVentasManuales,
+                $polizasGastosManuales
             );
 
             array_push($polizasAnuales, [
@@ -138,8 +178,11 @@ class BalanzaComprobacionController extends Controller
                 'anio'  => $mes->year,
                 'desde' => $fechaInicio->format('Y-m-d'),
                 'hasta' => $fechaFin->format('Y-m-d'),
-                'poliza_automatica_ventas' => $polizasVentas->toArray(),
-                'poliza_automatica_gastos' => $polizasGastos->toArray(),
+                'poliza_automatica_ventas' => $polizasVentasAutomaticas,
+                'poliza_automatica_gastos' => $polizasGastosAutomaticas,
+                'poliza_manual_ventas'     => $polizasVentasManuales,
+                'poliza_manual_gastos'     => $polizasGastosManuales,
+                'balanza_comprobacion' => $balanza->toArray(),
             ]);
         }
 

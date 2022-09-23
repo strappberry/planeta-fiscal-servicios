@@ -42,8 +42,36 @@ class NumeroCuenta extends Model
         'updated_at',
     ];
 
+    /*
+     |--------------------------------------------------------------------------
+     | Relationships
+     |--------------------------------------------------------------------------
+     */
+
+    public function facturasManuales()
+    {
+        return $this->belongsToMany(FacturaCliente::class)
+            ->withPivot([
+                'monto',
+            ])
+            ->as('relacion_numero_cuenta')
+            ->using(FacturaClienteNumeroCuenta::class);
+    }
+
     public function facturasCliente()
     {
         return $this->hasMany(FacturaCliente::class);
     }
+
+    /*
+     |--------------------------------------------------------------------------
+     | Scopes
+     |--------------------------------------------------------------------------
+     */
+
+    /*
+     |--------------------------------------------------------------------------
+     | Attributes
+     |--------------------------------------------------------------------------
+     */
 }

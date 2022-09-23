@@ -15,6 +15,11 @@ class BalanzaComprobacion extends Model
         'numero_cuenta',
         'descripcion',
         'tipo',
+        'formula',
+    ];
+
+    protected $casts = [
+        'formula' => 'array',
     ];
 
 }

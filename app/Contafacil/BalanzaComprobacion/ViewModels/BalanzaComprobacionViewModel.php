@@ -2,9 +2,11 @@
 
 namespace App\Contafacil\BalanzaComprobacion\ViewModels;
 
+use App\Acciones\BalanzaComprobacion\ResolverFormulaBalanzaComprobacion;
 use App\Acciones\NumerosCuentas\ResolverFormulaNumeroCuenta;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
+use App\Contafacil\Polizas\ViewModels\PolizasManualesVentasYGastosViewModel;
 use App\Models\BalanzaComprobacion;
 use App\Models\BalanzaComprobacionCliente;
 use App\Models\Cliente;
@@ -21,40 +23,95 @@ class BalanzaComprobacionViewModel extends ViewModel
     /** @var Carbon $fechaFin */
     private $fechaFin;
 
-    /** @var array $polizasVentas*/
-    private $polizasVentas;
-    /** @var array $polizasGastos*/
-    private $polizasGastos;
+    /** @var array $polizasVentasAutomaticas*/
+    private $polizasVentasAutomaticas;
+    /** @var array $polizasGastosAutomaticas*/
+    private $polizasGastosAutomaticas;
+    /** @var array $polizasVentasManuales*/
+    private $polizasVentasManuales;
+    /** @var array $polizasGastosManuales*/
+    private $polizasGastosManuales;
 
-    public function __construct(Carbon $fechaInicio, Carbon $fechaFin, Cliente $cliente)
+    public function __construct(
+        Carbon $fechaInicio,
+        Carbon $fechaFin,
+        Cliente $cliente,
+        $polizasVentasAutomaticas = null,
+        $polizasGastosAutomaticas = null,
+        $polizasVentasManuales = null,
+        $polizasGastosManuales = null
+    )
     {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin    = $fechaFin;
         $this->cliente   = $cliente;
 
-        $this->polizasVentas = (new PolizasAutomaticasVentasYGastosViewModel(
-            NumeroCuenta::TIPO_POLIZA_VENTAS,
-            $fechaInicio,
-            $fechaFin,
-            $cliente->planetafiscal_id
-        ))->toArray();
+        if (!is_array($polizasVentasAutomaticas)) {
+            $this->polizasVentasAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
+                NumeroCuenta::TIPO_POLIZA_VENTAS,
+                $fechaInicio,
+                $fechaFin,
+                $cliente->planetafiscal_id
+            ))->toArray();
+        } else {
+            $this->polizasVentasAutomaticas = $polizasVentasAutomaticas;
+        }
 
-        $this->polizasGastos = (new PolizasAutomaticasVentasYGastosViewModel(
-            NumeroCuenta::TIPO_POLIZA_GASTOS,
-            $fechaInicio,
-            $fechaFin,
-            $cliente->planetafiscal_id
-        ))->toArray();
+        if (!is_array($polizasGastosAutomaticas)) {
+            $this->polizasGastosAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
+                NumeroCuenta::TIPO_POLIZA_GASTOS,
+                $fechaInicio,
+                $fechaFin,
+                $cliente->planetafiscal_id
+            ))->toArray();
+        } else {
+            $this->polizasGastosAutomaticas = $polizasGastosAutomaticas;
+        }
+
+        if (!is_array($polizasVentasManuales)) {
+            $this->polizasVentasManuales = (new PolizasManualesVentasYGastosViewModel(
+                NumeroCuenta::TIPO_POLIZA_VENTAS,
+                $fechaInicio,
+                $fechaFin,
+                $cliente->planetafiscal_id
+            ))->toArray();
+        } else {
+            $this->polizasVentasManuales = $polizasVentasManuales;
+        }
+
+        if (!is_array($polizasGastosManuales)) {
+            $this->polizasGastosManuales = (new PolizasManualesVentasYGastosViewModel(
+                NumeroCuenta::TIPO_POLIZA_GASTOS,
+                $fechaInicio,
+                $fechaFin,
+                $cliente->planetafiscal_id
+            ))->toArray();
+        } else {
+            $this->polizasGastosManuales = $polizasGastosManuales;
+        }
     }
 
     public function balanzaComprobacion(): array
     {
         $cuentasBalanza = BalanzaComprobacion::all();
 
-        $ventasPorEmision = collect($this->polizasVentas['fecha_emision']);
-        $ventasPorPago    = collect($this->polizasVentas['fecha_pago']);
-        $gastosPorEmision = collect($this->polizasGastos['fecha_emision']);
-        $gastosPorPago    = collect($this->polizasGastos['fecha_pago']);
+        $ventasPorEmision = collect(array_merge(
+            $this->polizasVentasAutomaticas['fecha_emision'],
+            $this->polizasVentasManuales['fecha_emision']
+        ));
+        $ventasPorPago    = collect(array_merge(
+            $this->polizasVentasAutomaticas['fecha_pago'],
+            $this->polizasVentasManuales['fecha_pago']
+        ));
+
+        $gastosPorEmision = collect(array_merge(
+            $this->polizasGastosAutomaticas['fecha_emision'],
+            $this->polizasGastosManuales['fecha_emision']
+        ));
+        $gastosPorPago    = collect(array_merge(
+            $this->polizasGastosAutomaticas['fecha_pago'],
+            $this->polizasGastosManuales['fecha_pago']
+        ));
 
         $datos = [];
         foreach ($cuentasBalanza as $cuentaBalanza) {
@@ -88,7 +145,13 @@ class BalanzaComprobacionViewModel extends ViewModel
                 $linea['saldo_inicial'] = $cuentaBalanzaCliente->saldo_inicial;
             }
 
-            $linea['saldo_final']   = $linea['saldo_inicial'] + $linea['cargo'] - $linea['abono'];
+            // $linea['saldo_final']   = $linea['saldo_inicial'] + $linea['cargo'] - $linea['abono'];
+            $linea['saldo_final'] = ResolverFormulaBalanzaComprobacion::ejecutar(
+                $cuentaBalanza,
+                (float) $linea['saldo_inicial'],
+                (float) $linea['cargo'],
+                (float) $linea['abono']
+            );
             $datos[] = $linea;
         }
 
