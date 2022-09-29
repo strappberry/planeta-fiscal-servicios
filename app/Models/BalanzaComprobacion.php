@@ -22,4 +22,13 @@ class BalanzaComprobacion extends Model
         'formula' => 'array',
     ];
 
+    public function auxiliares()
+    {
+        return $this->hasMany(BalanzaComprobacion::class);
+    }
+
+    public function cuentasClientes()
+    {
+        return $this->hasMany(BalanzaComprobacionCliente::class);
+    }
 }

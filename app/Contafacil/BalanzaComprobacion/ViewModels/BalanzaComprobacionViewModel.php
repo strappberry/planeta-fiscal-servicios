@@ -119,21 +119,30 @@ class BalanzaComprobacionViewModel extends ViewModel
                 'id'            => $cuentaBalanza->id,
                 'numero_cuenta' => $cuentaBalanza->numero_cuenta,
                 'descripcion'   => $cuentaBalanza->descripcion,
+                'tipo'          => $cuentaBalanza->tipo,
                 'cargo'         => 0,
                 'abono'         => 0,
                 'saldo_inicial' => 0,
                 'saldo_final'   => 0,
             ];
 
-            $linea['cargo'] += $ventasPorEmision->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
-            $linea['abono'] += $ventasPorEmision->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
-            $linea['cargo'] += $ventasPorPago->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
-            $linea['abono'] += $ventasPorPago->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+            $linea['cargo'] += $ventasPorEmision
+                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
+            $linea['abono'] += $ventasPorEmision
+                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+            $linea['cargo'] += $ventasPorPago
+                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
+            $linea['abono'] += $ventasPorPago
+                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
 
-            $linea['cargo'] += $gastosPorEmision->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
-            $linea['abono'] += $gastosPorEmision->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
-            $linea['cargo'] += $gastosPorPago->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
-            $linea['abono'] += $gastosPorPago->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+            $linea['cargo'] += $gastosPorEmision
+                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
+            $linea['abono'] += $gastosPorEmision
+                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+            $linea['cargo'] += $gastosPorPago
+                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
+            $linea['abono'] += $gastosPorPago
+                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
 
             $cuentaBalanzaCliente = $this->cliente->balanzasComprobacion()
                 ->where('balanza_comprobacion_id', $cuentaBalanza->id)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
+use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionSinCalculosViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
@@ -155,7 +156,7 @@ class BalanzaComprobacionController extends Controller
                 $fechaInicio,
                 $fechaFin,
                 $clienteId
-            ));
+            ))->toArray();
             $polizasGastosManuales = (new PolizasManualesVentasYGastosViewModel(
                 NumeroCuenta::TIPO_POLIZA_GASTOS,
                 $fechaInicio,
@@ -163,15 +164,10 @@ class BalanzaComprobacionController extends Controller
                 $clienteId
             ))->toArray();
 
-            $balanza = new BalanzaComprobacionViewModel(
+            $balanzaComprobacionDelMes = (new BalanzaComprobacionSinCalculosViewModel(
                 $fechaInicio,
-                $fechaFin,
-                $cliente,
-                $polizasVentasAutomaticas,
-                $polizasGastosAutomaticas,
-                $polizasVentasManuales,
-                $polizasGastosManuales
-            );
+                $cliente
+            ))->toArray();
 
             array_push($polizasAnuales, [
                 'mes'   => $mes->monthName,
@@ -182,7 +178,7 @@ class BalanzaComprobacionController extends Controller
                 'poliza_automatica_gastos' => $polizasGastosAutomaticas,
                 'poliza_manual_ventas'     => $polizasVentasManuales,
                 'poliza_manual_gastos'     => $polizasGastosManuales,
-                'balanza_comprobacion' => $balanza->toArray(),
+                'balanza_comprobacion'     => $balanzaComprobacionDelMes,
             ]);
         }
 
