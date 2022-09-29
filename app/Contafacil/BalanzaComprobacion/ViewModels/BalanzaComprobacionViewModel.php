@@ -93,8 +93,6 @@ class BalanzaComprobacionViewModel extends ViewModel
 
     public function balanzaComprobacion(): array
     {
-        $cuentasBalanza = BalanzaComprobacion::all();
-
         $ventasPorEmision = collect(array_merge(
             $this->polizasVentasAutomaticas['fecha_emision'],
             $this->polizasVentasManuales['fecha_emision']
@@ -113,58 +111,85 @@ class BalanzaComprobacionViewModel extends ViewModel
             $this->polizasGastosManuales['fecha_pago']
         ));
 
-        $datos = [];
-        foreach ($cuentasBalanza as $cuentaBalanza) {
-            $linea = [
-                'id'            => $cuentaBalanza->id,
-                'numero_cuenta' => $cuentaBalanza->numero_cuenta,
-                'descripcion'   => $cuentaBalanza->descripcion,
-                'tipo'          => $cuentaBalanza->tipo,
+        $resultadoBalanza = collect();
+        $cuentasMayores = BalanzaComprobacion::where('tipo', BalanzaComprobacion::TIPO_MAYOR)->get();
+
+        foreach($cuentasMayores as $cuentaMayor) {
+            $datosCuentaMayor = [
+                'id'            => $cuentaMayor->id,
+                'numero_cuenta' => $cuentaMayor->numero_cuenta,
+                'descripcion'   => $cuentaMayor->descripcion,
+                'tipo'          => $cuentaMayor->tipo,
                 'cargo'         => 0,
                 'abono'         => 0,
                 'saldo_inicial' => 0,
                 'saldo_final'   => 0,
             ];
 
-            $linea['cargo'] += $ventasPorEmision
-                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
-            $linea['abono'] += $ventasPorEmision
-                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
-            $linea['cargo'] += $ventasPorPago
-                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
-            $linea['abono'] += $ventasPorPago
-                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+            $resultadosAuxiliares = collect();
+            $cuentasAuxiliares = $cuentaMayor->auxiliares;
 
-            $linea['cargo'] += $gastosPorEmision
-                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
-            $linea['abono'] += $gastosPorEmision
-                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
-            $linea['cargo'] += $gastosPorPago
-                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('cargo');
-            $linea['abono'] += $gastosPorPago
-                ->where('numero_cuenta', $cuentaBalanza->numero_cuenta)->sum('abono');
+            foreach ($cuentasAuxiliares as $cuentaAuxiliar) {
+                $datosCuentaAuxiliar = [
+                    'id'            => $cuentaAuxiliar->id,
+                    'numero_cuenta' => $cuentaAuxiliar->numero_cuenta,
+                    'descripcion'   => $cuentaAuxiliar->descripcion,
+                    'tipo'          => $cuentaAuxiliar->tipo,
+                    'cargo'         => 0,
+                    'abono'         => 0,
+                    'saldo_inicial' => 0,
+                    'saldo_final'   => 0,
+                ];
 
-            $cuentaBalanzaCliente = $this->cliente->balanzasComprobacion()
-                ->where('balanza_comprobacion_id', $cuentaBalanza->id)
-                ->whereMonth('fecha', $this->fechaInicio->format('m'))
-                ->whereYear('fecha', $this->fechaInicio->year)
-                ->first();
+                $datosCuentaAuxiliar['cargo'] += $ventasPorEmision
+                    ->where('numero_cuenta', $cuentaAuxiliar->numero_cuenta)->sum('cargo');
+                $datosCuentaAuxiliar['abono'] += $ventasPorEmision
+                    ->where('numero_cuenta', $cuentaAuxiliar->numero_cuenta)->sum('abono');
+                $datosCuentaAuxiliar['cargo'] += $ventasPorPago
+                    ->where('numero_cuenta', $cuentaAuxiliar->numero_cuenta)->sum('cargo');
+                $datosCuentaAuxiliar['abono'] += $ventasPorPago
+                    ->where('numero_cuenta', $cuentaAuxiliar->numero_cuenta)->sum('abono');
 
-            if ($cuentaBalanzaCliente) {
-                $linea['saldo_inicial'] = $cuentaBalanzaCliente->saldo_inicial;
+                $datosCuentaAuxiliar['cargo'] += $gastosPorEmision
+                    ->where('numero_cuenta', $cuentaAuxiliar->numero_cuenta)->sum('cargo');
+                $datosCuentaAuxiliar['abono'] += $gastosPorEmision
+                    ->where('numero_cuenta', $cuentaAuxiliar->numero_cuenta)->sum('abono');
+                $datosCuentaAuxiliar['cargo'] += $gastosPorPago
+                    ->where('numero_cuenta', $cuentaAuxiliar->numero_cuenta)->sum('cargo');
+                $datosCuentaAuxiliar['abono'] += $gastosPorPago
+                    ->where('numero_cuenta', $cuentaAuxiliar->numero_cuenta)->sum('abono');
+
+                $cuentaBalanzaCliente = $this->cliente->balanzasComprobacion()
+                    ->where('balanza_comprobacion_id', $cuentaAuxiliar->id)
+                    ->whereMonth('fecha', $this->fechaInicio->format('m'))
+                    ->whereYear('fecha', $this->fechaInicio->year)
+                    ->first();
+
+                if ($cuentaBalanzaCliente) {
+                    $cuentaBalanzaCliente['saldo_inicial'] = $cuentaBalanzaCliente->saldo_inicial;
+                }
+                $datosCuentaAuxiliar['saldo_final'] = ResolverFormulaBalanzaComprobacion::ejecutar(
+                    $cuentaAuxiliar,
+                    (float) $datosCuentaAuxiliar['saldo_inicial'],
+                    (float) $datosCuentaAuxiliar['cargo'],
+                    (float) $datosCuentaAuxiliar['abono']
+                );
+
+                $resultadosAuxiliares->push($datosCuentaAuxiliar);
             }
 
-            // $linea['saldo_final']   = $linea['saldo_inicial'] + $linea['cargo'] - $linea['abono'];
-            $linea['saldo_final'] = ResolverFormulaBalanzaComprobacion::ejecutar(
-                $cuentaBalanza,
-                (float) $linea['saldo_inicial'],
-                (float) $linea['cargo'],
-                (float) $linea['abono']
+            $datosCuentaMayor['saldo_inicial'] = $resultadosAuxiliares->sum('saldo_inicial');
+            $datosCuentaMayor['cargo'] = $resultadosAuxiliares->sum('cargo');
+            $datosCuentaMayor['abono'] = $resultadosAuxiliares->sum('abono');
+            $datosCuentaMayor['saldo_final'] = $resultadosAuxiliares->sum('saldo_final');
+
+            $resultadoBalanza->push($datosCuentaMayor);
+            $resultadoBalanza = $resultadoBalanza->merge(
+                $resultadosAuxiliares->toArray()
             );
-            $datos[] = $linea;
         }
 
-        return $datos;
+        return $resultadoBalanza->toArray();
     }
 
 }

@@ -20,7 +20,8 @@ class ResolverFormulaBalanzaComprobacion
             'abono'         => $abono,
         ];
 
-        foreach ($balanzaComprobacion->formula as $linea) {
+        $formula = $balanzaComprobacion->formula ?? [];
+        foreach ($formula as $linea) {
             switch ($linea['operacion']) {
                 case 'suma':
                     $saldoFinal += $columnas[$linea['columna']];
