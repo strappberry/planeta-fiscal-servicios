@@ -166,7 +166,7 @@ class BalanzaComprobacionViewModel extends ViewModel
                     ->first();
 
                 if ($cuentaBalanzaCliente) {
-                    $cuentaBalanzaCliente['saldo_inicial'] = $cuentaBalanzaCliente->saldo_inicial;
+                    $datosCuentaAuxiliar['saldo_inicial'] = $cuentaBalanzaCliente->saldo_inicial;
                 }
                 $datosCuentaAuxiliar['saldo_final'] = ResolverFormulaBalanzaComprobacion::ejecutar(
                     $cuentaAuxiliar,
