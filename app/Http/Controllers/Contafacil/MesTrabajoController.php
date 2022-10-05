@@ -29,11 +29,27 @@ class MesTrabajoController extends Controller
         ]);
     }
 
+    public function obtenerHistorico(string $cliente, string $fecha)
+    {
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($cliente);
+        $fechaTrabajo = Carbon::parse($fecha)->startOfMonth();
+        $historico = [];
+        $mesTrabajo = $cliente->mesesTrabajo()->where('fecha', $fechaTrabajo)->first();
+        if ($mesTrabajo) {
+            $historico = $mesTrabajo->historico()->orderBy('id', 'desc')->get();
+        }
+
+        return response()->json([
+            'historico' => $historico,
+        ]);
+    }
+
     public function bloquearMesTrabajo(Request $request,string $cliente, string $fecha)
     {
         $this->validate($request, [
-            'usuario' => 'required',
-            'password' => 'required',
+            'usuario'    => 'required',
+            'password'   => 'required',
+            'comentario' => 'required',
         ]);
 
         $puedeBloquearMes = VerificarUsuarioPF::ejecutar($request->usuario, $request->password);
@@ -57,6 +73,10 @@ class MesTrabajoController extends Controller
                 'bloqueado'  => true,
             ]
         );
+        $mesTrabajo->historico()->create([
+            'comentario' => $request->comentario,
+            'usuario_planeta_fiscal' => $request->usuario,
+        ]);
 
         CalcularSaldosInicialesSiguienteMes::ejecutar($fechaTrabajo, $cliente);
 
@@ -68,8 +88,9 @@ class MesTrabajoController extends Controller
     public function desbloquearMesTrabajo(Request $request, string $cliente, string $fecha)
     {
         $this->validate($request, [
-            'usuario' => 'required',
-            'password' => 'required',
+            'usuario'    => 'required',
+            'password'   => 'required',
+            'comentario' => 'required',
         ]);
 
         $puedeDesbloquearMes = VerificarUsuarioPF::ejecutar($request->usuario, $request->password);
@@ -93,6 +114,11 @@ class MesTrabajoController extends Controller
                 'bloqueado'  => false,
             ]
         );
+
+        $mesTrabajo->historico()->create([
+            'comentario' => $request->comentario,
+            'usuario_planeta_fiscal' => $request->usuario,
+        ]);
 
         return response()->json([
             'bloqueado' => $mesTrabajo->bloqueado,

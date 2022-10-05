@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TieneHistorico;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MesTrabajo extends Model
 {
     use HasFactory;
+    use TieneHistorico;
 
     protected $fillable = [
         'fecha',

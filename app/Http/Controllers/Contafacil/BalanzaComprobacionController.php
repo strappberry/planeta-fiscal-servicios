@@ -137,6 +137,7 @@ class BalanzaComprobacionController extends Controller
         foreach ($periodo as $mes) {
             $fechaInicio = Carbon::parse($mes)->startOfMonth();
             $fechaFin    = Carbon::parse($mes)->endOfMonth();
+            $mesTrabajo  = $cliente->mesesTrabajo()->where('fecha', $fechaInicio)->first();
 
             $polizasVentasAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
                 NumeroCuenta::TIPO_POLIZA_VENTAS,
@@ -174,6 +175,7 @@ class BalanzaComprobacionController extends Controller
                 'anio'  => $mes->year,
                 'desde' => $fechaInicio->format('Y-m-d'),
                 'hasta' => $fechaFin->format('Y-m-d'),
+                'bloqueado' => $mesTrabajo ? $mesTrabajo->bloqueado : false,
                 'poliza_automatica_ventas' => $polizasVentasAutomaticas,
                 'poliza_automatica_gastos' => $polizasGastosAutomaticas,
                 'poliza_manual_ventas'     => $polizasVentasManuales,

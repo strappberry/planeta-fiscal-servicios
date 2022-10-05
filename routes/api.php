@@ -110,6 +110,7 @@ Route::prefix('contafacil')->group(function() {
 
     Route::prefix('meses-trabajo/{cliente}')->group(function () {
         Route::get('verificar/{fecha}', [MesTrabajoController::class, 'verificarMesTrabajo']);
+        Route::get('historico/{fecha}', [MesTrabajoController::class, 'obtenerHistorico']);
         Route::post('bloquear/{fecha}', [MesTrabajoController::class, 'bloquearMesTrabajo']);
         Route::post('desbloquear/{fecha}', [MesTrabajoController::class, 'desbloquearMesTrabajo']);
     });
