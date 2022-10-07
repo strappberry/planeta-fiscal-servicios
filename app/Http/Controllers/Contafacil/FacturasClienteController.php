@@ -90,11 +90,11 @@ class FacturasClienteController extends Controller
         $facturaCliente = FacturaCliente::updateOrCreate(
             [
                 'factura_id' => $factura->id,
+                'cliente_id'    => $clienteId,
             ],
             [
                 'factura_id'    => $factura->id,
                 'fecha_emision' => $factura->fecha_emision,
-                'cliente_id'    => $clienteId,
                 'considerado'   => $considerado,
                 'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : $fechaPago,
                 'tipo_factura'  => $tipoFactura,
@@ -140,11 +140,11 @@ class FacturasClienteController extends Controller
             FacturaCliente::updateOrCreate(
                 [
                     'factura_id' => $factura->id,
+                    'cliente_id'    => $clienteId,
                 ],
                 [
                     'factura_id'    => $factura->id,
                     'fecha_emision' => $factura->fecha_emision,
-                    'cliente_id'    => $clienteId,
                     'considerado'   => $considerado,
                     'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : $fechaPago,
                     'tipo_factura'  => $tipoFactura,
@@ -165,11 +165,11 @@ class FacturasClienteController extends Controller
         $facturaCliente = FacturaCliente::updateOrCreate(
             [
                 'factura_id' => $factura->id,
+                'cliente_id'    => $clienteId,
             ],
             [
                 'factura_id'    => $factura->id,
                 'fecha_emision' => $factura->fecha_emision,
-                'cliente_id'    => $clienteId,
                 'fecha_pago'    => $fechaPago,
             ]
         );

@@ -18,21 +18,17 @@ class FacturasNumeroCuentaController extends Controller
     public function obtenerPolizaAutomaticaFactura(string $clienteId, Factura $factura)
     {
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
-        $facturaCliente = FacturaCliente::query()
-            ->where('factura_id', $factura->id)
-            ->where('cliente_id', $cliente->planetafiscal_id)
-            ->first();
+        $tipoFactura = ResolverTipoFacturaVentaOGasto::ejecutar($factura, $cliente);
 
-        if (!$facturaCliente) {
-            $tipoFactura = ResolverTipoFacturaVentaOGasto::ejecutar($factura, $cliente);
-            $facturaCliente = FacturaCliente::create([
-                'factura_id'    => $factura->id,
-                'cliente_id'    => $clienteId,
+        $facturaCliente = FacturaCliente::firstOrCreate(
+            [
+                'factura_id' => $factura->id,
+                'cliente_id' => $cliente->planetafiscal_id,
+            ], [
                 'fecha_emision' => $factura->fecha_emision,
-                'consignado'    => false,
                 'tipo_factura'  => $tipoFactura,
-            ]);
-        }
+            ]
+        );
 
         $modelo = new PolizaAutomaticaFacturaViewModel($facturaCliente);
         $validaciones = new ValidacionPolizaAutomaticaFacturaViewModel($modelo);
@@ -59,20 +55,17 @@ class FacturasNumeroCuentaController extends Controller
         }
 
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+        $tipoFactura = ResolverTipoFacturaVentaOGasto::ejecutar($factura, $cliente);
 
-        $facturaCliente = FacturaCliente::query()
-            ->where('factura_id', $factura->id)
-            ->where('cliente_id', $clienteId)
-            ->first();
-
-        if (!$facturaCliente) {
-            $facturaCliente = FacturaCliente::create([
-                'factura_id'    => $factura->id,
-                'cliente_id'    => $clienteId,
+        $facturaCliente = FacturaCliente::firstOrCreate(
+            [
+                'factura_id' => $factura->id,
+                'cliente_id' => $cliente->planetafiscal_id,
+            ], [
                 'fecha_emision' => $factura->fecha_emision,
-                'consignado'    => false,
-            ]);
-        }
+                'tipo_factura'  => $tipoFactura,
+            ]
+        );
 
         $facturaCliente->numerosCuentas()->syncWithoutDetaching([
             $numeroCuenta->id => [
@@ -105,20 +98,17 @@ class FacturasNumeroCuentaController extends Controller
         NumeroCuenta $numeroCuenta
     ) {
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+        $tipoFactura = ResolverTipoFacturaVentaOGasto::ejecutar($factura, $cliente);
 
-        $facturaCliente = FacturaCliente::query()
-            ->where('factura_id', $factura->id)
-            ->where('cliente_id', $clienteId)
-            ->first();
-
-        if (!$facturaCliente) {
-            $facturaCliente = FacturaCliente::create([
-                'factura_id'    => $factura->id,
-                'cliente_id'    => $clienteId,
+        $facturaCliente = FacturaCliente::firstOrCreate(
+            [
+                'factura_id' => $factura->id,
+                'cliente_id' => $cliente->planetafiscal_id,
+            ], [
                 'fecha_emision' => $factura->fecha_emision,
-                'consignado'    => false,
-            ]);
-        }
+                'tipo_factura'  => $tipoFactura,
+            ]
+        );
 
         $facturaCliente->numerosCuentas()->detach($numeroCuenta->id);
 
