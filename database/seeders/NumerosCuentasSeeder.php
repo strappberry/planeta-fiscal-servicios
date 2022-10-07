@@ -502,6 +502,14 @@ class NumerosCuentasSeeder extends Seeder
                 'formula'         => [
                     ['operacion' => 'suma', 'clave_monto' => 'total'],
                 ],
+                'exclusiones'     => [
+                    [
+                        'numero_cuenta' => '119-01',
+                        'automatico'    => true,
+                        'tipo_cuenta'   => NumeroCuenta::TIPO_POLIZA_GASTOS,
+                        'subtipo'       => NumeroCuenta::SUBTIPO_FECHA_EMISION,
+                    ]
+                ],
             ],
             [
                 'numero_cuenta'   => '601-82',

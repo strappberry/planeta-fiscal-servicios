@@ -57,7 +57,6 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
         $numerosCuenta = NumeroCuenta::query()
             ->where('tipo_cuenta', $this->tipoPoliza)
             ->where('subtipo' , NumeroCuenta::SUBTIPO_FECHA_EMISION)
-            ->where('automatico', true)
             ->get();
 
         $resultado = [];
@@ -69,11 +68,15 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 'descripcion'   => $numeroCuenta->descripcion,
                 'tipo_cuenta'   => $numeroCuenta->tipo_cuenta,
                 'subtipo'       => $numeroCuenta->subtipo,
+                'cargo'         => 0,
+                'abono'         => 0,
             ];
 
-            $montos = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorEmision);
-            $poliza['cargo'] = $montos['cargo'];
-            $poliza['abono'] = $montos['abono'];
+            if ($numeroCuenta->automatico) {
+                $montos = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorEmision);
+                $poliza['cargo'] = $montos['cargo'];
+                $poliza['abono'] = $montos['abono'];
+            }
 
             $resultado[] = $poliza;
         }
@@ -87,7 +90,6 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
         $numerosCuenta = NumeroCuenta::query()
             ->where('tipo_cuenta', $this->tipoPoliza)
             ->where('subtipo' , NumeroCuenta::SUBTIPO_FECHA_PAGO)
-            ->where('automatico', true)
             ->get();
 
         $resultado = [];
@@ -99,11 +101,15 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 'descripcion'   => $numeroCuenta->descripcion,
                 'tipo_cuenta'   => $numeroCuenta->tipo_cuenta,
                 'subtipo'       => $numeroCuenta->subtipo,
+                'cargo'         => 0,
+                'abono'         => 0,
             ];
 
-            $montos = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorPago);
-            $poliza['cargo'] = $montos['cargo'];
-            $poliza['abono'] = $montos['abono'];
+            if ($numeroCuenta->automatico) {
+                $montos = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorPago);
+                $poliza['cargo'] = $montos['cargo'];
+                $poliza['abono'] = $montos['abono'];
+            }
 
             $resultado[] = $poliza;
         }

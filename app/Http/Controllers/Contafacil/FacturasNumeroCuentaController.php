@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
+use App\Acciones\Facturas\ResolverTipoFacturaVentaOGasto;
 use App\Contafacil\Facturas\ViewModels\FacturaCuentasManualesViewModel;
+use App\Contafacil\Facturas\ViewModels\PolizaAutomaticaFacturaViewModel;
+use App\Contafacil\Facturas\ViewModels\ValidacionPolizaAutomaticaFacturaViewModel;
 use App\Http\Controllers\Controller;
 use App\Models\Factura;
 use App\Models\FacturaCliente;
@@ -13,28 +16,31 @@ use Illuminate\Http\Request;
 /* TODO:  cambiar la relacion con cliente */
 class FacturasNumeroCuentaController extends Controller
 {
-    public function obtenerCuentasManuales(string $clienteId, Factura $factura)
+    public function obtenerPolizaAutomaticaFactura(string $clienteId, Factura $factura)
     {
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
-
         $facturaCliente = FacturaCliente::query()
             ->where('factura_id', $factura->id)
-            ->where('cliente_id', $clienteId)
+            ->where('cliente_id', $cliente->planetafiscal_id)
             ->first();
 
         if (!$facturaCliente) {
+            $tipoFactura = ResolverTipoFacturaVentaOGasto::ejecutar($factura, $cliente);
             $facturaCliente = FacturaCliente::create([
                 'factura_id'    => $factura->id,
                 'cliente_id'    => $clienteId,
                 'fecha_emision' => $factura->fecha_emision,
                 'consignado'    => false,
+                'tipo_factura'  => $tipoFactura,
             ]);
         }
 
-        $modelo = new FacturaCuentasManualesViewModel($facturaCliente);
+        $modelo = new PolizaAutomaticaFacturaViewModel($facturaCliente);
+        $validaciones = new ValidacionPolizaAutomaticaFacturaViewModel($modelo);
 
         return response()->json([
-            'modelo' => $modelo->toArray(),
+            'poliza' => $modelo->toArray(),
+            'validaciones' => $validaciones->toArray(),
         ]);
     }
 
@@ -75,6 +81,19 @@ class FacturasNumeroCuentaController extends Controller
             ],
         ]);
 
+        if ($numeroCuenta->exclusiones) {
+            foreach($numeroCuenta->exclusiones as $exclusion) {
+                $numeroCuentaExcluido = NumeroCuenta::buscarExclusion($exclusion)->first();
+                if ($numeroCuentaExcluido) {
+                    $facturaCliente->numerosCuentas()->syncWithoutDetaching([
+                        $numeroCuentaExcluido->id => [
+                            'monto' => 0,
+                        ],
+                    ]);
+                }
+            }
+        }
+
         return response()->json([
             'agregado' => true,
         ]);
@@ -103,6 +122,15 @@ class FacturasNumeroCuentaController extends Controller
         }
 
         $facturaCliente->numerosCuentas()->detach($numeroCuenta->id);
+
+        if ($numeroCuenta->exclusiones) {
+            foreach($numeroCuenta->exclusiones as $exclusion) {
+                $numeroCuentaExcluido = NumeroCuenta::buscarExclusion($exclusion)->first();
+                if ($numeroCuentaExcluido) {
+                    $facturaCliente->numerosCuentas()->detach($numeroCuentaExcluido->id);
+                }
+            }
+        }
 
         return response()->json([
             'eliminado' => true,

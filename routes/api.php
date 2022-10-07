@@ -124,8 +124,8 @@ Route::prefix('contafacil')->group(function() {
     });
 
     Route::prefix('facturas-numeros-cuentas/{clienteId}')->group(function () {
-        Route::get('/numeros-cuentas-manuales/{factura}', [
-            FacturasNumeroCuentaController::class, 'obtenerCuentasManuales'
+        Route::get('/poliza/{factura}', [
+            FacturasNumeroCuentaController::class, 'obtenerPolizaAutomaticaFactura'
         ]);
         Route::post('/agregar-cuenta/{factura}', [
             FacturasNumeroCuentaController::class, 'agregarNumeroCuentaManual'

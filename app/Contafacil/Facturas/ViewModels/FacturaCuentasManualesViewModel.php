@@ -6,6 +6,7 @@ use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\Factura;
 use App\Models\FacturaCliente;
 
+/* TODO: Remover esta clase e importaciones */
 class FacturaCuentasManualesViewModel extends ViewModel
 {
     /** @var Factura $factura */

@@ -29,12 +29,14 @@ class NumeroCuenta extends Model
         'automatico',
         'columna_calculo',
         'formula',
-        'cliente_id'
+        'cliente_id',
+        'exclusiones',
     ];
 
     protected $casts = [
         'automatico' => 'boolean',
         'formula'    => 'array',
+        'exclusiones' => 'array',
     ];
 
     protected $hidden = [
@@ -68,6 +70,16 @@ class NumeroCuenta extends Model
      | Scopes
      |--------------------------------------------------------------------------
      */
+    public function scopeBuscarExclusion($query, $exclusion)
+    {
+        $exclusion = collect($exclusion);
+
+        return $query
+            ->where('numero_cuenta', $exclusion->get('numero_cuenta'))
+            ->where('automatico', $exclusion->get('automatico'))
+            ->where('tipo_cuenta', $exclusion->get('tipo_cuenta'))
+            ->where('subtipo', $exclusion->get('subtipo'));
+    }
 
     /*
      |--------------------------------------------------------------------------

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class FacturaClienteNumeroCuenta extends Pivot
 {
+    protected $table = 'factura_cliente_numero_cuenta';
     protected $casts = [
         'monto' => 'float',
     ];
