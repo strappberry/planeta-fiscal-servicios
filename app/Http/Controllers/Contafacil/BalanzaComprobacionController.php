@@ -99,24 +99,9 @@ class BalanzaComprobacionController extends Controller
             $clienteId
         );
 
-        $polizasVentasManuales = new PolizasManualesVentasYGastosViewModel(
-            NumeroCuenta::TIPO_POLIZA_VENTAS,
-            $fechaInicio,
-            $fechaFin,
-            $clienteId
-        );
-        $polizasGastosManuales = new PolizasManualesVentasYGastosViewModel(
-            NumeroCuenta::TIPO_POLIZA_GASTOS,
-            $fechaInicio,
-            $fechaFin,
-            $clienteId
-        );
-
         return response()->json([
             'poliza_automatica_ventas' => $polizasVentas->toArray(),
             'poliza_automatica_gastos' => $polizasGastos->toArray(),
-            'poliza_manual_ventas'     => $polizasVentasManuales->toArray(),
-            'poliza_manual_gastos'     => $polizasGastosManuales->toArray(),
         ]);
     }
 
@@ -152,19 +137,6 @@ class BalanzaComprobacionController extends Controller
                 $clienteId
             ))->toArray();
 
-            $polizasVentasManuales = (new PolizasManualesVentasYGastosViewModel(
-                NumeroCuenta::TIPO_POLIZA_VENTAS,
-                $fechaInicio,
-                $fechaFin,
-                $clienteId
-            ))->toArray();
-            $polizasGastosManuales = (new PolizasManualesVentasYGastosViewModel(
-                NumeroCuenta::TIPO_POLIZA_GASTOS,
-                $fechaInicio,
-                $fechaFin,
-                $clienteId
-            ))->toArray();
-
             $balanzaComprobacionDelMes = (new BalanzaComprobacionSinCalculosViewModel(
                 $fechaInicio,
                 $cliente
@@ -178,8 +150,6 @@ class BalanzaComprobacionController extends Controller
                 'bloqueado' => $mesTrabajo ? $mesTrabajo->bloqueado : false,
                 'poliza_automatica_ventas' => $polizasVentasAutomaticas,
                 'poliza_automatica_gastos' => $polizasGastosAutomaticas,
-                'poliza_manual_ventas'     => $polizasVentasManuales,
-                'poliza_manual_gastos'     => $polizasGastosManuales,
                 'balanza_comprobacion'     => $balanzaComprobacionDelMes,
             ]);
         }

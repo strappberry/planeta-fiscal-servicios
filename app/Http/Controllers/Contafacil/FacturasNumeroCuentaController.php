@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Acciones\Facturas\ResolverTipoFacturaVentaOGasto;
-use App\Contafacil\Facturas\ViewModels\FacturaCuentasManualesViewModel;
 use App\Contafacil\Facturas\ViewModels\PolizaAutomaticaFacturaViewModel;
 use App\Contafacil\Facturas\ViewModels\ValidacionPolizaAutomaticaFacturaViewModel;
 use App\Http\Controllers\Controller;

@@ -2,8 +2,8 @@
 
 namespace App\Contafacil\Polizas\ViewModels;
 
-use App\Acciones\NumerosCuentas\ResolverFormulaNumeroCuenta;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
+use App\Contafacil\Facturas\ViewModels\PolizaAutomaticaFacturaViewModel;
 use App\Models\FacturaCliente;
 use App\Models\NumeroCuenta;
 use Carbon\Carbon;
@@ -16,6 +16,8 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
     private $tipoPoliza;
     private $facturasPorEmision = [];
     private $facturasPorPago = [];
+    private $polizasPorEmision;
+    private $polizasPorPago;
 
     public function __construct(
         string $tipoPoliza,
@@ -49,6 +51,19 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
             ->where('considerado', true)
             ->orderBy('fecha_pago')
             ->get();
+
+        $this->polizasPorEmision = collect();
+        $this->polizasPorPago    = collect();
+
+        foreach($this->facturasPorEmision as $facturaCliente) {
+            $poliza = (new PolizaAutomaticaFacturaViewModel($facturaCliente))->toArray();
+            $this->polizasPorEmision = $this->polizasPorEmision->merge($poliza['fecha_emision']);
+        }
+
+        foreach($this->facturasPorPago as $facturaCliente) {
+            $poliza = (new PolizaAutomaticaFacturaViewModel($facturaCliente))->toArray();
+            $this->polizasPorPago = $this->polizasPorPago->merge($poliza['fecha_pago']);
+        }
     }
 
     public function fechaEmision(): array
@@ -72,11 +87,12 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 'abono'         => 0,
             ];
 
-            if ($numeroCuenta->automatico) {
-                $montos = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorEmision);
-                $poliza['cargo'] = $montos['cargo'];
-                $poliza['abono'] = $montos['abono'];
-            }
+            $poliza['cargo'] = $this->polizasPorEmision
+                ->where('numero_cuenta', $numeroCuenta->numero_cuenta)
+                ->sum('cargo');
+            $poliza['abono'] = $this->polizasPorEmision
+                ->where('numero_cuenta', $numeroCuenta->numero_cuenta)
+                ->sum('abono');
 
             $resultado[] = $poliza;
         }
@@ -105,11 +121,12 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 'abono'         => 0,
             ];
 
-            if ($numeroCuenta->automatico) {
-                $montos = ResolverFormulaNumeroCuenta::ejecutar($numeroCuenta, $this->facturasPorPago);
-                $poliza['cargo'] = $montos['cargo'];
-                $poliza['abono'] = $montos['abono'];
-            }
+            $poliza['cargo'] = $this->polizasPorPago
+                ->where('numero_cuenta', $numeroCuenta->numero_cuenta)
+                ->sum('cargo');
+            $poliza['abono'] = $this->polizasPorPago
+                ->where('numero_cuenta', $numeroCuenta->numero_cuenta)
+                ->sum('abono');
 
             $resultado[] = $poliza;
         }
