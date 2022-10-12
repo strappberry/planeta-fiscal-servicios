@@ -16,8 +16,7 @@ class ResolverTipoFacturaVentaOGasto
         else if ($cliente->rfc === $factura->rfc_receptor) {
             return FacturaCliente::TIPO_GASTO;
         }
-        else {
-            return '';
-        }
+
+        return '';
     }
 }

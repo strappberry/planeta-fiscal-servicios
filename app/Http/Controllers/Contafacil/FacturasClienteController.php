@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Acciones\Facturas\ActualizarMontoComprobacion;
+use App\Acciones\Facturas\ResolverFacturaCliente;
+use App\Acciones\Facturas\ResolverTipoFacturaVentaOGasto;
 use App\Clientes\KontafacilApi;
 use App\Http\Controllers\Controller;
 use App\Models\Factura;
@@ -13,62 +15,13 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-/* TODO:  cambiar la relacion con cliente */
 class FacturasClienteController extends Controller
 {
-    private $cliente;
-
-    public function asignarNumeroCuenta(Request $request, Factura $factura)
-    {
-        $numeroCuenta = $request->numero_cuenta;
-        $clienteId    = $request->cliente_id;
-
-        $factura = FacturaCliente::updateOrCreate(
-            [
-                'factura_id' => $factura->id,
-            ],
-            [
-                'factura_id'       => $factura->id,
-                'cliente_id'       => $clienteId,
-                'numero_cuenta_id' => $numeroCuenta,
-                'fecha_emision'    => $factura->fecha_emision,
-            ]
-        );
-
-        return response()->json([
-            'factura' => $factura,
-        ]);
-    }
-
-    /*
-     * TODO: verificar si es necesario continuar con este método
-     */
-    public function asignarNumeroCuentaPolizaSemiautomatica(Request $request, Factura $factura)
-    {
-        $numeroCuenta = $request->numero_cuenta;
-        $clienteId    = $request->cliente_id;
-
-        $factura = FacturaCliente::updateOrCreate(
-            [
-                'factura_id' => $factura->id,
-            ],
-            [
-                'factura_id'       => $factura->id,
-                'cliente_id'       => $clienteId,
-                'cuenta_poliza'    => $numeroCuenta,
-                'fecha_emision'    => $factura->fecha_emision,
-            ]
-        );
-
-        return response()->json([
-            'factura' => $factura,
-        ]);
-    }
-
     public function establecerConsideracion(Request $request, Factura $factura)
     {
         $considerado = $request->considerado;
-        $clienteId    = $request->cliente_id;
+        $clienteId   = $request->cliente_id;
+        $cliente     = ResolverClientePlanetaFiscal::ejecutar($clienteId);
 
         try {
             ActualizarMontoComprobacion::ejecutar($factura);
@@ -76,30 +29,9 @@ class FacturasClienteController extends Controller
             Log::error($e);
         }
 
-        $fechaPago = null;
-        $facturaCliente = FacturaCliente::query()
-            ->where('factura_id', $factura->id)
-            ->where('cliente_id', $clienteId)
-            ->first();
-        if ($facturaCliente) {
-            $fechaPago = $facturaCliente->fecha_pago;
-        }
-
-        $tipoFactura = $this->varificarFacturaTipo($factura, $clienteId);
-
-        $facturaCliente = FacturaCliente::updateOrCreate(
-            [
-                'factura_id' => $factura->id,
-                'cliente_id'    => $clienteId,
-            ],
-            [
-                'factura_id'    => $factura->id,
-                'fecha_emision' => $factura->fecha_emision,
-                'considerado'   => $considerado,
-                'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : $fechaPago,
-                'tipo_factura'  => $tipoFactura,
-            ]
-        );
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
+        $facturaCliente->considerado = $considerado;
+        $facturaCliente->save();
 
         return response()->json([
             'factura' => $facturaCliente,
@@ -120,16 +52,7 @@ class FacturasClienteController extends Controller
 
         foreach ($idsFacturas as $id) {
             $factura = Factura::find($id);
-            $tipoFactura = $this->varificarFacturaTipo($factura, $clienteId);
-
-            $fechaPago = null;
-            $facturaCliente = FacturaCliente::query()
-                ->where('factura_id', $factura->id)
-                ->where('cliente_id', $clienteId)
-                ->first();
-            if ($facturaCliente) {
-                $fechaPago = $facturaCliente->fecha_pago;
-            }
+            if (!$factura) continue;
 
             try {
                 ActualizarMontoComprobacion::ejecutar($factura);
@@ -137,19 +60,9 @@ class FacturasClienteController extends Controller
                 Log::error($e);
             }
 
-            FacturaCliente::updateOrCreate(
-                [
-                    'factura_id' => $factura->id,
-                    'cliente_id'    => $clienteId,
-                ],
-                [
-                    'factura_id'    => $factura->id,
-                    'fecha_emision' => $factura->fecha_emision,
-                    'considerado'   => $considerado,
-                    'fecha_pago'    => $factura->metodo_pago == 'PUE' ? $factura->fecha_emision : $fechaPago,
-                    'tipo_factura'  => $tipoFactura,
-                ]
-            );
+            $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $clienteId);
+            $facturaCliente->considerado = $considerado;
+            $facturaCliente->save();
         }
 
         return response()->json([
@@ -162,46 +75,12 @@ class FacturasClienteController extends Controller
         $fechaPago = $request->fecha_pago;
         $clienteId = $request->cliente_id;
 
-        $facturaCliente = FacturaCliente::updateOrCreate(
-            [
-                'factura_id' => $factura->id,
-                'cliente_id'    => $clienteId,
-            ],
-            [
-                'factura_id'    => $factura->id,
-                'fecha_emision' => $factura->fecha_emision,
-                'fecha_pago'    => $fechaPago,
-            ]
-        );
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $clienteId);
+        $facturaCliente->fecha_pago = $fechaPago;
+        $facturaCliente->save();
 
         return response()->json([
             'factura' => $facturaCliente,
         ]);
     }
-
-    /**
-     * Verificar sl la factura es de ingreso o egreso.
-     *
-     * @param Factura $factura
-     * @param string $cliente
-     * @return ?string
-     */
-    private function varificarFacturaTipo($factura, $clienteId)
-    {
-        if (!$this->cliente) {
-            $this->cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
-
-            if (!$this->cliente) return null;
-        }
-
-        if ($this->cliente->rfc == $factura->rfc_emisor) {
-            return FacturaCliente::TIPO_VENTA;
-        }
-        if ($this->cliente->rfc == $factura->rfc_receptor) {
-            return FacturaCliente::TIPO_GASTO;
-        }
-
-        return null;
-    }
-
 }

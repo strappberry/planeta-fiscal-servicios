@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
+use App\Acciones\Facturas\RemoverNumeroDeCuentaDeFacturaCliente;
+use App\Acciones\Facturas\ResolverFacturaCliente;
 use App\Acciones\Facturas\ResolverTipoFacturaVentaOGasto;
+use App\Acciones\Facturas\VincularNumeroDeCuentaFacturaCliente;
 use App\Contafacil\Facturas\ViewModels\PolizaAutomaticaFacturaViewModel;
 use App\Contafacil\Facturas\ViewModels\ValidacionPolizaAutomaticaFacturaViewModel;
 use App\Http\Controllers\Controller;
@@ -12,29 +15,18 @@ use App\Models\FacturaCliente;
 use App\Models\NumeroCuenta;
 use Illuminate\Http\Request;
 
-/* TODO:  cambiar la relacion con cliente */
 class FacturasNumeroCuentaController extends Controller
 {
     public function obtenerPolizaAutomaticaFactura(string $clienteId, Factura $factura)
     {
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
-        $tipoFactura = ResolverTipoFacturaVentaOGasto::ejecutar($factura, $cliente);
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
 
-        $facturaCliente = FacturaCliente::firstOrCreate(
-            [
-                'factura_id' => $factura->id,
-                'cliente_id' => $cliente->planetafiscal_id,
-            ], [
-                'fecha_emision' => $factura->fecha_emision,
-                'tipo_factura'  => $tipoFactura,
-            ]
-        );
-
-        $modelo = new PolizaAutomaticaFacturaViewModel($facturaCliente);
+        $modelo       = new PolizaAutomaticaFacturaViewModel($facturaCliente);
         $validaciones = new ValidacionPolizaAutomaticaFacturaViewModel($modelo);
 
         return response()->json([
-            'poliza' => $modelo->toArray(),
+            'poliza'       => $modelo->toArray(),
             'validaciones' => $validaciones->toArray(),
         ]);
     }
@@ -55,36 +47,9 @@ class FacturasNumeroCuentaController extends Controller
         }
 
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
-        $tipoFactura = ResolverTipoFacturaVentaOGasto::ejecutar($factura, $cliente);
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
 
-        $facturaCliente = FacturaCliente::firstOrCreate(
-            [
-                'factura_id' => $factura->id,
-                'cliente_id' => $cliente->planetafiscal_id,
-            ], [
-                'fecha_emision' => $factura->fecha_emision,
-                'tipo_factura'  => $tipoFactura,
-            ]
-        );
-
-        $facturaCliente->numerosCuentas()->syncWithoutDetaching([
-            $numeroCuenta->id => [
-                'monto' => $request->monto,
-            ],
-        ]);
-
-        if ($numeroCuenta->exclusiones) {
-            foreach($numeroCuenta->exclusiones as $exclusion) {
-                $numeroCuentaExcluido = NumeroCuenta::buscarExclusion($exclusion)->first();
-                if ($numeroCuentaExcluido) {
-                    $facturaCliente->numerosCuentas()->syncWithoutDetaching([
-                        $numeroCuentaExcluido->id => [
-                            'monto' => 0,
-                        ],
-                    ]);
-                }
-            }
-        }
+        VincularNumeroDeCuentaFacturaCliente::ejecutar($facturaCliente, $numeroCuenta, $request->monto);
 
         return response()->json([
             'agregado' => true,
@@ -97,29 +62,10 @@ class FacturasNumeroCuentaController extends Controller
         Factura $factura,
         NumeroCuenta $numeroCuenta
     ) {
-        $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
-        $tipoFactura = ResolverTipoFacturaVentaOGasto::ejecutar($factura, $cliente);
+        $cliente        = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
 
-        $facturaCliente = FacturaCliente::firstOrCreate(
-            [
-                'factura_id' => $factura->id,
-                'cliente_id' => $cliente->planetafiscal_id,
-            ], [
-                'fecha_emision' => $factura->fecha_emision,
-                'tipo_factura'  => $tipoFactura,
-            ]
-        );
-
-        $facturaCliente->numerosCuentas()->detach($numeroCuenta->id);
-
-        if ($numeroCuenta->exclusiones) {
-            foreach($numeroCuenta->exclusiones as $exclusion) {
-                $numeroCuentaExcluido = NumeroCuenta::buscarExclusion($exclusion)->first();
-                if ($numeroCuentaExcluido) {
-                    $facturaCliente->numerosCuentas()->detach($numeroCuentaExcluido->id);
-                }
-            }
-        }
+        RemoverNumeroDeCuentaDeFacturaCliente::ejecutar($facturaCliente, $numeroCuenta);
 
         return response()->json([
             'eliminado' => true,

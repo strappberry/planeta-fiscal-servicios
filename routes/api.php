@@ -116,11 +116,9 @@ Route::prefix('contafacil')->group(function() {
     });
 
     Route::prefix('facturas-cliente')->group(function () {
-        Route::post('/numero-cuenta/{factura}', [FacturasClienteController::class, 'asignarNumeroCuenta']);
         Route::post('/establecer-consideracion/{factura}', [FacturasClienteController::class, 'establecerConsideracion']);
         Route::post('/consideracion-multiple', [FacturasClienteController::class, 'establecerConsideracionMultiples']);
         Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
-        Route::post('/establecer-cuenta-poliza/{factura}', [FacturasClienteController::class, 'asignarNumeroCuentaPolizaSemiautomatica']);
     });
 
     Route::prefix('facturas-numeros-cuentas/{clienteId}')->group(function () {
