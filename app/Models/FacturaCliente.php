@@ -22,10 +22,12 @@ class FacturaCliente extends Model
         'fecha_pago',
         'cuenta_poliza',
         'tipo_factura',
+        'poliza_valida',
     ];
 
     protected $casts = [
-        'considerado' => 'boolean',
+        'considerado'   => 'boolean',
+        'poliza_valida' => 'boolean',
     ];
 
     protected $dates = [

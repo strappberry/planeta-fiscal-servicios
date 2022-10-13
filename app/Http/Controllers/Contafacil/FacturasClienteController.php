@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Acciones\Facturas\ActualizarMontoComprobacion;
+use App\Acciones\Facturas\GenerarValidacionPolizaIndividual;
 use App\Acciones\Facturas\ResolverFacturaCliente;
 use App\Acciones\Facturas\ResolverTipoFacturaVentaOGasto;
 use App\Clientes\KontafacilApi;
@@ -30,7 +31,9 @@ class FacturasClienteController extends Controller
         }
 
         $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
-        $facturaCliente->considerado = $considerado;
+        $facturaCliente = GenerarValidacionPolizaIndividual::ejecutar($facturaCliente);
+
+        $facturaCliente->considerado = ($considerado && $facturaCliente->poliza_valida) ? true : false;
         $facturaCliente->save();
 
         return response()->json([
@@ -46,8 +49,9 @@ class FacturasClienteController extends Controller
             'considerado' => 'required',
         ]);
 
-        $clienteId = $request->cliente_id;
+        $clienteId   = $request->cliente_id;
         $considerado = $request->considerado;
+        $cliente     = ResolverClientePlanetaFiscal::ejecutar($clienteId);
         $idsFacturas = explode(',', $request->facturas);
 
         foreach ($idsFacturas as $id) {
@@ -60,8 +64,10 @@ class FacturasClienteController extends Controller
                 Log::error($e);
             }
 
-            $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $clienteId);
-            $facturaCliente->considerado = $considerado;
+            $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
+            $facturaCliente = GenerarValidacionPolizaIndividual::ejecutar($facturaCliente);
+
+            $facturaCliente->considerado = ($considerado && $facturaCliente->poliza_valida) ? true : false;
             $facturaCliente->save();
         }
 
@@ -74,8 +80,9 @@ class FacturasClienteController extends Controller
     {
         $fechaPago = $request->fecha_pago;
         $clienteId = $request->cliente_id;
+        $cliente   = ResolverClientePlanetaFiscal::ejecutar($clienteId);
 
-        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $clienteId);
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
         $facturaCliente->fecha_pago = $fechaPago;
         $facturaCliente->save();
 

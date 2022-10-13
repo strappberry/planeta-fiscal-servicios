@@ -15,13 +15,15 @@ class MesTrabajo extends Model
         'fecha',
         'bloqueado',
         'configuraciones',
+        'polizas_validadas',
         'cliente_id',
     ];
 
     protected $casts = [
-        'fecha'           => 'date',
-        'bloqueado'       => 'boolean',
-        'configuraciones' => 'array',
+        'fecha'             => 'date',
+        'bloqueado'         => 'boolean',
+        'configuraciones'   => 'array',
+        'polizas_validadas' => 'boolean',
     ];
 
     public function cliente()

@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
+use App\Acciones\Facturas\GenerarValidacionPolizaIndividual;
 use App\Acciones\Facturas\RemoverNumeroDeCuentaDeFacturaCliente;
 use App\Acciones\Facturas\ResolverFacturaCliente;
-use App\Acciones\Facturas\ResolverTipoFacturaVentaOGasto;
 use App\Acciones\Facturas\VincularNumeroDeCuentaFacturaCliente;
 use App\Contafacil\Facturas\ViewModels\PolizaAutomaticaFacturaViewModel;
 use App\Contafacil\Facturas\ViewModels\ValidacionPolizaAutomaticaFacturaViewModel;
 use App\Http\Controllers\Controller;
 use App\Models\Factura;
-use App\Models\FacturaCliente;
 use App\Models\NumeroCuenta;
 use Illuminate\Http\Request;
 
@@ -50,9 +49,12 @@ class FacturasNumeroCuentaController extends Controller
         $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
 
         VincularNumeroDeCuentaFacturaCliente::ejecutar($facturaCliente, $numeroCuenta, $request->monto);
+        $facturaCliente = GenerarValidacionPolizaIndividual::ejecutar($facturaCliente);
 
         return response()->json([
-            'agregado' => true,
+            'agregado'      => true,
+            'poliza_valida' => $facturaCliente->poliza_valida,
+            'considerado'   => $facturaCliente->considerado,
         ]);
     }
 
@@ -66,9 +68,12 @@ class FacturasNumeroCuentaController extends Controller
         $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
 
         RemoverNumeroDeCuentaDeFacturaCliente::ejecutar($facturaCliente, $numeroCuenta);
+        $facturaCliente = GenerarValidacionPolizaIndividual::ejecutar($facturaCliente);
 
         return response()->json([
-            'eliminado' => true,
+            'eliminado'     => true,
+            'poliza_valida' => $facturaCliente->poliza_valida,
+            'considerado'   => $facturaCliente->considerado,
         ]);
     }
 }

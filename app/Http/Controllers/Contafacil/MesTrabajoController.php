@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Contafacil;
 use App\Acciones\BalanzaComprobacion\CalcularSaldosInicialesSiguienteMes;
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Acciones\Kontafacil\VerificarUsuarioPF;
+use App\Acciones\MesTrabajo\ResolverMesTrabajo;
 use App\Http\Controllers\Controller;
-use App\Models\MesTrabajo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -15,29 +15,21 @@ class MesTrabajoController extends Controller
 
     public function verificarMesTrabajo(string $cliente, string $fecha)
     {
-        $cliente = ResolverClientePlanetaFiscal::ejecutar($cliente);
+        $cliente      = ResolverClientePlanetaFiscal::ejecutar($cliente);
         $fechaTrabajo = Carbon::parse($fecha)->startOfMonth();
-        $bloqueado = false;
-
-        $mesTrabajo = $cliente->mesesTrabajo()->where('fecha', $fechaTrabajo)->first();
-        if ($mesTrabajo) {
-            $bloqueado = $mesTrabajo->bloqueado;
-        }
+        $mesTrabajo   = ResolverMesTrabajo::ejecutar($fechaTrabajo, $cliente);
 
         return response()->json([
-            'bloqueado' => $bloqueado,
+            'bloqueado' => $mesTrabajo->bloqueado,
         ]);
     }
 
     public function obtenerHistorico(string $cliente, string $fecha)
     {
-        $cliente = ResolverClientePlanetaFiscal::ejecutar($cliente);
+        $cliente      = ResolverClientePlanetaFiscal::ejecutar($cliente);
         $fechaTrabajo = Carbon::parse($fecha)->startOfMonth();
-        $historico = [];
-        $mesTrabajo = $cliente->mesesTrabajo()->where('fecha', $fechaTrabajo)->first();
-        if ($mesTrabajo) {
-            $historico = $mesTrabajo->historico()->orderBy('id', 'desc')->get();
-        }
+        $mesTrabajo   = ResolverMesTrabajo::ejecutar($fechaTrabajo, $cliente);
+        $historico    = $mesTrabajo->historico()->orderBy('id', 'desc')->get();
 
         return response()->json([
             'historico' => $historico,
@@ -53,7 +45,7 @@ class MesTrabajoController extends Controller
         ]);
 
         $puedeBloquearMes = VerificarUsuarioPF::ejecutar($request->usuario, $request->password);
-        $cliente = ResolverClientePlanetaFiscal::ejecutar($cliente);
+        $cliente          = ResolverClientePlanetaFiscal::ejecutar($cliente);
 
         if (!$puedeBloquearMes || !$cliente) {
             return response()->json([
@@ -62,17 +54,10 @@ class MesTrabajoController extends Controller
         }
 
         $fechaTrabajo = Carbon::parse($fecha)->startOfMonth();
-        $mesTrabajo = MesTrabajo::updateOrCreate(
-            [
-                'cliente_id' => $cliente->id,
-                'fecha'      => $fechaTrabajo,
-            ],
-            [
-                'cliente_id' => $cliente->id,
-                'fecha'      => $fechaTrabajo,
-                'bloqueado'  => true,
-            ]
-        );
+        $mesTrabajo   = ResolverMesTrabajo::ejecutar($fechaTrabajo, $cliente);
+        $mesTrabajo->bloqueado = true;
+        $mesTrabajo->save();
+
         $mesTrabajo->historico()->create([
             'comentario' => $request->comentario,
             'usuario_planeta_fiscal' => $request->usuario,
@@ -103,17 +88,9 @@ class MesTrabajoController extends Controller
         }
 
         $fechaTrabajo = Carbon::parse($fecha)->startOfMonth();
-        $mesTrabajo = MesTrabajo::updateOrCreate(
-            [
-                'cliente_id' => $cliente->id,
-                'fecha'      => $fechaTrabajo,
-            ],
-            [
-                'cliente_id' => $cliente->id,
-                'fecha'      => $fechaTrabajo,
-                'bloqueado'  => false,
-            ]
-        );
+        $mesTrabajo   = ResolverMesTrabajo::ejecutar($fechaTrabajo, $cliente);
+        $mesTrabajo->bloqueado = false;
+        $mesTrabajo->save();
 
         $mesTrabajo->historico()->create([
             'comentario' => $request->comentario,

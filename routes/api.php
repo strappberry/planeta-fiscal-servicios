@@ -83,11 +83,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('contafacil')->group(function() {
     Route::prefix('ventas')->group(function() {
-        Route::get('facturas', [VentasController::class, 'listadoFacturasProvisional']);
+        Route::get('facturas', [VentasController::class, 'listadoFacturas']);
     });
 
     Route::prefix('gastos')->group(function() {
-        Route::get('facturas', [GastosController::class, 'listadoFacturasProvisional']);
+        Route::get('facturas', [GastosController::class, 'listadoFacturas']);
     });
 
     Route::prefix('balanza')->group(function () {
