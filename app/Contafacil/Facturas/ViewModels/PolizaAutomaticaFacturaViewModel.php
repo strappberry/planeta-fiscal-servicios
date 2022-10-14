@@ -28,16 +28,17 @@ class PolizaAutomaticaFacturaViewModel extends ViewModel
 
         foreach ($numerosCuenta as $numeroCuenta) {
             $lineaNumeroCuenta = [
-                'id'              => $numeroCuenta->id,
-                'numero_cuenta'   => $numeroCuenta->numero_cuenta,
-                'descripcion'     => $numeroCuenta->descripcion,
-                'tipo_cuenta'     => $numeroCuenta->tipo_cuenta,
-                'subtipo'         => $numeroCuenta->subtipo,
-                'automatico'      => $numeroCuenta->automatico,
-                'columna_calculo' => $numeroCuenta->columna_calculo,
-                'monto'           => 0,
-                'cargo'           => 0,
-                'abono'           => 0,
+                'id'                   => $numeroCuenta->id,
+                'numero_cuenta'        => $numeroCuenta->numero_cuenta,
+                'descripcion'          => $numeroCuenta->descripcion,
+                'tipo_cuenta'          => $numeroCuenta->tipo_cuenta,
+                'subtipo'              => $numeroCuenta->subtipo,
+                'automatico'           => $numeroCuenta->automatico,
+                'columna_calculo'      => $numeroCuenta->columna_calculo,
+                'residual_cargo_abono' => $numeroCuenta->residual_cargo_abono,
+                'monto'                => 0,
+                'cargo'                => 0,
+                'abono'                => 0,
             ];
 
             $numeroCuentaFacturaCliente = FacturaClienteNumeroCuenta::query()
@@ -76,16 +77,17 @@ class PolizaAutomaticaFacturaViewModel extends ViewModel
 
         foreach ($numerosCuenta as $numeroCuenta) {
             $lineaNumeroCuenta = [
-                'id'              => $numeroCuenta->id,
-                'numero_cuenta'   => $numeroCuenta->numero_cuenta,
-                'descripcion'     => $numeroCuenta->descripcion,
-                'tipo_cuenta'     => $numeroCuenta->tipo_cuenta,
-                'subtipo'         => $numeroCuenta->subtipo,
-                'automatico'      => $numeroCuenta->automatico,
-                'columna_calculo' => $numeroCuenta->columna_calculo,
-                'monto'           => 0,
-                'cargo'           => 0,
-                'abono'           => 0,
+                'id'                   => $numeroCuenta->id,
+                'numero_cuenta'        => $numeroCuenta->numero_cuenta,
+                'descripcion'          => $numeroCuenta->descripcion,
+                'tipo_cuenta'          => $numeroCuenta->tipo_cuenta,
+                'subtipo'              => $numeroCuenta->subtipo,
+                'automatico'           => $numeroCuenta->automatico,
+                'columna_calculo'      => $numeroCuenta->columna_calculo,
+                'residual_cargo_abono' => $numeroCuenta->residual_cargo_abono,
+                'monto'                => 0,
+                'cargo'                => 0,
+                'abono'                => 0,
             ];
 
             $numeroCuentaFacturaCliente = FacturaClienteNumeroCuenta::query()

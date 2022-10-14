@@ -7,7 +7,7 @@ use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionSinCalculos
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
-use App\Contafacil\Polizas\ViewModels\PolizasManualesVentasYGastosViewModel;
+use App\Contafacil\Polizas\ViewModels\ValidacionPolizaVentasGastosViewModel;
 use App\Http\Controllers\Controller;
 use App\Models\BalanzaComprobacionCliente;
 use App\Models\NumeroCuenta;
@@ -84,24 +84,29 @@ class BalanzaComprobacionController extends Controller
     {
         $fechaInicio = Carbon::parse($fecha)->startOfMonth();
         $fechaFin    = Carbon::parse($fecha)->endOfMonth();
-        $clienteId   = $cliente;
+        $cliente     = ResolverClientePlanetaFiscal::ejecutar($cliente);
 
         $polizasVentas = new PolizasAutomaticasVentasYGastosViewModel(
             NumeroCuenta::TIPO_POLIZA_VENTAS,
             $fechaInicio,
             $fechaFin,
-            $clienteId
+            $cliente
         );
+        $validacionPolizaVentas = new ValidacionPolizaVentasGastosViewModel($polizasVentas);
+
         $polizasGastos = new PolizasAutomaticasVentasYGastosViewModel(
             NumeroCuenta::TIPO_POLIZA_GASTOS,
             $fechaInicio,
             $fechaFin,
-            $clienteId
+            $cliente
         );
+        $validacionPolizaGastos = new ValidacionPolizaVentasGastosViewModel($polizasGastos);
 
         return response()->json([
             'poliza_automatica_ventas' => $polizasVentas->toArray(),
+            'validacion_poliza_ventas' => $validacionPolizaVentas->toArray(),
             'poliza_automatica_gastos' => $polizasGastos->toArray(),
+            'validacion_poliza_gatos'  => $validacionPolizaGastos->toArray(),
         ]);
     }
 
@@ -109,7 +114,6 @@ class BalanzaComprobacionController extends Controller
     {
         Carbon::setLocale('es');
 
-        $clienteId   = $cliente;
         $cliente = ResolverClientePlanetaFiscal::ejecutar($cliente);
         $periodo = CarbonInterval::month(1)
             ->toPeriod(
@@ -128,13 +132,13 @@ class BalanzaComprobacionController extends Controller
                 NumeroCuenta::TIPO_POLIZA_VENTAS,
                 $fechaInicio,
                 $fechaFin,
-                $clienteId
+                $cliente
             ))->toArray();
             $polizasGastosAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
                 NumeroCuenta::TIPO_POLIZA_GASTOS,
                 $fechaInicio,
                 $fechaFin,
-                $clienteId
+                $cliente
             ))->toArray();
 
             $balanzaComprobacionDelMes = (new BalanzaComprobacionSinCalculosViewModel(

@@ -109,10 +109,20 @@ class NumerosCuentasSeeder extends Seeder
                     ['operacion' => 'suma', 'clave_monto' => 'retencion_isr'],
                 ],
             ],
+            [
+                'numero_cuenta'   => '601-84',
+                'descripcion'     => 'Otros gastos',
+                'automatico'      => false,
+                'residual_cargo_abono' => true,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
+                'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
+                'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
+                'formula'         => [],
+            ],
 
             /*
              |------------------------------------------------------------------
-             | Polizas automaticos - Gastos - Fecha Pago - Columna derecha
+             | Polizas automaticos - Ventas - Fecha Pago - Columna derecha
              |------------------------------------------------------------------
              */
             [
@@ -203,10 +213,20 @@ class NumerosCuentasSeeder extends Seeder
                     ['operacion' => 'suma', 'clave_monto' => 'retencion_isr'],
                 ],
             ],
+            [
+                'numero_cuenta'   => '601-84',
+                'descripcion'     => 'Otros gastos',
+                'automatico'      => false,
+                'residual_cargo_abono' => true,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_VENTAS,
+                'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
+                'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
+                'formula'         => [],
+            ],
 
             /*
              |------------------------------------------------------------------
-             | Balanza comprobacion automatico - Gastos
+             | Cuentas - Gastos - Emision
              |------------------------------------------------------------------
              */
             [
@@ -527,6 +547,7 @@ class NumerosCuentasSeeder extends Seeder
                 'numero_cuenta'   => '601-84',
                 'descripcion'     => 'Otros gastos',
                 'automatico'      => false,
+                'residual_cargo_abono' => true,
                 'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
@@ -653,6 +674,16 @@ class NumerosCuentasSeeder extends Seeder
                     ['operacion' => 'suma', 'clave_monto' => 'subtotal'],
                     ['operacion' => 'resta', 'clave_monto' => 'otros_impuestos'],
                 ],
+            ],
+            [
+                'numero_cuenta'   => '601-84',
+                'descripcion'     => 'Otros gastos',
+                'automatico'      => false,
+                'residual_cargo_abono' => true,
+                'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
+                'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_PAGO,
+                'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
+                'formula'         => [],
             ],
         ];
 

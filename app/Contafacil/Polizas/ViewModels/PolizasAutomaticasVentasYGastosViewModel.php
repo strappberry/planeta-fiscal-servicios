@@ -4,6 +4,7 @@ namespace App\Contafacil\Polizas\ViewModels;
 
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Contafacil\Facturas\ViewModels\PolizaAutomaticaFacturaViewModel;
+use App\Models\Cliente;
 use App\Models\FacturaCliente;
 use App\Models\NumeroCuenta;
 use Carbon\Carbon;
@@ -23,7 +24,7 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
         string $tipoPoliza,
         Carbon $fechaInicio,
         Carbon $fechaFin,
-        string $cliente,
+        Cliente $cliente,
     ) {
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin    = $fechaFin;
@@ -36,7 +37,7 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin,
             ])
-            ->where('cliente_id', $this->cliente)
+            ->where('cliente_id', $this->cliente->id)
             ->where('considerado', true)
             ->orderBy('fecha_emision')
             ->get();
@@ -47,7 +48,7 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 $this->fechaInicio,
                 $this->fechaFin,
             ])
-            ->where('cliente_id', $this->cliente)
+            ->where('cliente_id', $this->cliente->id)
             ->where('considerado', true)
             ->orderBy('fecha_pago')
             ->get();
@@ -88,10 +89,10 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
             ];
 
             $poliza['cargo'] = $this->polizasPorEmision
-                ->where('numero_cuenta', $numeroCuenta->numero_cuenta)
+                ->where('id', $numeroCuenta->id)
                 ->sum('cargo');
             $poliza['abono'] = $this->polizasPorEmision
-                ->where('numero_cuenta', $numeroCuenta->numero_cuenta)
+                ->where('id', $numeroCuenta->id)
                 ->sum('abono');
 
             $resultado[] = $poliza;
@@ -122,10 +123,10 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
             ];
 
             $poliza['cargo'] = $this->polizasPorPago
-                ->where('numero_cuenta', $numeroCuenta->numero_cuenta)
+                ->where('id', $numeroCuenta->id)
                 ->sum('cargo');
             $poliza['abono'] = $this->polizasPorPago
-                ->where('numero_cuenta', $numeroCuenta->numero_cuenta)
+                ->where('id', $numeroCuenta->id)
                 ->sum('abono');
 
             $resultado[] = $poliza;

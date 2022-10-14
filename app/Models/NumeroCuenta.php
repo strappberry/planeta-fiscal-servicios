@@ -31,12 +31,14 @@ class NumeroCuenta extends Model
         'formula',
         'cliente_id',
         'exclusiones',
+        'residual_cargo_abono',
     ];
 
     protected $casts = [
-        'automatico' => 'boolean',
-        'formula'    => 'array',
-        'exclusiones' => 'array',
+        'automatico'           => 'boolean',
+        'formula'              => 'array',
+        'exclusiones'          => 'array',
+        'residual_cargo_abono' => 'boolean',
     ];
 
     protected $hidden = [

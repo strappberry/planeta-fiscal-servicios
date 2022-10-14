@@ -38,14 +38,14 @@ class BalanzaComprobacionViewModel extends ViewModel
             NumeroCuenta::TIPO_POLIZA_VENTAS,
             $fechaInicio,
             $fechaFin,
-            $cliente->planetafiscal_id
+            $cliente
         ))->toArray();
 
         $this->polizasGastosAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
             NumeroCuenta::TIPO_POLIZA_GASTOS,
             $fechaInicio,
             $fechaFin,
-            $cliente->planetafiscal_id
+            $cliente
         ))->toArray();
     }
 

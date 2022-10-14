@@ -18,12 +18,14 @@ class VincularNumeroDeCuentaFacturaCliente
         NumeroCuenta $numeroCuenta,
         $monto
     ) {
+        // Vincular el número de cuenta con el monto
         $facturaCliente->numerosCuentas()->syncWithoutDetaching([
             $numeroCuenta->id => [
                 'monto' => $monto,
             ],
         ]);
 
+        // Verificar si el número de cuenta tiene exclusiones
         if ($numeroCuenta->exclusiones) {
             foreach($numeroCuenta->exclusiones as $exclusion) {
                 $numeroCuentaExcluido = NumeroCuenta::buscarExclusion($exclusion)->first();
