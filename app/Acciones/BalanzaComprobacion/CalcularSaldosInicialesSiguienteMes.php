@@ -7,6 +7,7 @@ use App\Models\BalanzaComprobacionCliente;
 use App\Models\Cliente;
 use Carbon\Carbon;
 
+// TODO: eliminar clase no usada
 class CalcularSaldosInicialesSiguienteMes
 {
     /**
