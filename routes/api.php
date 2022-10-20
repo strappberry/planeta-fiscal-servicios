@@ -15,6 +15,7 @@ use App\Http\Controllers\Contafacil\FacturasNumeroCuentaController;
 use App\Http\Controllers\Contafacil\GastosController;
 use App\Http\Controllers\Contafacil\MesTrabajoController;
 use App\Http\Controllers\Contafacil\NumerosCuentasController;
+use App\Http\Controllers\Contafacil\TablasTarifasController;
 use App\Http\Controllers\Contafacil\VentasController;
 use App\Http\Controllers\ReportesController;
 use Illuminate\Http\Request;
@@ -158,5 +159,11 @@ Route::prefix('contafacil')->group(function() {
             Route::post('/agregar', [ComentariosController::class, 'agregarComentarioFactura']);
             Route::get('/{factura}', [ComentariosController::class, 'comentariosFactura']);
         });
+    });
+
+    Route::prefix('tablas-tarifas')->group(function () {
+        Route::get('/configuracion', [TablasTarifasController::class, 'configuracionTablas']);
+        Route::get('/tabla', [TablasTarifasController::class, 'obtenerTabla']);
+        Route::post('/guardar-tabla', [TablasTarifasController::class, 'guardarTablaTarifa']);
     });
 });
