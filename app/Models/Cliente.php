@@ -63,6 +63,11 @@ class Cliente extends Model
         return $this->hasMany(Factura::class);
     }
 
+    public function facturasCliente()
+    {
+        return $this->hasMany(FacturaCliente::class);
+    }
+
     public function mesesTrabajo()
     {
         return $this->hasMany(MesTrabajo::class);

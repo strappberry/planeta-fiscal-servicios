@@ -6,6 +6,7 @@ use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionSinCalculosViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
+use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Contafacil\Polizas\ViewModels\ValidacionPolizaVentasGastosViewModel;
 use App\Http\Controllers\Controller;
@@ -68,8 +69,10 @@ class BalanzaComprobacionController extends Controller
             'rfc'          => 'required|string',
         ]);
 
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($cliente);
+
         $viewModel = new BalanzaImpuestsoViewModel(
-            $cliente,
+            $cliente->id,
             $request->rfc,
             Carbon::parse($request->fecha_inicio)->startOfMonth(),
             Carbon::parse($request->fecha_fin)->endOfMonth()
@@ -160,6 +163,18 @@ class BalanzaComprobacionController extends Controller
 
         return response()->json([
             'polizas_anuales' => $polizasAnuales,
+        ]);
+    }
+
+    public function calculosDelImpuesto($clienteId, $fecha)
+    {
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+        $fecha   = Carbon::parse($fecha)->startOfMonth();
+
+        $modelo = new CalculoDeIvaViewModel($cliente, $fecha);
+
+        return response()->json([
+            'modelo' => $modelo->toArray(),
         ]);
     }
 

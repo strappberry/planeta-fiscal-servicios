@@ -23,4 +23,36 @@ class FacturaClienteQueryBuilder extends Builder
         }
         return $this;
     }
+
+    /** Dentro un rango de fechas de emision */
+    public function dentroFechaEmision($fechaInicio, $fechaFin)
+    {
+        return $this->whereBetween('fecha_emision', [$fechaInicio, $fechaFin]);
+    }
+
+    /** Dentro de un rango de fechas de pago */
+    public function dentroFechaPago($fechaInicio, $fechaFin)
+    {
+        return $this->whereBetween('fecha_pago', [$fechaInicio, $fechaFin]);
+    }
+
+    public function esVenta()
+    {
+        return $this->where('tipo_factura', FacturaCliente::TIPO_VENTA);
+    }
+
+    public function esGasto()
+    {
+        return $this->where('tipo_factura', FacturaCliente::TIPO_GASTO);
+    }
+
+    public function esConsiderado()
+    {
+        return $this->where('considerado', true);
+    }
+
+    public function noEsConsiderado()
+    {
+        return $this->where('considerado', false);
+    }
 }

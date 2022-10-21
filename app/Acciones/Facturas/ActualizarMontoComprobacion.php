@@ -9,7 +9,7 @@ class ActualizarMontoComprobacion
     /**
      * Calcular el monto de comprobación de la factura
      *
-     * Formula: Total - Subtotal + Tasa 0 + Exentos + Otros Impuestos + IVA + IEPS + RET IVA + RET ISR + Descuento
+     * Formula: Total - Subtotal + Tasa 0 + Exentos + Otros Impuestos - IVA + IEPS + RET IVA + RET ISR + Descuento
      *
      * @return void
      */
@@ -22,7 +22,7 @@ class ActualizarMontoComprobacion
             + $factura->otros_impuestos
             + $factura->traslado_iva
             + $factura->traslado_ieps
-            + $factura->retencion_iva
+            - $factura->retencion_iva
             + $factura->retencion_isr
             + $factura->descuento
             ;

@@ -107,6 +107,9 @@ Route::prefix('contafacil')->group(function() {
         Route::post('actualizar-saldos', [
             BalanzaComprobacionController::class, 'actualizarSaldosBalanza'
         ]);
+        Route::get('calculo-iva/{clienteId}/{fecha}', [
+            BalanzaComprobacionController::class, 'calculosDelImpuesto'
+        ]);
     });
 
     Route::prefix('meses-trabajo/{cliente}')->group(function () {

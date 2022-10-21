@@ -181,6 +181,7 @@ class Factura extends Model
 
     public function getTrasladoIvaSobreDieciseisAttribute()
     {
+        /* Invertiendo el calculo del iva se puede obtener el monto gravado de forma sencilla */
         if ($this->traslado_iva > 0) {
             return $this->traslado_iva / 0.16;
         }
