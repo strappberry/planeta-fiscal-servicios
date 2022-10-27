@@ -90,4 +90,59 @@ class FacturasClienteController extends Controller
             'factura' => $facturaCliente,
         ]);
     }
+
+    public function establecerConceptoSat(Request $request, Factura $factura)
+    {
+        $this->validate($request, [
+            'cliente_id' => 'required',
+        ]);
+
+        $clienteId = $request->cliente_id;
+        $cliente   = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
+        $facturaCliente->concepto_sat_id = $request->get('concepto_sat');
+        $facturaCliente->save();
+
+        return response()->json([
+            'factura' => $facturaCliente,
+        ]);
+    }
+
+    public function establecerConceptoDeduccionPersonal(Request $request, Factura $factura)
+    {
+        $this->validate($request, [
+            'cliente_id' => 'required',
+        ]);
+
+        $clienteId = $request->cliente_id;
+        $cliente   = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
+        $facturaCliente->concepto_deduccion_personal_id = $request->get('concepto_deduccion_personal');
+        $facturaCliente->save();
+
+        return response()->json([
+            'factura' => $facturaCliente,
+        ]);
+    }
+
+    public function establecerDeducible(Request $request, Factura $factura)
+    {
+        $this->validate($request, [
+            'cliente_id' => 'required',
+            'deducible'  => 'required|boolean',
+        ]);
+
+        $clienteId = $request->cliente_id;
+        $cliente   = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
+        $facturaCliente->deducible = $request->get('deducible');
+        $facturaCliente->save();
+
+        return response()->json([
+            'factura' => $facturaCliente,
+        ]);
+    }
 }

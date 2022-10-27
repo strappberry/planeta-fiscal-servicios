@@ -9,6 +9,8 @@ use App\Http\Controllers\Contafacil\BancosController;
 use App\Http\Controllers\Contafacil\BancosProyectosController;
 use App\Http\Controllers\Contafacil\ComentariosController;
 use App\Http\Controllers\Contafacil\ComplementosController;
+use App\Http\Controllers\Contafacil\ConceptosDeduccionesPersonalesController;
+use App\Http\Controllers\Contafacil\ConceptosSatController;
 use App\Http\Controllers\Contafacil\FacturasClienteController;
 use App\Http\Controllers\Contafacil\FacturasController as ContafacilFacturasController;
 use App\Http\Controllers\Contafacil\FacturasNumeroCuentaController;
@@ -124,6 +126,15 @@ Route::prefix('contafacil')->group(function() {
         Route::post('/establecer-consideracion/{factura}', [FacturasClienteController::class, 'establecerConsideracion']);
         Route::post('/consideracion-multiple', [FacturasClienteController::class, 'establecerConsideracionMultiples']);
         Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
+        Route::post('/establecer-concepto-sat/{factura}', [
+            FacturasClienteController::class, 'establecerConceptoSat'
+        ]);
+        Route::post('/establecer-concepto-deduccion-personal/{factura}', [
+            FacturasClienteController::class, 'establecerConceptoDeduccionPersonal'
+        ]);
+        Route::post('/establecer-deducible/{factura}', [
+            FacturasClienteController::class, 'establecerDeducible'
+        ]);
     });
 
     Route::prefix('facturas-numeros-cuentas/{clienteId}')->group(function () {
@@ -168,5 +179,13 @@ Route::prefix('contafacil')->group(function() {
         Route::get('/configuracion', [TablasTarifasController::class, 'configuracionTablas']);
         Route::get('/tabla', [TablasTarifasController::class, 'obtenerTabla']);
         Route::post('/guardar-tabla', [TablasTarifasController::class, 'guardarTablaTarifa']);
+    });
+
+    Route::prefix('conceptos-sat')->group(function() {
+        Route::get('/', [ConceptosSatController::class, 'obtenerConceptosSat']);
+    });
+
+    Route::prefix(('conceptos-deducciones-personales'))->group(function () {
+        Route::get('/', [ConceptosDeduccionesPersonalesController::class, 'obtenerConceptosDeduccionesPersonales']);
     });
 });

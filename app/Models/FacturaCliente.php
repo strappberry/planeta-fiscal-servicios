@@ -23,11 +23,15 @@ class FacturaCliente extends Model
         'cuenta_poliza',
         'tipo_factura',
         'poliza_valida',
+        'concepto_deduccion_personal_id',
+        'concepto_sat_id',
+        'deducible',
     ];
 
     protected $casts = [
         'considerado'   => 'boolean',
         'poliza_valida' => 'boolean',
+        'deducible'     => 'boolean',
     ];
 
     protected $dates = [
@@ -38,6 +42,21 @@ class FacturaCliente extends Model
     public function newEloquentBuilder($query)
     {
         return new FacturaClienteQueryBuilder($query);
+    }
+
+    public function conceptoDeduccionPersonal()
+    {
+        return $this->belongsTo(ConceptoDeduccionPersonal::class);
+    }
+
+    public function conceptoSat()
+    {
+        return $this->belongsTo(ConceptoSat::class);
+    }
+
+    public function cuentaPoliza()
+    {
+        return $this->belongsTo(NumeroCuenta::class, 'cuenta_poliza');
     }
 
     public function factura()
@@ -60,8 +79,4 @@ class FacturaCliente extends Model
             ->using(FacturaClienteNumeroCuenta::class);
     }
 
-    public function cuentaPoliza()
-    {
-        return $this->belongsTo(NumeroCuenta::class, 'cuenta_poliza');
-    }
 }
