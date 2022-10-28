@@ -21,10 +21,10 @@ class TablaTarifa extends Model
 
     protected $casts = [
         'anio'                 => 'integer',
-        'limite_inferior'      => 'decimal:2',
-        'limite_superior'      => 'decimal:2',
-        'cuota_fija'           => 'decimal:2',
-        'porcentaje_excedente' => 'decimal:6',
+        'limite_inferior'      => 'float',
+        'limite_superior'      => 'float',
+        'cuota_fija'           => 'float',
+        'porcentaje_excedente' => 'float',
     ];
 
     /*

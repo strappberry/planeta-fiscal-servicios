@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Contafacil;
 
+use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
+use App\Acciones\Facturas\GenerarValidacionPolizaIndividual;
+use App\Acciones\Facturas\ResolverFacturaCliente;
 use App\Http\Controllers\Controller;
 use App\Models\Factura;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class FacturasController extends Controller
@@ -19,6 +23,7 @@ class FacturasController extends Controller
             'traslado_ieps'     => 'required',
             'retencion_iva'     => 'required',
             'retencion_isr'     => 'required',
+            'cliente_id'        => 'required',
         ]);
 
         $factura->tasa_cero         = $request->tasa_cero;
@@ -29,6 +34,10 @@ class FacturasController extends Controller
         $factura->retencion_iva     = $request->retencion_iva;
         $factura->retencion_isr     = $request->retencion_isr;
         $factura->save();
+
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($request->cliente_id);
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
+        GenerarValidacionPolizaIndividual::ejecutar($facturaCliente);
 
         return response()->json([
             'factura' => $factura,

@@ -179,6 +179,11 @@ class Factura extends Model
      |--------------------------------------------------------------------------
      */
 
+    public function getEstaVigenteAttribute()
+    {
+        return $this->estado_comprobante === 'Vigente' || $this->estado_comprobante === 'vigente';
+    }
+
     public function getTrasladoIvaSobreDieciseisAttribute()
     {
         /* Invertiendo el calculo del iva se puede obtener el monto gravado de forma sencilla */

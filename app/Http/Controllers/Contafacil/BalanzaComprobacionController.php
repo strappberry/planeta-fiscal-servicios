@@ -7,6 +7,8 @@ use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionSinCalculos
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
 use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
+use App\Contafacil\Facturas\ViewModels\ColumnasDeduccionesViewModel;
+use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Contafacil\Polizas\ViewModels\ValidacionPolizaVentasGastosViewModel;
 use App\Http\Controllers\Controller;
@@ -172,6 +174,30 @@ class BalanzaComprobacionController extends Controller
         $fecha   = Carbon::parse($fecha)->startOfMonth();
 
         $modelo = new CalculoDeIvaViewModel($cliente, $fecha);
+
+        return response()->json([
+            'modelo' => $modelo->toArray(),
+        ]);
+    }
+
+    public function columnasDeducciones(Request $request, $clienteId, $fecha)
+    {
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+        $fecha  = Carbon::parse($fecha)->startOfMonth();
+
+        $modelo = new ColumnasDeduccionesViewModel($cliente, $fecha);
+
+        return response()->json([
+            'modelo' => $modelo->toArray(),
+        ]);
+    }
+
+    public function determinacionDelImpuesto(Request $request, $clienteId, $fecha)
+    {
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+        $fecha  = Carbon::parse($fecha)->startOfMonth();
+
+        $modelo = new DeterminacionDelImpuestoViewModel($cliente, $fecha);
 
         return response()->json([
             'modelo' => $modelo->toArray(),

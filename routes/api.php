@@ -112,6 +112,12 @@ Route::prefix('contafacil')->group(function() {
         Route::get('calculo-iva/{clienteId}/{fecha}', [
             BalanzaComprobacionController::class, 'calculosDelImpuesto'
         ]);
+        Route::get('columnas-deducciones/{clienteId}/{fecha}', [
+            BalanzaComprobacionController::class, 'columnasDeducciones'
+        ]);
+        Route::get('determinacion-del-impuesto/{clienteId}/{fecha}', [
+            BalanzaComprobacionController::class, 'determinacionDelImpuesto'
+        ]);
     });
 
     Route::prefix('meses-trabajo/{cliente}')->group(function () {

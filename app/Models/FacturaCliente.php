@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\EloquentCollections\FacturaClienteCollection;
 use App\Models\QueryBuilders\FacturaClienteQueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,6 +43,11 @@ class FacturaCliente extends Model
     public function newEloquentBuilder($query)
     {
         return new FacturaClienteQueryBuilder($query);
+    }
+
+    public function newCollection(array $models = [])
+    {
+        return new FacturaClienteCollection($models);
     }
 
     public function conceptoDeduccionPersonal()
