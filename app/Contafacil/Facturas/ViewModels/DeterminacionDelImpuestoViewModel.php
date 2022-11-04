@@ -43,20 +43,30 @@ class DeterminacionDelImpuestoViewModel extends ViewModel
                 ->first();
     }
 
+    public function tablasPorcentajesIngresos(): array
+    {
+        return $this->ventasCobradas->generarTablaPorcentajeIngresos();
+    }
+
+    public function ivaAcreditableAGastos()
+    {
+        return $this->gastosPagados->calcularIvaAcreditableAGastos();
+    }
+
     public function ingresos()
     {
-        return $this->ventasCobradas->calcularIngresos();
+        return $this->ventasCobradas->calcularIngresos(0);
     }
 
     public function ingresosAcumulados()
     {
         $ingresosAnteriores = ($this->determinacionPasada) ? $this->determinacionPasada->ingresos_acumulados : 0;
-        return $ingresosAnteriores + $this->ingresos();
+        return round($ingresosAnteriores + $this->ingresos(), 0);
     }
 
     public function deducciones()
     {
-        return $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados();
+        return $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(0);
     }
 
     public function deduccionesAcumuladas()
@@ -64,16 +74,18 @@ class DeterminacionDelImpuestoViewModel extends ViewModel
         $deduccionesAnteriores = ($this->determinacionPasada) ?
             $this->determinacionPasada->deducciones_acumuladas : 0;
 
-        return $deduccionesAnteriores + $this->deducciones();
+        return round($deduccionesAnteriores + $this->deducciones(), 0);
     }
 
     public function ptuPagada()
     {
+        // TODO: Pendiente implementar
         return 0;
     }
 
     public function depreciacion()
     {
+        // TODO: Pendiente implementar
         return 0;
     }
 
@@ -84,6 +96,7 @@ class DeterminacionDelImpuestoViewModel extends ViewModel
 
     public function perdidasEjercicioAnterior()
     {
+        // TODO: Pendiente implementar
         return 0;
     }
 
@@ -98,12 +111,12 @@ class DeterminacionDelImpuestoViewModel extends ViewModel
         return round($base, 2);
     }
 
-    /*
-     | PAGOS PROVISIONALES PAGADOS
-     |
-     | Si el mes es enero o no hay determinacion del mes pasado se regresa el valor de 0
-     | Si el mes es mayor a enero se regresará el valor de pp_pagados + isr_actividad
-     | del mes anterior
+    /**
+     * PAGOS PROVISIONALES PAGADOS
+     *
+     * Si el mes es enero o no hay determinacion del mes pasado se regresa el valor de 0
+     * Si el mes es mayor a enero se regresará el valor de pp_pagados + isr_actividad
+     * del mes anterior
      */
     public function ppPagados()
     {
@@ -176,6 +189,6 @@ class DeterminacionDelImpuestoViewModel extends ViewModel
 
     public function isrRetenido()
     {
-        return round($this->ventasCobradas->isrRetenido(), 2);
+        return $this->ventasCobradas->sumatoriaRetencionesIsr(0);
     }
 }

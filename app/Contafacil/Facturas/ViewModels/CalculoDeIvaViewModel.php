@@ -80,21 +80,17 @@ class CalculoDeIvaViewModel extends ViewModel
             'iva_por_pagar'    => 0,
         ];
 
-        foreach($this->ventasCobradas as $ventaCobrada) {
-            $calculos['ventas_gravadas'] += $ventaCobrada->factura->traslado_iva_sobre_dieciseis;
-            $calculos['trasladado']      += $ventaCobrada->factura->traslado_iva;
-            $calculos['iva_retenido']    += $ventaCobrada->factura->retencion_iva;
-            $calculos['ventas_al_cero']  += $ventaCobrada->factura->tasa_cero;
-            $calculos['ventas_exentas']  += $ventaCobrada->factura->traslados_exentos;
-        }
+        $calculos['ventas_gravadas'] = $this->ventasCobradas->sumatoriaGravados(0);
+        $calculos['trasladado']      = $this->ventasCobradas->sumatoriaTrasladosIva(0);
+        $calculos['iva_retenido']    = $this->ventasCobradas->sumatoriaRetencionesIva(0);
+        $calculos['ventas_al_cero']  = $this->ventasCobradas->sumatoriaTasaCero(0);
+        $calculos['ventas_exentas']  = $this->ventasCobradas->sumatoriaTrasladosExentos(0);
 
-        foreach($this->gastosPagados as $gastoPagado) {
-            $calculos['compras_gravadas'] += $gastoPagado->factura->traslado_iva_sobre_dieciseis;
-            $calculos['acreditable']      += $gastoPagado->factura->traslado_iva;
-            $calculos['compras_al_cero']  += $gastoPagado->factura->tasa_cero;
-            $calculos['compras_exentas']  += $gastoPagado->factura->traslados_exentos;
-            $calculos['iva_retenciones']  += $gastoPagado->factura->retencion_iva;
-        }
+        $calculos['compras_gravadas'] = $this->gastosPagados->sumatoriaGravados(0);
+        $calculos['acreditable']      = $this->gastosPagados->sumatoriaTrasladosIva(0);
+        $calculos['compras_al_cero']  = $this->gastosPagados->sumatoriaTasaCero(0);
+        $calculos['compras_exentas']  = $this->gastosPagados->sumatoriaTrasladosExentos(0);
+        $calculos['iva_retenciones']  = $this->gastosPagados->sumatoriaRetencionesIva(0);
 
         /* El iva del periodo de calcula de la siguiente manera
          *   Iva trasladado de las ventas cobradas
@@ -112,6 +108,7 @@ class CalculoDeIvaViewModel extends ViewModel
         return $calculos;
     }
 
+    /* TODO: pendiente implementar calculos isr para diferentes regimenes */
     public function calculosIsr(): array
     {
         $calculos = [

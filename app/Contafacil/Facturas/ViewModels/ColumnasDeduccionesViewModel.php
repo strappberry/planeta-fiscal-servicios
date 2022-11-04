@@ -42,7 +42,7 @@ class ColumnasDeduccionesViewModel extends ViewModel
             [
                 'id'        => 1,
                 'titulo'    => 'Compras, gastos y devoluciones facturados y pagados',
-                'importe'   => $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(),
+                'importe'   => $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(0),
                 'deducible' => true,
             ],
             [
