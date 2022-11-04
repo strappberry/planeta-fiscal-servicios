@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PerteneceAUnCliente;
 use App\Models\Concerns\TieneHistorico;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class MesTrabajo extends Model
 {
     use HasFactory;
-    use TieneHistorico;
+    use TieneHistorico, PerteneceAUnCliente;
 
     protected $fillable = [
         'fecha',
@@ -25,9 +26,4 @@ class MesTrabajo extends Model
         'configuraciones'   => 'array',
         'polizas_validadas' => 'boolean',
     ];
-
-    public function cliente()
-    {
-        return $this->belongsTo(Cliente::class);
-    }
 }

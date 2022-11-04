@@ -58,6 +58,11 @@ class Cliente extends Model
         return $this->hasMany(ClaveSat::class);
     }
 
+    public function determinacionDelImpuesto()
+    {
+        return $this->hasMany(DeterminacionImpuesto::class);
+    }
+
     public function facturas()
     {
         return $this->hasMany(Factura::class);

@@ -2,6 +2,7 @@
 
 namespace App\Acciones\MesTrabajo;
 
+use App\Acciones\BalanzaComprobacion\InsertarDeterminacionDelImpuesto;
 use App\Acciones\BalanzaComprobacion\InsertarSaldosFinalesBalanzaComprobacion;
 use App\Acciones\BalanzaComprobacion\InsertarSaldosInicialesBalanzaComprobacion;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
@@ -31,6 +32,9 @@ class BloquearMesTrabajo
             $mesTrabajo->fecha->copy()->endOfMonth(),
             $cliente
         );
+
+        // Se calculará la determinacion del impuesto y se guardara en base de datos.
+        InsertarDeterminacionDelImpuesto::ejecutar($cliente, $mesTrabajo->fecha->copy()->startOfMonth());
 
         // Se insertan los saldos finales de la balanza del mes de trabajo indicado.
         InsertarSaldosFinalesBalanzaComprobacion::ejecutar($mesTrabajo, $balanzaMes);

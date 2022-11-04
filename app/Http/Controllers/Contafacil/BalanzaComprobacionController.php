@@ -8,6 +8,7 @@ use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
 use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
 use App\Contafacil\Facturas\ViewModels\ColumnasDeduccionesViewModel;
+use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoDBViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Contafacil\Polizas\ViewModels\ValidacionPolizaVentasGastosViewModel;
@@ -151,6 +152,11 @@ class BalanzaComprobacionController extends Controller
                 $cliente
             ))->toArray();
 
+            $determinacion = (new DeterminacionDelImpuestoDBViewModel(
+                $cliente,
+                $fechaInicio,
+            ))->toArray();
+
             array_push($polizasAnuales, [
                 'mes'   => $mes->monthName,
                 'anio'  => $mes->year,
@@ -160,6 +166,7 @@ class BalanzaComprobacionController extends Controller
                 'poliza_automatica_ventas' => $polizasVentasAutomaticas,
                 'poliza_automatica_gastos' => $polizasGastosAutomaticas,
                 'balanza_comprobacion'     => $balanzaComprobacionDelMes,
+                'determinacion_impuesto'   => $determinacion,
             ]);
         }
 
