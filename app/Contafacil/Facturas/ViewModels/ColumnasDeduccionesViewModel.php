@@ -2,6 +2,7 @@
 
 namespace App\Contafacil\Facturas\ViewModels;
 
+use App\Acciones\Facturas\CalcularIvaAcreditableAGasto;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\Cliente;
 use Carbon\Carbon;
@@ -15,15 +16,15 @@ class ColumnasDeduccionesViewModel extends ViewModel
         private Cliente $cliente,
         private Carbon $fecha
     ) {
-        // $this->ventasCobradas = $this->cliente->facturasCliente()
-        //     ->with('factura')
-        //     ->dentroFechaPago(
-        //         $fecha->copy()->startOfMonth(),
-        //         $fecha->copy()->endOfMonth()
-        //     )
-        //     ->esVenta()
-        //     ->esConsiderado()
-        //     ->get();
+        $this->ventasCobradas = $this->cliente->facturasCliente()
+            ->with('factura')
+            ->dentroFechaPago(
+                $fecha->copy()->startOfMonth(),
+                $fecha->copy()->endOfMonth()
+            )
+            ->esVenta()
+            ->esConsiderado()
+            ->get();
 
         $this->gastosPagados = $this->cliente->facturasCliente()
             ->with('factura')
@@ -38,11 +39,18 @@ class ColumnasDeduccionesViewModel extends ViewModel
 
     public function conceptos(): array
     {
+        $deduccionesCompras = $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(0);
+        $ivaAcreditableAGastos = CalcularIvaAcreditableAGasto::ejecutar(
+            $this->ventasCobradas,
+            $this->gastosPagados,
+            0,
+        );
+
         $conceptos = [
             [
                 'id'        => 1,
                 'titulo'    => 'Compras, gastos y devoluciones facturados y pagados',
-                'importe'   => $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(0),
+                'importe'   => $deduccionesCompras + $ivaAcreditableAGastos,
                 'deducible' => true,
             ],
             [

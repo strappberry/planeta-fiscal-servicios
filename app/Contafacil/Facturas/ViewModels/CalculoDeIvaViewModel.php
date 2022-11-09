@@ -2,13 +2,18 @@
 
 namespace App\Contafacil\Facturas\ViewModels;
 
+use App\Acciones\Facturas\CalcularIvaAcreditable;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\Cliente;
+use App\Models\EloquentCollections\FacturaClienteCollection;
 use Carbon\Carbon;
 
 class CalculoDeIvaViewModel extends ViewModel
 {
+    private $decimales = 0;
+    /** @var FacturaClienteCollection */
     private $ventasCobradas;
+    /** @var FacturaClienteCollection */
     private $gastosPagados;
 
     public function __construct(
@@ -80,17 +85,21 @@ class CalculoDeIvaViewModel extends ViewModel
             'iva_por_pagar'    => 0,
         ];
 
-        $calculos['ventas_gravadas'] = $this->ventasCobradas->sumatoriaGravados(0);
-        $calculos['trasladado']      = $this->ventasCobradas->sumatoriaTrasladosIva(0);
-        $calculos['iva_retenido']    = $this->ventasCobradas->sumatoriaRetencionesIva(0);
-        $calculos['ventas_al_cero']  = $this->ventasCobradas->sumatoriaTasaCero(0);
-        $calculos['ventas_exentas']  = $this->ventasCobradas->sumatoriaTrasladosExentos(0);
+        $calculos['ventas_gravadas'] = $this->ventasCobradas->sumatoriaGravados($this->decimales);
+        $calculos['trasladado']      = $this->ventasCobradas->sumatoriaTrasladosIva($this->decimales);
+        $calculos['iva_retenido']    = $this->ventasCobradas->sumatoriaRetencionesIva($this->decimales);
+        $calculos['ventas_al_cero']  = $this->ventasCobradas->sumatoriaTasaCero($this->decimales);
+        $calculos['ventas_exentas']  = $this->ventasCobradas->sumatoriaTrasladosExentos($this->decimales);
 
-        $calculos['compras_gravadas'] = $this->gastosPagados->sumatoriaGravados(0);
-        $calculos['acreditable']      = $this->gastosPagados->sumatoriaTrasladosIva(0);
-        $calculos['compras_al_cero']  = $this->gastosPagados->sumatoriaTasaCero(0);
-        $calculos['compras_exentas']  = $this->gastosPagados->sumatoriaTrasladosExentos(0);
-        $calculos['iva_retenciones']  = $this->gastosPagados->sumatoriaRetencionesIva(0);
+        $calculos['acreditable'] = CalcularIvaAcreditable::ejecutar(
+            $this->ventasCobradas,
+            $this->gastosPagados,
+            $this->decimales
+        );
+        $calculos['compras_gravadas'] = $this->gastosPagados->sumatoriaGravados($this->decimales);
+        $calculos['compras_al_cero']  = $this->gastosPagados->sumatoriaTasaCero($this->decimales);
+        $calculos['compras_exentas']  = $this->gastosPagados->sumatoriaTrasladosExentos($this->decimales);
+        $calculos['iva_retenciones']  = $this->gastosPagados->sumatoriaRetencionesIva($this->decimales);
 
         /* El iva del periodo de calcula de la siguiente manera
          *   Iva trasladado de las ventas cobradas
@@ -118,9 +127,7 @@ class CalculoDeIvaViewModel extends ViewModel
             'retenidos_isr_servicios_profesionales' => 0,
         ];
 
-        foreach($this->gastosPagados as $gastoPagado) {
-            $calculos['retenidos_isr_servicios_profesionales'] += $gastoPagado->factura->retencion_isr;
-        }
+        $calculos['retenidos_isr_servicios_pr'] = $this->gastosPagados->sumatoriaRetencionesIsr($this->decimales);
 
         return $calculos;
     }

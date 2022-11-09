@@ -2,6 +2,7 @@
 
 namespace App\Contafacil\Facturas\ViewModels;
 
+use App\Acciones\Facturas\CalcularIvaAcreditableAGasto;
 use App\Acciones\TablasTarifas\ResolverTablaTarifaAAplicar;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\Cliente;
@@ -50,7 +51,11 @@ class DeterminacionDelImpuestoViewModel extends ViewModel
 
     public function ivaAcreditableAGastos()
     {
-        return $this->gastosPagados->calcularIvaAcreditableAGastos();
+        return CalcularIvaAcreditableAGasto::ejecutar(
+            $this->ventasCobradas,
+            $this->gastosPagados,
+            0,
+        );
     }
 
     public function ingresos()
@@ -66,7 +71,10 @@ class DeterminacionDelImpuestoViewModel extends ViewModel
 
     public function deducciones()
     {
-        return $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(0);
+        $deducciones = $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(0);
+        $ivaAcreditableAGastos = $this->ivaAcreditableAGastos();
+
+        return $deducciones + $ivaAcreditableAGastos;
     }
 
     public function deduccionesAcumuladas()

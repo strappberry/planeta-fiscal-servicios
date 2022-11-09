@@ -31,19 +31,6 @@ class FacturaClienteCollection extends Collection
     }
 
     /**
-     * Calcular el iva acreditable a gastos
-     *
-     * **Solo se debe aplicar sobre FacturaCliente de tipo GASTOS.**
-     */
-    public function calcularIvaAcreditableAGastos(int $decimales = 2)
-    {
-        $acreditable = $this->sumatoriaTrasladosIva(0);
-        $iva = $this->sumatoriaGravados() * 0.16;
-
-        return round($iva - $acreditable, $decimales);
-    }
-
-    /**
      * Calculo de Compras, gastos y devoluciones facturados y pagados,
      * tambien se le conoce como gastos deducibles.
      *
@@ -71,6 +58,38 @@ class FacturaClienteCollection extends Collection
     }
 
     /**
+     * Calcular el porcentaje que corresponde a los impuestos exentos
+     * con respecto al monto de ingresos
+     */
+    public function generarPorcentajeExentos(int $decimales = 2)
+    {
+        $ingresos = $this->calcularIngresos();
+        // TODO: pendiente aplicar ingresos arrendamiento
+        $ingresosArrendamiento = 0;
+        $totalIngresos = $ingresos + $ingresosArrendamiento;
+        $totalIngresos = $totalIngresos == 0 ? 1 : $totalIngresos;
+        $porcentaje = $this->sumatoriaTrasladosExentos($decimales) / $totalIngresos;
+
+        return round($porcentaje, $decimales);
+    }
+
+    /**
+     * Calcular el porcentaje que corresponde al monto gravados
+     * con respecto al monto de ingresos
+     */
+    public function generarPorcentajeGravados(int $decimales = 2)
+    {
+        $ingresos = $this->calcularIngresos();
+        // TODO: pendiente aplicar ingresos arrendamiento
+        $ingresosArrendamiento = 0;
+        $totalIngresos = $ingresos + $ingresosArrendamiento;
+        $totalIngresos = $totalIngresos == 0 ? 1 : $totalIngresos;
+        $porcentaje = $this->sumatoriaGravados($decimales) / $totalIngresos;
+
+        return round($porcentaje, $decimales);
+    }
+
+    /**
      * Genera la tabla de porcentajes de como estan distribuidos los ingresos
      * de las ventas cobradas.
      *
@@ -93,19 +112,26 @@ class FacturaClienteCollection extends Collection
 
         // GRAVADOS: Gravados 16% / (ingresos ventas + ingresos arrendamiento)
         $gravadosVentas = $this->sumatoriaGravados();
-        $tabla['gravados'] = $gravadosVentas / $totalIngresos;
+        $tabla['gravados'] = round($gravadosVentas / $totalIngresos, 2);
 
         // EXENTOS: Exentos / (ingresos ventas + ingresos arrendamiento)
         $exentos = $this->sumatoriaTrasladosExentos();
-        $tabla['exentos'] = $exentos / $totalIngresos;
+        $tabla['exentos'] = round($exentos / $totalIngresos, 2);
 
         // TASA CERO: Tasa cero / (ingresos ventas + ingresos arrendamiento)
         $tasaCero = $this->sumatoriaTasaCero();
-        $tabla['tasa_cero'] = $tasaCero / $totalIngresos;
+        $tabla['tasa_cero'] = round($tasaCero / $totalIngresos, 2);
 
         $tabla['total'] = $tabla['gravados'] + $tabla['exentos'] + $tabla['tasa_cero'];
 
         return $tabla;
+    }
+
+    public function seDebeAplicarIvaAcreditableAGastos(): bool
+    {
+        $porcentajeGravados = $this->generarPorcentajeGravados(2);
+
+        return $porcentajeGravados < 1;
     }
 
     public function sumatoriaGravados(int $decimales = 2)
