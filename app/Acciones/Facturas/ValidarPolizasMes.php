@@ -39,6 +39,8 @@ class ValidarPolizasMes
 
             $facturaCliente->poliza_valida = $validaciones['validaciones']['validacion'];
             $facturaCliente->save();
+
+            VerificarFacturaClienteDeducible::ejecutar($facturaCliente);
         }
     }
 }

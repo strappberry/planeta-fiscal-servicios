@@ -32,6 +32,7 @@ class NumeroCuenta extends Model
         'cliente_id',
         'exclusiones',
         'residual_cargo_abono',
+        'deducible',
     ];
 
     protected $casts = [
@@ -39,6 +40,7 @@ class NumeroCuenta extends Model
         'formula'              => 'array',
         'exclusiones'          => 'array',
         'residual_cargo_abono' => 'boolean',
+        'deducible'            => 'boolean',
     ];
 
     protected $hidden = [

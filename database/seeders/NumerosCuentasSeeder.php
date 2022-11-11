@@ -519,6 +519,7 @@ class NumerosCuentasSeeder extends Seeder
                 'tipo_cuenta'     => NumeroCuenta::TIPO_POLIZA_GASTOS,
                 'subtipo'         => NumeroCuenta::SUBTIPO_FECHA_EMISION,
                 'columna_calculo' => NumeroCuenta::COLUMNA_CALCULO_CARGO,
+                'deducible'       => false,
                 'formula'         => [
                     ['operacion' => 'suma', 'clave_monto' => 'total'],
                 ],

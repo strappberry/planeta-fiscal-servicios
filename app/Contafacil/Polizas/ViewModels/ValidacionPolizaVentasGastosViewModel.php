@@ -27,12 +27,12 @@ class ValidacionPolizaVentasGastosViewModel extends ViewModel
         $cuentaFechaPago = collect($modelo['fecha_pago']);
 
         $this->montosFechaEmision = [
-            'cargo' => $cuentasFechaEmision->sum('cargo'),
-            'abono' => $cuentasFechaEmision->sum('abono'),
+            'cargo' => $this->redondearMonto($cuentasFechaEmision->sum('cargo')),
+            'abono' => $this->redondearMonto($cuentasFechaEmision->sum('abono')),
         ];
         $this->montosFechaPago = [
-            'cargo' => $cuentaFechaPago->sum('cargo'),
-            'abono' => $cuentaFechaPago->sum('abono'),
+            'cargo' => $this->redondearMonto($cuentaFechaPago->sum('cargo')),
+            'abono' => $this->redondearMonto($cuentaFechaPago->sum('abono')),
         ];
 
         $this->validaciones['emision']    = $this->montosFechaEmision['cargo'] === $this->montosFechaEmision['abono'];
@@ -53,5 +53,10 @@ class ValidacionPolizaVentasGastosViewModel extends ViewModel
     public function validaciones(): array
     {
         return $this->validaciones;
+    }
+
+    private function redondearMonto($monto)
+    {
+        return round($monto, 2);
     }
 }

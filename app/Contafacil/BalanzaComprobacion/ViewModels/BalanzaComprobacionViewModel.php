@@ -124,10 +124,18 @@ class BalanzaComprobacionViewModel extends ViewModel
                 $resultadosAuxiliares->push($datosCuentaAuxiliar);
             }
 
-            $datosCuentaMayor['saldo_inicial'] = $resultadosAuxiliares->sum('saldo_inicial');
-            $datosCuentaMayor['cargo'] = $resultadosAuxiliares->sum('cargo');
-            $datosCuentaMayor['abono'] = $resultadosAuxiliares->sum('abono');
-            $datosCuentaMayor['saldo_final'] = $resultadosAuxiliares->sum('saldo_final');
+            $datosCuentaMayor['saldo_inicial'] = $this->redondearMonto(
+                $resultadosAuxiliares->sum('saldo_inicial')
+            );
+            $datosCuentaMayor['cargo'] = $this->redondearMonto(
+                $resultadosAuxiliares->sum('cargo')
+            );
+            $datosCuentaMayor['abono'] = $this->redondearMonto(
+                $resultadosAuxiliares->sum('abono')
+            );
+            $datosCuentaMayor['saldo_final'] = $this->redondearMonto(
+                $resultadosAuxiliares->sum('saldo_final')
+            );
 
             $resultadoBalanza->push($datosCuentaMayor);
             $resultadoBalanza = $resultadoBalanza->merge(
@@ -138,4 +146,8 @@ class BalanzaComprobacionViewModel extends ViewModel
         return $resultadoBalanza->toArray();
     }
 
+    private function redondearMonto($monto)
+    {
+        return round($monto, 2);
+    }
 }

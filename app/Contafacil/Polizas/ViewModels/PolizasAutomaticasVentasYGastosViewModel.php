@@ -95,6 +95,9 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 ->where('id', $numeroCuenta->id)
                 ->sum('abono');
 
+            $poliza['cargo'] = $this->redondearMonto($poliza['cargo']);
+            $poliza['abono'] = $this->redondearMonto($poliza['abono']);
+
             $resultado[] = $poliza;
         }
 
@@ -129,9 +132,17 @@ class PolizasAutomaticasVentasYGastosViewModel extends ViewModel
                 ->where('id', $numeroCuenta->id)
                 ->sum('abono');
 
+            $poliza['cargo'] = $this->redondearMonto($poliza['cargo']);
+            $poliza['abono'] = $this->redondearMonto($poliza['abono']);
+
             $resultado[] = $poliza;
         }
 
         return $resultado;
+    }
+
+    private function redondearMonto($monto)
+    {
+        return round($monto, 2);
     }
 }

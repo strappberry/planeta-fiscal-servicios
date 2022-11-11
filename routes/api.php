@@ -157,6 +157,7 @@ Route::prefix('contafacil')->group(function() {
 
     Route::prefix('facturas')->group(function() {
         Route::post('/actualizar-montos/{factura}', [ContafacilFacturasController::class, 'actualizarMontos']);
+        Route::post('/reestablecer-montos/{factura}', [ContafacilFacturasController::class, 'reestablecerOriginal']);
     });
 
     Route::prefix('numeros-cuentas')->group(function () {

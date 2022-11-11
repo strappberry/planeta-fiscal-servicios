@@ -57,6 +57,9 @@ class PolizaAutomaticaFacturaViewModel extends ViewModel
                 continue;
             }
 
+            $lineaNumeroCuenta[$numeroCuenta->columna_calculo] = $this->redondearMonto(
+                $lineaNumeroCuenta[$numeroCuenta->columna_calculo]
+            );
             $lineaNumeroCuenta['monto'] = $lineaNumeroCuenta[$numeroCuenta->columna_calculo];
             $resultado->push($lineaNumeroCuenta);
         }
@@ -106,6 +109,9 @@ class PolizaAutomaticaFacturaViewModel extends ViewModel
                 continue;
             }
 
+            $lineaNumeroCuenta[$numeroCuenta->columna_calculo] = $this->redondearMonto(
+                $lineaNumeroCuenta[$numeroCuenta->columna_calculo]
+            );
             $lineaNumeroCuenta['monto'] = $lineaNumeroCuenta[$numeroCuenta->columna_calculo];
             $resultado->push($lineaNumeroCuenta);
         }
@@ -121,5 +127,10 @@ class PolizaAutomaticaFacturaViewModel extends ViewModel
         ];
 
         return $tiposPoliza[$this->facturaCliente->tipo_factura];
+    }
+
+    private function redondearMonto($monto)
+    {
+        return round($monto, 2);
     }
 }

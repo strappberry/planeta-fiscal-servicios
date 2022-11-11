@@ -6,6 +6,7 @@ use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Acciones\Facturas\GenerarValidacionPolizaIndividual;
 use App\Acciones\Facturas\RemoverNumeroDeCuentaDeFacturaCliente;
 use App\Acciones\Facturas\ResolverFacturaCliente;
+use App\Acciones\Facturas\VerificarFacturaClienteDeducible;
 use App\Acciones\Facturas\VerificarMontoResidualPolizaIndividual;
 use App\Acciones\Facturas\VincularNumeroDeCuentaFacturaCliente;
 use App\Contafacil\Facturas\ViewModels\PolizaAutomaticaFacturaViewModel;
@@ -51,12 +52,14 @@ class FacturasNumeroCuentaController extends Controller
 
         VincularNumeroDeCuentaFacturaCliente::ejecutar($facturaCliente, $numeroCuenta, $request->monto);
         VerificarMontoResidualPolizaIndividual::ejecutar($facturaCliente);
+        VerificarFacturaClienteDeducible::ejecutar($facturaCliente);
         $facturaCliente = GenerarValidacionPolizaIndividual::ejecutar($facturaCliente);
 
         return response()->json([
             'agregado'      => true,
             'poliza_valida' => $facturaCliente->poliza_valida,
             'considerado'   => $facturaCliente->considerado,
+            'deducible'     => $facturaCliente->deducible,
         ]);
     }
 
@@ -71,12 +74,14 @@ class FacturasNumeroCuentaController extends Controller
 
         RemoverNumeroDeCuentaDeFacturaCliente::ejecutar($facturaCliente, $numeroCuenta);
         VerificarMontoResidualPolizaIndividual::ejecutar($facturaCliente);
+        VerificarFacturaClienteDeducible::ejecutar($facturaCliente);
         $facturaCliente = GenerarValidacionPolizaIndividual::ejecutar($facturaCliente);
 
         return response()->json([
             'eliminado'     => true,
             'poliza_valida' => $facturaCliente->poliza_valida,
             'considerado'   => $facturaCliente->considerado,
+            'deducible'     => $facturaCliente->deducible,
         ]);
     }
 }
