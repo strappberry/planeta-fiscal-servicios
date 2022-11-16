@@ -337,61 +337,63 @@ class FacturaArray
                 'retenciones' => [],
             ];
             // Procesar los nodos de documentos relacionados
-            foreach($pago['DoctoRelacionado'] as $documento) {
-                $datosDocumento = [
-                    'equivalencia'           => (float) ($documento['EquivalenciaDR'] ?? 0),
-                    'folio'                  => $documento['Folio'] ?? '',
-                    'serie'                  => $documento['Serie'] ?? '',
-                    'uuid'                   => $documento['IdDocumento'] ?? '',
-                    'importe_pagado'         => (float) ($documento['ImpPagado'] ?? 0),
-                    'importe_saldo_anterior' => (float) ($documento['ImpSaldoAnt'] ?? 0),
-                    'importe_saldo_insoluto' => (float) ($documento['ImpSaldoInsoluto'] ?? 0),
-                    'moneda'                 => $documento['MonedaDR'] ?? '',
-                    'numero_parcialidad'    => $documento['NumParcialidad'] ?? '',
-                    'objeto_impuesto'        => $documento['ObjetoImpDR'] ?? '',
-                ];
+            if (isset($pago['DoctoRelacionado'])) {
+                foreach($pago['DoctoRelacionado'] as $documento) {
+                    $datosDocumento = [
+                        'equivalencia'           => (float) ($documento['EquivalenciaDR'] ?? 0),
+                        'folio'                  => $documento['Folio'] ?? '',
+                        'serie'                  => $documento['Serie'] ?? '',
+                        'uuid'                   => $documento['IdDocumento'] ?? '',
+                        'importe_pagado'         => (float) ($documento['ImpPagado'] ?? 0),
+                        'importe_saldo_anterior' => (float) ($documento['ImpSaldoAnt'] ?? 0),
+                        'importe_saldo_insoluto' => (float) ($documento['ImpSaldoInsoluto'] ?? 0),
+                        'moneda'                 => $documento['MonedaDR'] ?? '',
+                        'numero_parcialidad'    => $documento['NumParcialidad'] ?? '',
+                        'objeto_impuesto'        => $documento['ObjetoImpDR'] ?? '',
+                    ];
 
-                $datosTraslados   = [];
-                $datosRetenciones = [];
+                    $datosTraslados   = [];
+                    $datosRetenciones = [];
 
-                // Procesar los nodos de los impuestos del documento relacionado
-                if (isset($documento['ImpuestosDR'])) {
-                    if (
-                        isset($documento['ImpuestosDR']['TrasladosDR']) &&
-                        isset($documento['ImpuestosDR']['TrasladosDR']['TrasladoDR'])
-                    ) {
-                        foreach($documento['ImpuestosDR']['TrasladosDR']['TrasladoDR'] as $traslado) {
-                            $datosTraslados[] = [
-                                'base'        => (float) ($traslado['BaseDR'] ?? 0),
-                                'importe'     => (float) ($traslado['ImporteDR'] ?? 0),
-                                'impuesto'    => $traslado['ImpuestoDR'] ?? '',
-                                'tasa_cuota'  => (float) ($traslado['TasaOCuotaDR'] ?? 0),
-                                'tipo_factor' => $traslado['TipoFactorDR'] ?? '',
-                            ];
+                    // Procesar los nodos de los impuestos del documento relacionado
+                    if (isset($documento['ImpuestosDR'])) {
+                        if (
+                            isset($documento['ImpuestosDR']['TrasladosDR']) &&
+                            isset($documento['ImpuestosDR']['TrasladosDR']['TrasladoDR'])
+                        ) {
+                            foreach($documento['ImpuestosDR']['TrasladosDR']['TrasladoDR'] as $traslado) {
+                                $datosTraslados[] = [
+                                    'base'        => (float) ($traslado['BaseDR'] ?? 0),
+                                    'importe'     => (float) ($traslado['ImporteDR'] ?? 0),
+                                    'impuesto'    => $traslado['ImpuestoDR'] ?? '',
+                                    'tasa_cuota'  => (float) ($traslado['TasaOCuotaDR'] ?? 0),
+                                    'tipo_factor' => $traslado['TipoFactorDR'] ?? '',
+                                ];
+                            }
+                        }
+
+                        if (
+                            isset($documento['ImpuestosDR']['RetencionesDR']) &&
+                            isset($documento['ImpuestosDR']['RetencionesDR']['RetencionDR'])
+                        ) {
+                            foreach($documento['ImpuestosDR']['RetencionesDR']['RetencionDR'] as $retencion) {
+                                $datosRetenciones[] = [
+                                    'base'        => (float) ($retencion['BaseDR'] ?? 0),
+                                    'importe'     => (float) ($retencion['ImporteDR'] ?? 0),
+                                    'impuesto'    => $retencion['ImpuestoDR'] ?? '',
+                                    'tasa_cuota'  => (float) ($retencion['TasaOCuotaDR'] ?? 0),
+                                    'tipo_factor' => $retencion['TipoFactorDR'] ?? '',
+                                ];
+                            }
                         }
                     }
 
-                    if (
-                        isset($documento['ImpuestosDR']['RetencionesDR']) &&
-                        isset($documento['ImpuestosDR']['RetencionesDR']['RetencionDR'])
-                    ) {
-                        foreach($documento['ImpuestosDR']['RetencionesDR']['RetencionDR'] as $retencion) {
-                            $datosRetenciones[] = [
-                                'base'        => (float) ($retencion['BaseDR'] ?? 0),
-                                'importe'     => (float) ($retencion['ImporteDR'] ?? 0),
-                                'impuesto'    => $retencion['ImpuestoDR'] ?? '',
-                                'tasa_cuota'  => (float) ($retencion['TasaOCuotaDR'] ?? 0),
-                                'tipo_factor' => $retencion['TipoFactorDR'] ?? '',
-                            ];
-                        }
-                    }
+                    $datosPago['documentos'][] = [
+                        'documento'   => $datosDocumento,
+                        'traslados'   => $datosTraslados,
+                        'retenciones' => $datosRetenciones,
+                    ];
                 }
-
-                $datosPago['documentos'][] = [
-                    'documento'   => $datosDocumento,
-                    'traslados'   => $datosTraslados,
-                    'retenciones' => $datosRetenciones,
-                ];
             }
 
             // Procesar los nodos de impuestos trasladados del pago
