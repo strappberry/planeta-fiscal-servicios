@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14daf84ffd27f09492c1d78c8da05cfa",
+    "content-hash": "cdc373ea3a46622ac79f6f5af686a78b",
     "packages": [
         {
             "name": "almasaeed2010/adminlte",
@@ -3665,17 +3665,69 @@
             "time": "2021-11-17T04:03:47+00:00"
         },
         {
-            "name": "phpcfdi/sat-ws-descarga-masiva",
-            "version": "v0.4.3",
+            "name": "phpcfdi/rfc",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/phpcfdi/sat-ws-descarga-masiva.git",
-                "reference": "71c494b7b2afbff6516a26429cdef1d64be81b59"
+                "url": "https://github.com/phpcfdi/rfc.git",
+                "reference": "2c81277d375fe4cd8799eeca13be85102a980c6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpcfdi/sat-ws-descarga-masiva/zipball/71c494b7b2afbff6516a26429cdef1d64be81b59",
-                "reference": "71c494b7b2afbff6516a26429cdef1d64be81b59",
+                "url": "https://api.github.com/repos/phpcfdi/rfc/zipball/2c81277d375fe4cd8799eeca13be85102a980c6b",
+                "reference": "2c81277d375fe4cd8799eeca13be85102a980c6b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "fakerphp/faker": "^1.13",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpCfdi\\Rfc\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Carlos C Soto",
+                    "email": "eclipxe13@gmail.com",
+                    "homepage": "https://eclipxe.com.mx/"
+                }
+            ],
+            "description": "PHP library to deal with Mexican RFC",
+            "homepage": "https://github.com/phpcfdi/rfc",
+            "keywords": [
+                "mexico",
+                "sat"
+            ],
+            "support": {
+                "issues": "https://github.com/phpcfdi/rfc/issues",
+                "source": "https://github.com/phpcfdi/rfc"
+            },
+            "time": "2022-04-29T04:37:36+00:00"
+        },
+        {
+            "name": "phpcfdi/sat-ws-descarga-masiva",
+            "version": "v0.5.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpcfdi/sat-ws-descarga-masiva.git",
+                "reference": "f13f3336c4db314bf0a5731ec8092ce7de2da31a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpcfdi/sat-ws-descarga-masiva/zipball/f13f3336c4db314bf0a5731ec8092ce7de2da31a",
+                "reference": "f13f3336c4db314bf0a5731ec8092ce7de2da31a",
                 "shasum": ""
             },
             "require": {
@@ -3683,10 +3735,12 @@
                 "eclipxe/micro-catalog": "^0.1.2",
                 "ext-dom": "*",
                 "ext-json": "*",
+                "ext-mbstring": "*",
                 "ext-openssl": "*",
                 "ext-zip": "*",
                 "php": ">=7.3",
-                "phpcfdi/credentials": "^1.1"
+                "phpcfdi/credentials": "^1.1",
+                "phpcfdi/rfc": "^1.1"
             },
             "require-dev": {
                 "guzzlehttp/guzzle": "^7.2.0",
@@ -3730,7 +3784,7 @@
                 "issues": "https://github.com/phpcfdi/sat-ws-descarga-masiva/issues",
                 "source": "https://github.com/phpcfdi/sat-ws-descarga-masiva"
             },
-            "time": "2022-02-19T07:13:28+00:00"
+            "time": "2022-09-30T22:30:19+00:00"
         },
         {
             "name": "phpoffice/phpspreadsheet",
@@ -9766,5 +9820,5 @@
         "php": "^8.0.2"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
