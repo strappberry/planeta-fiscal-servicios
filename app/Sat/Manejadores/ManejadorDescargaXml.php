@@ -40,10 +40,10 @@ class ManejadorDescargaXml implements ResourceDownloadHandlerInterface
     public function onError(ResourceDownloadError $error) : void
     {
         if ($error instanceof ResourceDownloadRequestExceptionError) {
-            Log::error("Error al solicitar descargar el xml de la factura {$error->getUuid()}");
+            Log::error("Error al solicitar descargar el xml de la factura {$error->getUuid()} {$error->getReason()}");
         }
         else if ($error instanceof ResourceDownloadResponseError) {
-            Log::error("Error al manejar la respuesta el xml de la factura {$error->getUuid()}");
+            Log::error("Error al manejar la respuesta el xml de la factura {$error->getUuid()} {$error->getReason()}");
         }
         else {
             Log::error("Error desconocido al descargar el xml de la factura {$error->getUuid()}");
