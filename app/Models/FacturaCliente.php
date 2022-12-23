@@ -27,6 +27,7 @@ class FacturaCliente extends Model
         'concepto_deduccion_personal_id',
         'concepto_sat_id',
         'deducible',
+        'tipo_ingreso',
     ];
 
     protected $casts = [

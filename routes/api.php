@@ -18,6 +18,7 @@ use App\Http\Controllers\Contafacil\GastosController;
 use App\Http\Controllers\Contafacil\MesTrabajoController;
 use App\Http\Controllers\Contafacil\NumerosCuentasController;
 use App\Http\Controllers\Contafacil\TablasTarifasController;
+use App\Http\Controllers\Contafacil\TipoIngresoController;
 use App\Http\Controllers\Contafacil\VentasController;
 use App\Http\Controllers\ReportesController;
 use Illuminate\Http\Request;
@@ -141,6 +142,9 @@ Route::prefix('contafacil')->group(function() {
         Route::post('/establecer-deducible/{factura}', [
             FacturasClienteController::class, 'establecerDeducible'
         ]);
+        Route::post('/establecer-tipo-ingreso/{factura}', [
+            FacturasClienteController::class, 'establecerTipoIngreso'
+        ]);
     });
 
     Route::prefix('facturas-numeros-cuentas/{clienteId}')->group(function () {
@@ -194,5 +198,9 @@ Route::prefix('contafacil')->group(function() {
 
     Route::prefix(('conceptos-deducciones-personales'))->group(function () {
         Route::get('/', [ConceptosDeduccionesPersonalesController::class, 'obtenerConceptosDeduccionesPersonales']);
+    });
+
+    Route::prefix('tipos-ingreso')->group(function () {
+        Route::get('/', [TipoIngresoController::class, 'index']);
     });
 });

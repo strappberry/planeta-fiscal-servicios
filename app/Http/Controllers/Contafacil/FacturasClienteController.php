@@ -141,4 +141,20 @@ class FacturasClienteController extends Controller
             'factura' => $facturaCliente,
         ]);
     }
+
+    public function establecerTipoIngreso(Request $request, Factura $factura)
+    {
+        $this->validate($request, [
+            'cliente_id' => 'required',
+        ]);
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($request->cliente_id);
+
+        $facturaCliente = ResolverFacturaCliente::ejecutar($factura, $cliente);
+        $facturaCliente->tipo_ingreso = $request->get('tipo_ingreso', '');
+        $facturaCliente->save();
+
+        return response()->json([
+            'factura' => $facturaCliente,
+        ]);
+    }
 }

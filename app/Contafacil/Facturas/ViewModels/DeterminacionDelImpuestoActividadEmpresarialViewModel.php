@@ -5,10 +5,11 @@ namespace App\Contafacil\Facturas\ViewModels;
 use App\Acciones\Facturas\CalcularIvaAcreditableAGasto;
 use App\Acciones\TablasTarifas\ResolverTablaTarifaAAplicar;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
+use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use Carbon\Carbon;
 
-class DeterminacionDelImpuestoViewModel extends ViewModel
+class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
 {
     private $ventasCobradas;
     private $gastosPagados;
@@ -24,6 +25,9 @@ class DeterminacionDelImpuestoViewModel extends ViewModel
                 $fecha->copy()->startOfMonth(),
                 $fecha->copy()->endOfMonth()
             )
+            ->tiposIngreso([
+                TipoIngreso::ACTIVIDAD_EMPRESARIAL,
+            ])
             ->esVenta()
             ->esConsiderado()
             ->get();

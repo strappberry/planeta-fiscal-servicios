@@ -2,7 +2,7 @@
 
 namespace App\Acciones\BalanzaComprobacion;
 
-use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoViewModel;
+use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoActividadEmpresarialViewModel;
 use App\Models\Cliente;
 use App\Models\DeterminacionImpuesto;
 use Carbon\Carbon;
@@ -11,7 +11,7 @@ class InsertarDeterminacionDelImpuesto
 {
     public static function ejecutar(Cliente $cliente, Carbon $fecha): DeterminacionImpuesto
     {
-        $determinacionDelImpuesto = (new DeterminacionDelImpuestoViewModel($cliente, $fecha))->toArray();
+        $determinacionDelImpuesto = (new DeterminacionDelImpuestoActividadEmpresarialViewModel($cliente, $fecha))->toArray();
 
         $determinacion = $cliente->determinacionDelImpuesto()->updateOrCreate(
             [

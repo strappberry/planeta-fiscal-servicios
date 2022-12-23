@@ -55,4 +55,9 @@ class FacturaClienteQueryBuilder extends Builder
     {
         return $this->where('considerado', false);
     }
+
+    public function tiposIngreso(array $tiposIngreso)
+    {
+        return $this->whereIn('tipo_ingreso', $tiposIngreso);
+    }
 }
