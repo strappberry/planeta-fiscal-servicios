@@ -48,11 +48,6 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
                 ->first();
     }
 
-    public function tablasPorcentajesIngresos(): array
-    {
-        return $this->ventasCobradas->generarTablaPorcentajeIngresos();
-    }
-
     public function ivaAcreditableAGastos()
     {
         return CalcularIvaAcreditableAGasto::ejecutar(
@@ -148,11 +143,9 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
             'porcentaje_excedente' => 0,
             'excedente'            => 0,
             'importe_marginal'     => 0,
-            'isr_actividad_uno'    => 0,
+            'actividad_empresarial' => 0,
             'impuesto_a_cargo'     => 0,
-            'isr_actividad_dos'    => 0,
-            'isr_a_favor'          => 0,
-            'is_por_pagar'         => 0,
+            'total'                => 0,
         ];
         $base = $this->base();
 
@@ -171,30 +164,21 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
         $datosTabla['porcentaje_excedente'] = $tarifa->porcentaje_excedente;
 
         // EXCEDENTE: Base - Limite Inferior
-        $datosTabla['excedente']        = round($base - $datosTabla['limite_inferior'], 2);
+        $datosTabla['excedente'] = round($base - $datosTabla['limite_inferior'], 0);
         // IMPORTE MARGINAL: Excedente * Porcentaje Excedente
-        $datosTabla['importe_marginal'] = round($datosTabla['excedente'] * $datosTabla['porcentaje_excedente'], 2);
+        $datosTabla['importe_marginal'] = round($datosTabla['excedente'] * $datosTabla['porcentaje_excedente'], 0);
         // ISR ACTIVIDAD: Cuota Fija + Importe Marginal
-        $datosTabla['isr_actividad']    = round($datosTabla['cuota_fija'] + $datosTabla['importe_marginal'], 2);
-
-        $impuestoACargo = $datosTabla['isr_actividad'] - $this->ppPagados();
-        $datosTabla['impuesto_a_cargo'] = ($impuestoACargo >= 0) ? round($impuestoACargo, 2): 0;
-
-        $isrRetenido = $this->isrRetenido();
-        // ISR de la actividad empresarial se calcula con:
-        // IMPUESTO A CARGO - ISR RETENIDO (ventas) y solo si es mayor a cero
-        $isrActividadEmpresarial = $datosTabla['impuesto_a_cargo'] - $isrRetenido;
-        $datosTabla['isr_actividad_empresarial'] = ($isrActividadEmpresarial >= 0) ? round($isrActividadEmpresarial, 2): 0;
-
-        // ISR A FAVOR
-        // TODO: Pendiente de definir como se calcula
-        $datosTabla['isr_a_favor'] = 0;
-
-        //ISR POR PAGAR
-        // Se calcula con:
-        // ISR DE LA ACTIVIDAD EMPRESARIAL + ISR ARRENDAMIENTO - ISR A FAVOR
-        // TODO: Implementar ISR ARRENDAMIENTO
-        $datosTabla['is_por_pagar'] = $datosTabla['isr_actividad_empresarial'] + 0 - $datosTabla['isr_a_favor'];
+        $datosTabla['actividad_empresarial'] = round($datosTabla['cuota_fija'] + $datosTabla['importe_marginal'], 0);
+        // Impuesto a cargo: Actividad empresarial + P.P. Pagados
+        $datosTabla['impuesto_a_cargo'] = round(
+            $datosTabla['actividad_empresarial'] + $this->ppPagados(),
+            0,
+        );
+        // Total
+        $datosTabla['total'] = round(
+            $datosTabla['impuesto_a_cargo'] - $this->isrRetenido(),
+            0
+        );
 
         return $datosTabla;
     }

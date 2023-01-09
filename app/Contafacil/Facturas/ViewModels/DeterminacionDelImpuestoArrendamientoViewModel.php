@@ -32,16 +32,6 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
             ->esConsiderado()
             ->get();
 
-        // $this->gastosPagados = $this->cliente->facturasCliente()
-        //     ->with('factura')
-        //     ->dentroFechaPago(
-        //         $fecha->copy()->startOfMonth(),
-        //         $fecha->copy()->endOfMonth()
-        //     )
-        //     ->esGasto()
-        //     ->esConsiderado()
-        //     ->get();
-
         $mesPasado = $fecha->copy()->subMonth();
         $this->determinacionPasada = $cliente->determinacionDelImpuesto()
                 ->where('mes_trabajo', $mesPasado->format('Y-m-d'))
@@ -108,22 +98,6 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
         return round($base, 2);
     }
 
-    /**
-     * PAGOS PROVISIONALES PAGADOS
-     *
-     * Si el mes es enero o no hay determinacion del mes pasado se regresa el valor de 0
-     * Si el mes es mayor a enero se regresará el valor de pp_pagados + isr_actividad
-     * del mes anterior
-     */
-    public function ppPagados()
-    {
-        if ($this->fecha->month == 1 || !$this->determinacionPasada) {
-            return 0;
-        }
-
-        return $this->determinacionPasada->pp_pagados + $this->determinacionPasada->isr_actividad;
-    }
-
     public function calculosTarifa()
     {
         $datosTabla = [
@@ -133,11 +107,9 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
             'porcentaje_excedente' => 0,
             'excedente'            => 0,
             'importe_marginal'     => 0,
-            'isr_actividad_uno'    => 0,
+            'isr_arrendamiento'    => 0,
             'impuesto_a_cargo'     => 0,
-            'isr_actividad_dos'    => 0,
-            'isr_a_favor'          => 0,
-            'is_por_pagar'         => 0,
+            'total'                => 0,
         ];
         $base = $this->base();
 
@@ -160,26 +132,11 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
         // IMPORTE MARGINAL: Excedente * Porcentaje Excedente
         $datosTabla['importe_marginal'] = round($datosTabla['excedente'] * $datosTabla['porcentaje_excedente'], 2);
         // ISR ACTIVIDAD: Cuota Fija + Importe Marginal
-        $datosTabla['isr_actividad']    = round($datosTabla['cuota_fija'] + $datosTabla['importe_marginal'], 2);
-
-        $impuestoACargo = $datosTabla['isr_actividad'] - $this->ppPagados();
-        $datosTabla['impuesto_a_cargo'] = ($impuestoACargo >= 0) ? round($impuestoACargo, 2): 0;
-
-        $isrRetenido = $this->isrRetenido();
-        // ISR de la actividad empresarial se calcula con:
-        // IMPUESTO A CARGO - ISR RETENIDO (ventas) y solo si es mayor a cero
-        $isrActividadEmpresarial = $datosTabla['impuesto_a_cargo'] - $isrRetenido;
-        $datosTabla['isr_actividad_empresarial'] = ($isrActividadEmpresarial >= 0) ? round($isrActividadEmpresarial, 2): 0;
-
-        // ISR A FAVOR
-        // TODO: Pendiente de definir como se calcula
-        $datosTabla['isr_a_favor'] = 0;
-
-        //ISR POR PAGAR
-        // Se calcula con:
-        // ISR DE LA ACTIVIDAD EMPRESARIAL + ISR ARRENDAMIENTO - ISR A FAVOR
-        // TODO: Implementar ISR ARRENDAMIENTO
-        $datosTabla['is_por_pagar'] = $datosTabla['isr_actividad_empresarial'] + 0 - $datosTabla['isr_a_favor'];
+        $datosTabla['isr_arrendamiento']    = round($datosTabla['cuota_fija'] + $datosTabla['importe_marginal'], 2);
+        // Impuesto a cargo: ISR arrendamiento
+        $datosTabla['impuesto_a_cargo'] = $datosTabla['isr_arrendamiento'];
+        // TOTAL: Impuesto a cargo - ISR retenido
+        $datosTabla['total'] = round($datosTabla['impuesto_a_cargo'] - $this->isrRetenido(), 2);
 
         return $datosTabla;
     }

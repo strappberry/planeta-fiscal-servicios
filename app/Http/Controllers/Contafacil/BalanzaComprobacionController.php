@@ -11,6 +11,7 @@ use App\Contafacil\Facturas\ViewModels\ColumnasDeduccionesViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoDBViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoActividadEmpresarialViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoArrendamientoViewModel;
+use App\Contafacil\Facturas\ViewModels\DeterminacionImpuestoRegimen612;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Contafacil\Polizas\ViewModels\ValidacionPolizaVentasGastosViewModel;
 use App\Http\Controllers\Controller;
@@ -205,12 +206,10 @@ class BalanzaComprobacionController extends Controller
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
         $fecha  = Carbon::parse($fecha)->startOfMonth();
 
-        $actividadEmpresarial = new DeterminacionDelImpuestoActividadEmpresarialViewModel($cliente, $fecha);
-        $arrendamiento = new DeterminacionDelImpuestoArrendamientoViewModel($cliente, $fecha);
+        $determinacion = new DeterminacionImpuestoRegimen612($cliente, $fecha);
 
         return response()->json([
-            'actividad_empresarial' => $actividadEmpresarial->toArray(),
-            'arrendamiento'         => $arrendamiento->toArray(),
+            'determinacion_impuesto' => $determinacion->toArray(),
         ]);
     }
 
