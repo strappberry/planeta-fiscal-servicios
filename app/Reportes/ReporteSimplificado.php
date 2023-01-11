@@ -7,6 +7,7 @@ use App\Models\ComprobanteXml;
 use App\Models\Factura;
 use App\Reportes\Helpers\ConvertirMontoAPesos;
 use App\Reportes\Validaciones\ValidacionesFacturasRecibidas;
+use Carbon\Carbon;
 use CfdiUtils\Elements\Cfdi33\Comprobante;
 use DateTimeImmutable;
 use Exception;
@@ -244,7 +245,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
      * -------------------------------------------------------------------------
      */
     private function paginaEgresosRecibidos(): array
-    { 
+    {
         $pagina = [
             'titulo' => __('dashboard.reportes.egresos_recibidos'),
             'encabezados' => [
@@ -422,7 +423,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             ->orderBy('serie')
             ->orderBy('folio')
             ->get();
-        
+
         foreach($facturas as $factura) {
             array_push(
                 $pagina['lineas'],
@@ -476,7 +477,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             if (isset($nomina['Deducciones'])) {
                 array_push(
                     $linea,
-                    isset($nomina['Deducciones']['TotalImpuestosRetenidos']) ? 
+                    isset($nomina['Deducciones']['TotalImpuestosRetenidos']) ?
                         $nomina['Deducciones']['TotalImpuestosRetenidos'] : 0
                 );
             } else {
@@ -685,7 +686,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.uso_cfdi'),
                 __('dashboard.reportes.validacion_uso_cfdi'),
                 __('dashboard.reportes.validacion_metodo_forma_pago'),
-                
+
             ],
             'lineas' => [],
         ];
@@ -968,7 +969,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             ->orderBy('serie')
             ->orderBy('folio')
             ->get();
-        
+
         foreach($facturas as $factura) {
             array_push(
                 $pagina['lineas'],
@@ -1022,7 +1023,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             if (isset($nomina['Deducciones'])) {
                 array_push(
                     $linea,
-                    isset($nomina['Deducciones']['TotalImpuestosRetenidos']) ? 
+                    isset($nomina['Deducciones']['TotalImpuestosRetenidos']) ?
                         $nomina['Deducciones']['TotalImpuestosRetenidos'] : 0
                 );
             } else {
@@ -1117,7 +1118,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                             $documento['ImpPagado'] ?? '',
                             $documento['ImpSaldoInsoluto'] ?? '',
                         ];
-    
+
                         array_push($documentos, $documento);
                     }
                 }
@@ -1294,8 +1295,8 @@ class ReporteSimplificado implements ReporteFacturacionPF
         ];
 
         $rfc = $this->rfc;
-        $desde = now()->startOfYear();
-        $hasta = now()->endOfYear();
+        $desde = Carbon::parse($this->fechaInicio)->startOfYear();
+        $hasta = Carbon::parse($this->fechaFin)->endOfYear();
 
         $facturas = Factura::query()
             ->where(function ($query) use($rfc) {
