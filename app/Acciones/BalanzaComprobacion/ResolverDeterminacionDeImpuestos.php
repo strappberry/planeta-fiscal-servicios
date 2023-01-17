@@ -11,7 +11,7 @@ class ResolverDeterminacionDeImpuestos
 {
     public static function ejecutar(Cliente $cliente, Carbon $carbon)
     {
-        if (in_array('626', $cliente->regimenes_fiscales)) {
+        if (is_array($cliente->regimenes_fiscales) && in_array('626', $cliente->regimenes_fiscales)) {
             return new DeterminacionImpuestoRegimen626($cliente, $carbon);
         }
 
