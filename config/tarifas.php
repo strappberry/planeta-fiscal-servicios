@@ -98,5 +98,27 @@ return [
                 ],
             ],
         ],
+
+        [
+            'regimen' => '626',
+            'titulo' => 'RESICO',
+            'desde' => 2018,
+            'tablas' => [
+                [
+                    'clave' => 'mensual',
+                    'titulo' => 'Tarifa mensual',
+                    'titulo_corto' => 'Mensual',
+                    'desde_mes' => 1,
+                    'hasta_mes' => 12,
+                ],
+                [
+                    'clave' => 'anual',
+                    'titulo' => 'Tarifa anual',
+                    'titulo_corto' => 'Anual',
+                    'desde_mes' => 13,
+                    'hasta_mes' => 13,
+                ],
+            ],
+        ],
     ],
 ];

@@ -14,7 +14,19 @@ class ResolverTablaTarifaAAplicar
         if (!$tarifa) return null;
 
         $tablas = collect($tarifa['tablas']);
-        $tabla = $tablas->where('desde_mes', '>=', $mes)->where('hasta_mes', '<=', $mes)->first();
+        $tabla = $tablas
+            ->where('desde_mes', '>=', $mes)
+            ->where('hasta_mes', '<=', $mes)
+            ->first();
+        if ($segment == '626') {
+            $tabla = $tablas
+                ->reject(function ($tabla) use ($mes) {
+                    return !(
+                        $tabla['desde_mes'] <= $mes && $tabla['hasta_mes'] >= $mes
+                    );
+                })
+                ->first();
+        }
         if (!$tabla) return null;
 
         return TablaTarifa::query()

@@ -22,10 +22,12 @@ class Cliente extends Model
         'regimen_fiscal',
         'obtener_facturas',
         'planetafiscal_id',
+        'regimenes_fiscales',
     ];
 
     protected $casts = [
         'obtener_facturas' => 'boolean',
+        'regimenes_fiscales' => 'array',
     ];
 
     public function getRegimenFiscalCatalogoAttribute()

@@ -12,7 +12,9 @@ class InsertarDeterminacionDelImpuesto
 {
     public static function ejecutar(Cliente $cliente, Carbon $fecha): DeterminacionImpuesto
     {
-        $determinacionImpuesto = new DeterminacionImpuestoRegimen612($cliente, $fecha);
+        $determinacionImpuesto = ResolverDeterminacionDeImpuestos::ejecutar(
+            $cliente, $fecha
+        );
 
         $determinacion = $cliente->determinacionDelImpuesto()->updateOrCreate(
             ['mes_trabajo' => $fecha->format('Y-m-d')],

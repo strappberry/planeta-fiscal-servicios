@@ -8,6 +8,7 @@ use App\Http\Controllers\Contafacil\BalanzaComprobacionController;
 use App\Http\Controllers\Contafacil\BancosController;
 use App\Http\Controllers\Contafacil\BancosProyectosController;
 use App\Http\Controllers\Contafacil\ComentariosController;
+use App\Http\Controllers\Contafacil\ClienteController as ContafacilClienteController;
 use App\Http\Controllers\Contafacil\ComplementosController;
 use App\Http\Controllers\Contafacil\ConceptosDeduccionesPersonalesController;
 use App\Http\Controllers\Contafacil\ConceptosSatController;
@@ -86,6 +87,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('contafacil')->group(function() {
+    Route::prefix('clientes/{clienteId}')->group(function () {
+        Route::get('/', [ContafacilClienteController::class, 'index']);
+        Route::post('/actualizar-regimenes', [
+            ContafacilClienteController::class,
+            'actualizarRegimenesFiscales'
+        ]);
+    });
+
     Route::prefix('ventas')->group(function() {
         Route::get('facturas', [VentasController::class, 'listadoFacturas']);
     });

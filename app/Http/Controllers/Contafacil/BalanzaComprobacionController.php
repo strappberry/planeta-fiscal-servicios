@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Contafacil;
 
+use App\Acciones\BalanzaComprobacion\ResolverDeterminacionDeImpuestos;
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionSinCalculosViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
@@ -12,6 +13,7 @@ use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoDBViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoActividadEmpresarialViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoArrendamientoViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionImpuestoRegimen612;
+use App\Contafacil\Facturas\ViewModels\DeterminacionImpuestoRegimen626;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Contafacil\Polizas\ViewModels\ValidacionPolizaVentasGastosViewModel;
 use App\Http\Controllers\Controller;
@@ -206,7 +208,9 @@ class BalanzaComprobacionController extends Controller
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
         $fecha  = Carbon::parse($fecha)->startOfMonth();
 
-        $determinacion = new DeterminacionImpuestoRegimen612($cliente, $fecha);
+        $determinacion = ResolverDeterminacionDeImpuestos::ejecutar(
+            $cliente, $fecha
+        );
 
         return response()->json([
             'determinacion_impuesto' => $determinacion->toArray(),
