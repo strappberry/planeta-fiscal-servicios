@@ -66,6 +66,10 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
 
     public function ingresosAcumulados()
     {
+        if ($this->fecha->month === 1) {
+            return $this->ingresos();
+        }
+
         $ingresosAnteriores = ($this->determinacionPasada) ? $this->determinacionPasada->ingresos_acumulados : 0;
         return round($ingresosAnteriores + $this->ingresos(), 0);
     }
@@ -80,6 +84,10 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
 
     public function deduccionesAcumuladas()
     {
+        if ($this->fecha->month === 1) {
+            return $this->deducciones();
+        }
+
         $deduccionesAnteriores = ($this->determinacionPasada) ?
             $this->determinacionPasada->deducciones_acumuladas : 0;
 

@@ -66,6 +66,10 @@ class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel
 
     public function deduccionesAcumuladas()
     {
+        if ($this->fecha->month === 1) {
+            return $this->deducciones();
+        }
+
         $deduccionesAnteriores = ($this->determinacionPasada) ?
             $this->determinacionPasada->deducciones_acumuladas : 0;
 
@@ -139,8 +143,8 @@ class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel
 
         $tabla['isr_causado'] = $this->base() * config('sat.resico_moral.porcentaje_isr', 0.3);
 
-        $isrACargon = $tabla['isr_causado'] - $this->ppPagados() - $this->isrRetenido();
-        $tabla['total'] = $isrACargon > 0 ? round($isrACargon, 0) : 0;
+        $isrACargo = $tabla['isr_causado'] - $this->ppPagados() - $this->isrRetenido();
+        $tabla['total'] = $isrACargo > 0 ? round($isrACargo, 0) : 0;
 
         return $tabla;
     }
