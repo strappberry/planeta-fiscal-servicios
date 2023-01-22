@@ -128,6 +128,9 @@ Route::prefix('contafacil')->group(function() {
         Route::get('determinacion-del-impuesto/{clienteId}/{fecha}', [
             BalanzaComprobacionController::class, 'determinacionDelImpuesto'
         ]);
+        Route::post('actualizar-campos-editables/{clienteId}/{fecha}', [
+            BalanzaComprobacionController::class, 'actualizarCamposEditables'
+        ]);
     });
 
     Route::prefix('meses-trabajo/{cliente}')->group(function () {

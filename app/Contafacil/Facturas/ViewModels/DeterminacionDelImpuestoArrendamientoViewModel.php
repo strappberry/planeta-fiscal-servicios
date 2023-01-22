@@ -5,6 +5,7 @@ namespace App\Contafacil\Facturas\ViewModels;
 use App\Acciones\Facturas\CalcularIvaAcreditableAGasto;
 use App\Acciones\TablasTarifas\ResolverTablaTarifaAAplicar;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
+use App\Enums\DeterminacionImpuestosEnum;
 use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use Carbon\Carbon;
@@ -17,7 +18,8 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
 
     public function __construct(
         private Cliente $cliente,
-        private Carbon $fecha
+        private Carbon $fecha,
+        private $camposEditables = []
     ) {
         $this->ventasCobradas = $this->cliente->facturasCliente()
             ->with('factura')
@@ -64,14 +66,14 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
 
     public function predial()
     {
-        // TODO: Pendiente implementar
-        return 0;
+        return isset($this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PREDIAL]) ?
+            $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PREDIAL] : 0;
     }
 
     public function depreciacion()
     {
-        // TODO: Pendiente implementar
-        return 0;
+        return isset($this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION]) ?
+            $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION] : 0;
     }
 
     public function totalDeducciones()
@@ -83,8 +85,8 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
 
     public function perdidasEjercicioAnterior()
     {
-        // TODO: Pendiente implementar
-        return 0;
+        return isset($this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES]) ?
+            $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES] : 0;
     }
 
     public function base()

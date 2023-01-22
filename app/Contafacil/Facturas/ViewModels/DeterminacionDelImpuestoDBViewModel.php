@@ -2,6 +2,7 @@
 
 namespace App\Contafacil\Facturas\ViewModels;
 
+use App\Acciones\BalanzaComprobacion\ResolverDeterminacionImpuestosDB;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\Cliente;
 use Carbon\Carbon;
@@ -16,13 +17,10 @@ class DeterminacionDelImpuestoDBViewModel extends ViewModel
 
     public function determinacionImpuesto()
     {
-        $determinacionImpuesto = $this->cliente->determinacionDelImpuesto()
-            ->where('mes_trabajo', $this->fecha->format('Y-m-d'))
-            ->first();
-
-        if (!$determinacionImpuesto) {
-            return null;
-        }
+        $determinacionImpuesto = ResolverDeterminacionImpuestosDB::ejecutar(
+            $this->cliente,
+            $this->fecha
+        );
 
         return $determinacionImpuesto->determinacion;
     }

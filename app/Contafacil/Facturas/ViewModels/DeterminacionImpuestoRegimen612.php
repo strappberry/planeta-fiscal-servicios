@@ -4,6 +4,8 @@ namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Contafacil\Compartido\Contratos\DeterminacionImpuestosPorRegimen;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
+use App\Contafacil\Facturas\ViewModels\Traits\UsarDeterminacionDB;
+use App\Enums\DeterminacionImpuestosEnum;
 use App\Enums\RegimenFiscal;
 use App\Enums\TipoIngreso;
 use App\Models\Cliente;
@@ -11,6 +13,8 @@ use Carbon\Carbon;
 
 class DeterminacionImpuestoRegimen612 extends ViewModel implements DeterminacionImpuestosPorRegimen
 {
+    use UsarDeterminacionDB;
+
     protected $excepciones = [
         'datosDeterminacion',
     ];
@@ -23,6 +27,7 @@ class DeterminacionImpuestoRegimen612 extends ViewModel implements Determinacion
         private Cliente $cliente,
         private Carbon $fecha
     ) {
+        $this->cargarDeterminacionImpuestoDB();
         $this->ventasCobradasActividadEmpresarial = $this
             ->cliente
             ->facturasCliente()
@@ -41,14 +46,16 @@ class DeterminacionImpuestoRegimen612 extends ViewModel implements Determinacion
         $this->determinacionPersonaFisica = (
             new DeterminacionDelImpuestoActividadEmpresarialViewModel(
                 $cliente,
-                $fecha
+                $fecha,
+                $this->camposEditablesPorRegimen('612')
             )
         )->toArray();
 
         $this->determinacionArrendamiento = (
             new DeterminacionDelImpuestoArrendamientoViewModel(
                 $cliente,
-                $fecha
+                $fecha,
+                $this->camposEditablesPorRegimen('606')
             )
         )->toArray();
     }
@@ -86,7 +93,7 @@ class DeterminacionImpuestoRegimen612 extends ViewModel implements Determinacion
         $arrendamiento = $this->determinacionArrendamiento['calculos_tarifa']['total'];
         $actividadEmpresarial = $this->determinacionPersonaFisica['calculos_tarifa']['total'];
 
-        return round($arrendamiento + $actividadEmpresarial, 0);
+        return round($arrendamiento + $actividadEmpresarial - $this->isrAFavor(), 0);
     }
 
     public function datosDeterminacion(): array

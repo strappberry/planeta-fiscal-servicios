@@ -7,7 +7,7 @@ use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\Cliente;
 use Carbon\Carbon;
 
-class DeterminacionDelImpuestoResicoViewModel extends ViewModel
+class DeterminacionDelImpuestoResicoPFViewModel extends ViewModel
 {
     private $ventasCobradas;
 

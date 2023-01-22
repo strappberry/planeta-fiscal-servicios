@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Contafacil;
 
+use App\Acciones\BalanzaComprobacion\ActualizarCamposEditablesDeterminacionImpuesto;
 use App\Acciones\BalanzaComprobacion\ResolverDeterminacionDeImpuestos;
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionSinCalculosViewModel;
@@ -10,12 +11,9 @@ use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
 use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
 use App\Contafacil\Facturas\ViewModels\ColumnasDeduccionesViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoDBViewModel;
-use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoActividadEmpresarialViewModel;
-use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoArrendamientoViewModel;
-use App\Contafacil\Facturas\ViewModels\DeterminacionImpuestoRegimen612;
-use App\Contafacil\Facturas\ViewModels\DeterminacionImpuestoRegimen626;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Contafacil\Polizas\ViewModels\ValidacionPolizaVentasGastosViewModel;
+use App\Enums\DeterminacionImpuestosEnum;
 use App\Http\Controllers\Controller;
 use App\Models\BalanzaComprobacionCliente;
 use App\Models\NumeroCuenta;
@@ -208,6 +206,29 @@ class BalanzaComprobacionController extends Controller
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
         $fecha  = Carbon::parse($fecha)->startOfMonth();
 
+        $determinacion = ResolverDeterminacionDeImpuestos::ejecutar(
+            $cliente, $fecha
+        );
+
+        return response()->json([
+            'determinacion_impuesto' => $determinacion->toArray(),
+        ]);
+    }
+
+    public function actualizarCamposEditables(Request $request, $clienteId, $fecha)
+    {
+        // $camposValidos = implode(',', DeterminacionImpuestosEnum::obtenerCamposValidos());
+        $this->validate($request, [
+            'regimen' => "required",
+            'campos' => "required|array",
+        ]);
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+        $fecha = Carbon::parse($fecha)->startOfMonth();
+
+        $campos = DeterminacionImpuestosEnum::obtenerArregloDesdeRequest($request);
+        ActualizarCamposEditablesDeterminacionImpuesto::ejecutar(
+            $cliente, $fecha, $request->regimen, $campos
+        );
         $determinacion = ResolverDeterminacionDeImpuestos::ejecutar(
             $cliente, $fecha
         );

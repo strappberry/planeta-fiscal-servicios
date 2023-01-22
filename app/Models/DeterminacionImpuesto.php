@@ -18,6 +18,7 @@ class DeterminacionImpuesto extends Model
         'pp_pagados',
         'isr_actividad',
         'determinacion',
+        'campos_editables',
         'cliente_id',
     ];
 
@@ -27,6 +28,7 @@ class DeterminacionImpuesto extends Model
         'deducciones_acumuladas' => 'float',
         'pp_pagados'             => 'float',
         'isr_actividad'          => 'float',
-        'determinacion'            => 'array',
+        'determinacion'          => 'array',
+        'campos_editables'       => 'array',
     ];
 }
