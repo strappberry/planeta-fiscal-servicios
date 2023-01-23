@@ -46,6 +46,16 @@ class Cliente extends Model
         return '';
     }
 
+    public function getEsPersonaFisicaAttribute()
+    {
+        return $this->tipoPersona === TipoPersona::FISICA;
+    }
+
+    public function getEsPersonaMoralAttribute()
+    {
+        return $this->tipoPersona === TipoPersona::MORAL;
+    }
+
     public function getTipoPersonaAttribute()
     {
         if (strlen($this->rfc) == 12) {
@@ -101,6 +111,13 @@ class Cliente extends Model
     public function scopeObtenerFacturasAutomaticamente()
     {
         return $this->where('obtener_facturas', true);
+    }
+
+    public function tieneRegimen($regimen): bool
+    {
+        if (!$this->regimenes_fiscales) return false;
+
+        return in_array($regimen, $this->regimenes_fiscales);
     }
 
 }

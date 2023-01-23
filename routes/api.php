@@ -89,7 +89,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('contafacil')->group(function() {
     Route::prefix('clientes/{clienteId}')->group(function () {
         Route::get('/', [ContafacilClienteController::class, 'index']);
-        Route::post('/actualizar-regimenes', [
+        Route::post('/{fecha}/actualizar-regimenes', [
             ContafacilClienteController::class,
             'actualizarRegimenesFiscales'
         ]);

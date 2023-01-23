@@ -27,10 +27,10 @@ class TipoIngreso
                 'clave'      => self::ARRENDAMIENTO,
                 'descripcion' => self::descripcion(self::ARRENDAMIENTO),
             ],
-            [
-                'clave'      => self::PLATAFORMAS_DIGITALES,
-                'descripcion' => self::descripcion(self::PLATAFORMAS_DIGITALES),
-            ],
+            // [
+            //     'clave'      => self::PLATAFORMAS_DIGITALES,
+            //     'descripcion' => self::descripcion(self::PLATAFORMAS_DIGITALES),
+            // ],
         ];
     }
 }

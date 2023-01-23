@@ -42,5 +42,7 @@ class ValidarPolizasMes
 
             VerificarFacturaClienteDeducible::ejecutar($facturaCliente);
         }
+
+        VerificarYActualizarTipoIngresoPorRegimen::ejecutar($cliente, $fechaInicio);
     }
 }
