@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TipoIngreso;
 use App\Models\EloquentCollections\FacturaClienteCollection;
 use App\Models\QueryBuilders\FacturaClienteQueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,6 +42,10 @@ class FacturaCliente extends Model
         'fecha_pago',
     ];
 
+    protected $appends = [
+        'abreviacion_tipo_ingreso',
+    ];
+
     public function newEloquentBuilder($query)
     {
         return new FacturaClienteQueryBuilder($query);
@@ -49,6 +54,11 @@ class FacturaCliente extends Model
     public function newCollection(array $models = [])
     {
         return new FacturaClienteCollection($models);
+    }
+
+    public function getAbreviacionTipoIngresoAttribute()
+    {
+        return TipoIngreso::obtenerAbreviacion($this->tipo_ingreso);
     }
 
     public function conceptoDeduccionPersonal()

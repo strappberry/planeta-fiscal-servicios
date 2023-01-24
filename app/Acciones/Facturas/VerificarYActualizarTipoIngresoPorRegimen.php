@@ -13,63 +13,49 @@ class VerificarYActualizarTipoIngresoPorRegimen
         Cliente $cliente,
         Carbon $fecha
     ) {
-        $ventasCobradas = $cliente->facturasCliente()
+        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::PERSONA_FISICA_ACTIVIDAD_EMPRESARIAL)) {
+            return self::personaFisicaActividadEmpresarial($cliente, $fecha);
+        }
+        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::PLATAFORMAS_TECNOLOGICAS)) {
+            return self::actualizarTipoIngreso($cliente, $fecha, TipoIngreso::ACTIVIDAD_EMPRESARIAL);
+        }
+        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::ARRENDAMIENTO)) {
+            return self::actualizarTipoIngreso($cliente, $fecha, TipoIngreso::ARRENDAMIENTO);
+        }
+        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::RESICO)) {
+            return self::actualizarTipoIngreso($cliente, $fecha, TipoIngreso::RESICO_PF);
+        }
+    }
+
+    private static function personaFisicaActividadEmpresarial(Cliente $cliente, Carbon $fecha)
+    {
+        $posibilidadDeArrendamiento = $cliente->tieneRegimen(RegimenFiscal::ARRENDAMIENTO);
+        $consulta = $cliente->facturasCliente()
+            ->dentroFechaPago(
+                $fecha->copy()->startOfMonth(),
+                $fecha->copy()->endOfMonth()
+            )
+            ->esVenta();
+
+        if ($posibilidadDeArrendamiento) {
+            $consulta = $consulta->where('tipo_ingreso', '!=',  TipoIngreso::ARRENDAMIENTO);
+        }
+
+        $consulta->update([
+            'tipo_ingreso' => TipoIngreso::ACTIVIDAD_EMPRESARIAL,
+        ]);
+    }
+
+    private static function actualizarTipoIngreso(Cliente $cliente, Carbon $fecha, string $tipoIngreso)
+    {
+        $cliente->facturasCliente()
             ->dentroFechaPago(
                 $fecha->copy()->startOfMonth(),
                 $fecha->copy()->endOfMonth()
             )
             ->esVenta()
-            ->get();
-
-        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::PERSONA_FISICA_ACTIVIDAD_EMPRESARIAL)) {
-            return self::personaFisicaActividadEmpresarial($cliente, $ventasCobradas);
-        }
-        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::PLATAFORMAS_TECNOLOGICAS)) {
-            return self::plataformasTeconologicas($cliente, $ventasCobradas);
-        }
-        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::ARRENDAMIENTO)) {
-            return self::arrendamiento($cliente, $ventasCobradas);
-        }
-        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::RESICO)) {
-            return self::resico($cliente, $ventasCobradas);
-        }
-    }
-
-    private static function personaFisicaActividadEmpresarial(Cliente $cliente, $facturasCliente)
-    {
-        $posibilidadDeArrendamiento = $cliente->tieneRegimen(RegimenFiscal::ARRENDAMIENTO);
-
-        $facturasCliente->each(function ($facturaCliente) use ($posibilidadDeArrendamiento) {
-            if ($posibilidadDeArrendamiento && $facturaCliente->tipo_ingreso == TipoIngreso::ARRENDAMIENTO) {
-                return;
-            }
-
-            $facturaCliente->tipo_ingreso = TipoIngreso::ACTIVIDAD_EMPRESARIAL;
-            $facturaCliente->save();
-        });
-    }
-
-    private static function arrendamiento(Cliente $cliente, $facturasCliente)
-    {
-        $facturasCliente->each(function ($facturaCliente) {
-            $facturaCliente->tipo_ingreso = TipoIngreso::ARRENDAMIENTO;
-            $facturaCliente->save();
-        });
-    }
-
-    public static function plataformasTeconologicas(Cliente $cliente, $facturasCliente)
-    {
-        $facturasCliente->each(function ($facturaCliente) {
-            $facturaCliente->tipo_ingreso = TipoIngreso::ACTIVIDAD_EMPRESARIAL;
-            $facturaCliente->save();
-        });
-    }
-
-    private static function resico(Cliente $cliente, $facturasCliente)
-    {
-        $facturasCliente->each(function ($facturaCliente) {
-            $facturaCliente->tipo_ingreso = '';
-            $facturaCliente->save();
-        });
+            ->update([
+                'tipo_ingreso' => $tipoIngreso,
+            ]);
     }
 }
