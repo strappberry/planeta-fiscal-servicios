@@ -4,13 +4,14 @@ namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Acciones\Facturas\CalcularIvaAcreditableAGasto;
 use App\Acciones\TablasTarifas\ResolverTablaTarifaAAplicar;
+use App\Contafacil\Compartido\Contratos\DebeTenerBaseMaxima;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
 use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use Carbon\Carbon;
 
-class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
+class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel implements DebeTenerBaseMaxima
 {
     private $ventasCobradas;
     private $gastosPagados;
@@ -102,8 +103,7 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
 
     public function depreciacion()
     {
-        return isset($this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION]) ?
-            $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION] : 0;
+        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION] ?? 0;
     }
 
     public function totalDeducciones()
@@ -113,19 +113,21 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel
 
     public function perdidasEjercicioAnterior()
     {
-        return isset($this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES]) ?
-            $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES] : 0;
+        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES] ?? 0;
+    }
+
+    public function baseMaxima(): float
+    {
+        $base = $this->ingresos() - $this->totalDeducciones();
+
+        return ($base < 0) ? 0 : round($base, 2);
     }
 
     public function base()
     {
         $base = $this->ingresos() - $this->totalDeducciones() - $this->perdidasEjercicioAnterior();
 
-        if ($base < 0) {
-            return 0;
-        }
-
-        return round($base, 2);
+        return ($base < 0) ? 0 : round($base, 2);
     }
 
     /**

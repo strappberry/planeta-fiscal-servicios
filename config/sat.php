@@ -6,4 +6,8 @@ return [
         // es de 30%.
         'porcentaje_isr' => 0.3,
     ],
+    'persona_moral' => [
+        // El porcentaje de ISR a aplicar a las personas morales es de 30%.
+        'porcentaje_isr' => 0.3,
+    ],
 ];

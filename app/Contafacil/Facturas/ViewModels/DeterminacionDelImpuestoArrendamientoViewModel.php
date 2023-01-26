@@ -4,13 +4,14 @@ namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Acciones\Facturas\CalcularIvaAcreditableAGasto;
 use App\Acciones\TablasTarifas\ResolverTablaTarifaAAplicar;
+use App\Contafacil\Compartido\Contratos\DebeTenerBaseMaxima;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
 use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use Carbon\Carbon;
 
-class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
+class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel implements DebeTenerBaseMaxima
 {
     private $ventasCobradas;
     // private $gastosPagados;
@@ -66,14 +67,12 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
 
     public function predial()
     {
-        return isset($this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PREDIAL]) ?
-            $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PREDIAL] : 0;
+        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PREDIAL] ?? 0;
     }
 
     public function depreciacion()
     {
-        return isset($this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION]) ?
-            $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION] : 0;
+        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION] ?? 0;
     }
 
     public function totalDeducciones()
@@ -85,19 +84,21 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel
 
     public function perdidasEjercicioAnterior()
     {
-        return isset($this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES]) ?
-            $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES] : 0;
+        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES] ?? 0;
+    }
+
+    public function baseMaxima(): float
+    {
+        $base = $this->ingresos() - $this->totalDeducciones();
+
+        return ($base < 0) ? 0: round($base, 2);
     }
 
     public function base()
     {
         $base = $this->ingresos() - $this->totalDeducciones() - $this->perdidasEjercicioAnterior();
 
-        if ($base < 0) {
-            return 0;
-        }
-
-        return round($base, 2);
+        return ($base < 0) ? 0: round($base, 2);
     }
 
     public function calculosTarifa()

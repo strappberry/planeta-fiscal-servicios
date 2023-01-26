@@ -6,13 +6,13 @@ use App\Contafacil\Compartido\Contratos\DebeTenerBaseMaxima;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
 use App\Models\Cliente;
+use App\Models\DeterminacionImpuesto;
 use Carbon\Carbon;
 
-class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel implements DebeTenerBaseMaxima
+class DeterminacionDelImpuestoPersonaMoralViewModel extends ViewModel implements DebeTenerBaseMaxima
 {
-    private $determinacionPasada;
     private $ventasCobradas;
-    private $gastosPagados;
+    private $determinacionPasada;
 
     public function __construct(
         private Cliente $cliente,
@@ -28,27 +28,18 @@ class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel implements Deb
             ->esVenta()
             ->esConsiderado()
             ->get();
-        $this->gastosPagados = $this->cliente->facturasCliente()
-            ->with('factura')
-            ->dentroFechaPago(
-                $fecha->copy()->startOfMonth(),
-                $fecha->copy()->endOfMonth()
-            )
-            ->esGasto()
-            ->esConsiderado()
-            ->get();
 
         $this->determinacionPasada = $cliente->determinacionDelImpuesto()
                 ->where('mes_trabajo', $this->fecha->copy()->subMonth()->format('Y-m-d'))
                 ->first();
     }
 
-    public function ingresos()
+    public function ingresos(): float
     {
         return $this->ventasCobradas->calcularIngresos(0);
     }
 
-    public function ingresosAcumulados()
+    public function ingresosAcumulados(): float
     {
         if ($this->fecha->month === 1) {
             return $this->ingresos();
@@ -58,47 +49,45 @@ class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel implements Deb
         return round($ingresosAnteriores + $this->ingresos(), 0);
     }
 
-    public function deducciones()
+    public function coeficienteUtilidad(): float
     {
-        $deducciones = $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(0);
+        $coeficienteUtilidad = $this->camposEditables[
+            DeterminacionImpuestosEnum::CAMPO_COEFICIENTE_UTILIDAD
+        ] ?? 0;
 
-        return $deducciones;
+        if ($coeficienteUtilidad != 0) return $coeficienteUtilidad;
+
+        $determinacionCoeficienteUtilidad = DeterminacionImpuesto::query()
+            ->select(DeterminacionImpuesto::COEFICIENTE_UTILIDAD)
+            ->buscarUltimoMesConCoeficienteUtilidad($this->cliente, $this->fecha)
+            ->first();
+
+        if (!$determinacionCoeficienteUtilidad) return 0;
+
+        return $determinacionCoeficienteUtilidad->{DeterminacionImpuesto::COEFICIENTE_UTILIDAD};
     }
 
-    public function deduccionesAcumuladas()
+    public function utilidadFiscalPagoProvisional(): float
     {
-        if ($this->fecha->month === 1) {
-            return $this->deducciones();
-        }
-
-        $deduccionesAnteriores = ($this->determinacionPasada) ?
-            $this->determinacionPasada->deducciones_acumuladas : 0;
-
-        return round($deduccionesAnteriores + $this->deducciones(), 0);
+        return round(
+            $this->ingresosAcumulados() * $this->coeficienteUtilidad(),
+            0
+        );
     }
 
-    public function costoVendidoEjerciciosAnteriores()
+    public function ptu(): float
+    {
+        return 0;
+    }
+
+    public function anticiposRendimientoDistribuidosEnPeriodo(): float
     {
         return $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_COSTO_VENDIDO_EJERCICIOS_ANTERIORES
+            DeterminacionImpuestosEnum::CAMPO_ANTICIPOS_RENDIMIENTOS_DISTRIBUIDOS_EN_PERIODO
         ] ?? 0;
     }
 
-    public function deduccionInversionesEjerciciosAnteriores()
-    {
-        return $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_DEDUCCION_INVERSIONES_EJERCICIOS_ANTERIORES
-        ] ?? 0;
-    }
-
-    public function participacionTrabajadoresUtilidades()
-    {
-        return $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_PARTICIPACION_TRABAJADORES_UTILIDADES
-        ] ?? 0;
-    }
-
-    public function perdidasFiscalesEjerciciosAnteriores()
+    public function perdidasFiscalesEjerciciosAnteriores(): float
     {
         return $this->camposEditables[
             DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES
@@ -107,27 +96,19 @@ class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel implements Deb
 
     public function baseMaxima(): float
     {
-        $base = $this->ingresosAcumulados()
-            - $this->deduccionesAcumuladas()
-            - $this->costoVendidoEjerciciosAnteriores()
-            - $this->deduccionInversionesEjerciciosAnteriores()
-            - $this->participacionTrabajadoresUtilidades()
+        return $this->utilidadFiscalPagoProvisional()
+            - $this->ptu()
+            - $this->anticiposRendimientoDistribuidosEnPeriodo()
             ;
-
-        return $base > 0 ? round($base, 0) : 0;
     }
 
     public function base(): float
     {
-        $base = $this->ingresosAcumulados()
-            - $this->deduccionesAcumuladas()
-            - $this->costoVendidoEjerciciosAnteriores()
-            - $this->deduccionInversionesEjerciciosAnteriores()
-            - $this->participacionTrabajadoresUtilidades()
+        return $this->utilidadFiscalPagoProvisional()
+            - $this->ptu()
+            - $this->anticiposRendimientoDistribuidosEnPeriodo()
             - $this->perdidasFiscalesEjerciciosAnteriores()
             ;
-
-        return $base > 0 ? round($base, 0) : 0;
     }
 
     /**

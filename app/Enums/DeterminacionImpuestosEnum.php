@@ -13,6 +13,8 @@ class DeterminacionImpuestosEnum
     const CAMPO_COSTO_VENDIDO_EJERCICIOS_ANTERIORES = 'costo_vendido_ejercicios_anteriores';
     const CAMPO_DEDUCCION_INVERSIONES_EJERCICIOS_ANTERIORES = 'deduccion_inversiones_ejercicios_anteriores';
     const CAMPO_PARTICIPACION_TRABAJADORES_UTILIDADES = 'participacion_trabajadores_utilidades';
+    const CAMPO_COEFICIENTE_UTILIDAD = 'coeficiente_utilidad';
+    const CAMPO_ANTICIPOS_RENDIMIENTOS_DISTRIBUIDOS_EN_PERIODO = 'anticipos_rendimientos_distribuidos_en_periodo';
 
     /**
      * Obtener un arreglo de campos editables validos para la determinacion de impuestos
