@@ -16,7 +16,7 @@ class ResolverDeterminacionDeImpuestos
         if ($cliente->esPersonaMoral && $cliente->tieneRegimen(RegimenFiscal::PERSONA_MORAL)) {
             return new DeterminacionImpuestoRegimen601($cliente, $carbon);
         }
-        if ($cliente->esPersonaFisica && $cliente->tieneRegimen(RegimenFiscal::RESICO)) {
+        if ($cliente->tieneRegimen(RegimenFiscal::RESICO)) {
             return new DeterminacionImpuestoRegimen626($cliente, $carbon);
         }
 
