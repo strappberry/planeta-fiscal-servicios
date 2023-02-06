@@ -4,7 +4,6 @@ namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Contafacil\Compartido\Contratos\DeterminacionImpuestosPorRegimen;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
-use App\Contafacil\Facturas\ViewModels\Traits\UsarDeterminacionDB;
 use App\Enums\DeterminacionImpuestosEnum;
 use App\Enums\RegimenFiscal;
 use App\Enums\TipoIngreso;
@@ -13,8 +12,6 @@ use Carbon\Carbon;
 
 class DeterminacionImpuestoRegimen612 extends ViewModel implements DeterminacionImpuestosPorRegimen
 {
-    use UsarDeterminacionDB;
-
     protected $excepciones = [
         'datosDeterminacion',
     ];
@@ -27,7 +24,6 @@ class DeterminacionImpuestoRegimen612 extends ViewModel implements Determinacion
         private Cliente $cliente,
         private Carbon $fecha
     ) {
-        $this->cargarDeterminacionImpuestoDB();
         $this->ventasCobradasActividadEmpresarial = $this
             ->cliente
             ->facturasCliente()
@@ -46,16 +42,14 @@ class DeterminacionImpuestoRegimen612 extends ViewModel implements Determinacion
         $this->determinacionPersonaFisica = (
             new DeterminacionDelImpuestoActividadEmpresarialViewModel(
                 $cliente,
-                $fecha,
-                $this->camposEditablesPorRegimen('612')
+                $fecha
             )
         )->toArray();
 
         $this->determinacionArrendamiento = (
             new DeterminacionDelImpuestoArrendamientoViewModel(
                 $cliente,
-                $fecha,
-                $this->camposEditablesPorRegimen('606')
+                $fecha
             )
         )->toArray();
     }
@@ -84,8 +78,13 @@ class DeterminacionImpuestoRegimen612 extends ViewModel implements Determinacion
 
     public function isrAFavor(): float
     {
-        // TODO: implementar isr a favor
-        return 0;
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarUltimoMesConValor(
+            DeterminacionImpuestosEnum::CAMPO_ISR_A_FAVOR,
+            $this->fecha,
+            RegimenFiscal::PERSONA_FISICA_ACTIVIDAD_EMPRESARIAL
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
     }
 
     public function isrPorPagar(): float

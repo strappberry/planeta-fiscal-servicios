@@ -7,6 +7,7 @@ use App\Acciones\TablasTarifas\ResolverTablaTarifaAAplicar;
 use App\Contafacil\Compartido\Contratos\DebeTenerBaseMaxima;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
+use App\Enums\RegimenFiscal;
 use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use Carbon\Carbon;
@@ -14,13 +15,11 @@ use Carbon\Carbon;
 class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel implements DebeTenerBaseMaxima
 {
     private $ventasCobradas;
-    // private $gastosPagados;
-    private $determinacionPasada;
+    private $camposEditables;
 
     public function __construct(
         private Cliente $cliente,
-        private Carbon $fecha,
-        private $camposEditables = []
+        private Carbon $fecha
     ) {
         $this->ventasCobradas = $this->cliente->facturasCliente()
             ->with('factura')
@@ -35,10 +34,10 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel implement
             ->esConsiderado()
             ->get();
 
-        $mesPasado = $fecha->copy()->subMonth();
-        $this->determinacionPasada = $cliente->determinacionDelImpuesto()
-                ->where('mes_trabajo', $mesPasado->format('Y-m-d'))
-                ->first();
+        $this->camposEditables = $cliente->determinacionCamposEditables()
+            ->buscarPorRegimen(RegimenFiscal::RESICO)
+            ->buscarPorMes($this->fecha)
+            ->get();
     }
 
     public function ingresos()
@@ -67,12 +66,16 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel implement
 
     public function predial()
     {
-        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PREDIAL] ?? 0;
+        $campo = $this->camposEditables->firstWhere('clave', DeterminacionImpuestosEnum::CAMPO_PREDIAL);
+
+        return $campo ? floatval($campo->valor) : 0;
     }
 
     public function depreciacion()
     {
-        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION] ?? 0;
+        $campo = $this->camposEditables->firstWhere('clave', DeterminacionImpuestosEnum::CAMPO_DEPRECIACION);
+
+        return $campo ? floatval($campo->valor) : 0;
     }
 
     public function totalDeducciones()
@@ -84,7 +87,24 @@ class DeterminacionDelImpuestoArrendamientoViewModel extends ViewModel implement
 
     public function perdidasEjercicioAnterior()
     {
-        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES] ?? 0;
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarUltimoMesConValor(
+            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES,
+            $this->fecha,
+            RegimenFiscal::ARRENDAMIENTO
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
+    }
+
+    public function perdidasFiscalesMesAnterior(): float
+    {
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarMesPrevioConValor(
+            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES,
+            $this->fecha,
+            RegimenFiscal::ARRENDAMIENTO
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
     }
 
     public function baseMaxima(): float

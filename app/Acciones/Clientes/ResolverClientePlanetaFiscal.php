@@ -2,7 +2,7 @@
 
 namespace App\Acciones\Clientes;
 
-use App\Clientes\KontafacilApi;
+use App\Clientes\PlanetaFiscalApi;
 use App\Models\Cliente;
 
 class ResolverClientePlanetaFiscal
@@ -22,20 +22,16 @@ class ResolverClientePlanetaFiscal
         $cliente = Cliente::where('planetafiscal_id', $clienteId)->first();
 
         if (!$cliente) {
-            $kontafacilApi = new KontafacilApi();
-            $respuesta = $kontafacilApi->obtenerCliente($clienteId);
-            if (!$respuesta->ok()) {
-                return null;
-            }
-
-            $datosCliente = $respuesta->json();
+            $consulta = (new PlanetaFiscalApi())->obtenerCliente($clienteId);
+            if (!$consulta) return null;
 
             $cliente = Cliente::updateOrCreate(
-                ['rfc' => $datosCliente['rfc']],
+                ['planetafiscal_id' => $consulta['id']],
                 [
-                    'rfc'              => $datosCliente['rfc'],
-                    'razon_social'     => $datosCliente['razon_social'],
-                    'planetafiscal_id' => $datosCliente['id'],
+                    'rfc'              => $consulta['rfc'],
+                    'razon_social'     => $consulta['razon_social'],
+                    'planetafiscal_id' => $consulta['id'],
+                    'regimen_fiscal'   => $consulta['regimen'],
                 ]
             );
         }

@@ -2,7 +2,7 @@
 
 namespace App\Acciones\Kontafacil;
 
-use App\Clientes\KontafacilApi;
+use App\Clientes\PlanetaFiscalApi;
 
 class VerificarUsuarioPF
 {
@@ -11,15 +11,6 @@ class VerificarUsuarioPF
      */
     public static function ejecutar(string $usuario, string $password): bool
     {
-        $kontafacilApi = new KontafacilApi();
-        $respuesta = $kontafacilApi->validarUsuario($usuario, $password);
-
-        if (!$respuesta->ok()) {
-            return false;
-        }
-
-        $datos = $respuesta->json();
-
-        return $datos['valido'];
+        return (new PlanetaFiscalApi())->validarUsuarioPassword($usuario, $password);
     }
 }

@@ -4,15 +4,13 @@ namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Contafacil\Compartido\Contratos\DeterminacionImpuestosPorRegimen;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
-use App\Contafacil\Facturas\ViewModels\Traits\UsarDeterminacionDB;
+use App\Enums\DeterminacionImpuestosEnum;
 use App\Enums\RegimenFiscal;
 use App\Models\Cliente;
 use Carbon\Carbon;
 
 class DeterminacionImpuestoRegimen601 extends ViewModel implements DeterminacionImpuestosPorRegimen
 {
-    use UsarDeterminacionDB;
-
     protected $excepciones = [
         'datosDeterminacion',
     ];
@@ -22,11 +20,9 @@ class DeterminacionImpuestoRegimen601 extends ViewModel implements Determinacion
         private Cliente $cliente,
         private Carbon $fecha
     ) {
-        $this->cargarDeterminacionImpuestoDB();
         $this->determinacionPersonaMoral = (new DeterminacionDelImpuestoPersonaMoralViewModel(
             $this->cliente,
             $this->fecha,
-            $this->camposEditablesPorRegimen('601')
         ))->toArray();
     }
 
@@ -42,8 +38,13 @@ class DeterminacionImpuestoRegimen601 extends ViewModel implements Determinacion
 
     public function isrAFavor(): float
     {
-        // TODO: implementar
-        return 0;
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarUltimoMesConValor(
+            DeterminacionImpuestosEnum::CAMPO_ISR_A_FAVOR,
+            $this->fecha,
+            RegimenFiscal::PERSONA_MORAL
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
     }
 
     public function isrPorPagar(): float
@@ -57,10 +58,10 @@ class DeterminacionImpuestoRegimen601 extends ViewModel implements Determinacion
     public function datosDeterminacion(): array
     {
         return [
-            'ingresos_acumulados'   => 0,
-            'deducciones_cumuladas' => 0,
-            'pp_pagados'            => 0,
-            'isr_actividad'         => 0,
+            'ingresos_acumulados'    => $this->determinacionPersonaMoral['ingresos_acumulados'],
+            'deducciones_acumuladas' => 0,
+            'pp_pagados'             => $this->determinacionPersonaMoral['pp_pagados'],
+            'isr_actividad'          => $this->determinacionPersonaMoral['calculos_tarifa']['total'],
         ];
     }
 }

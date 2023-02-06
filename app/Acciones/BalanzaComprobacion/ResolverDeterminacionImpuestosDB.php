@@ -14,7 +14,6 @@ class ResolverDeterminacionImpuestosDB
         return $cliente->determinacionDelImpuesto()->firstOrCreate(
             ['mes_trabajo' => $fecha->format('Y-m-d')],
             [
-                'campos_editables' => [],
                 'determinacion' => null,
             ],
         );

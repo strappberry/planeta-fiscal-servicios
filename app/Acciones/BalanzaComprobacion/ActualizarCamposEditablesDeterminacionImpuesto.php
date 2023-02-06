@@ -14,24 +14,18 @@ class ActualizarCamposEditablesDeterminacionImpuesto
         Carbon $fecha,
         $regimen,
         array $campos
-    ): DeterminacionImpuesto {
-        $determinacionImpuesto = ResolverDeterminacionImpuestosDB::ejecutar($cliente, $fecha);
-
-        $camposEditables = $determinacionImpuesto->campos_editables;
-        $camposEditables[$regimen] = (isset($camposEditables[$regimen])) ?
-            array_merge($camposEditables[$regimen], $campos) :
-            $campos;
-
-        if (isset($camposEditables[$regimen][DeterminacionImpuestosEnum::CAMPO_COEFICIENTE_UTILIDAD])) {
-            $determinacionImpuesto->{DeterminacionImpuesto::COEFICIENTE_UTILIDAD} = round(
-                $camposEditables[$regimen][DeterminacionImpuestosEnum::CAMPO_COEFICIENTE_UTILIDAD],
-                2
+    ) {
+        foreach($campos as $campo => $valor) {
+            $cliente->determinacionCamposEditables()->updateOrCreate(
+                [
+                    'mes_trabajo' => $fecha,
+                    'regimen' => $regimen,
+                    'clave' => $campo,
+                ],
+                [
+                    'valor' => $valor,
+                ]
             );
         }
-
-        $determinacionImpuesto->campos_editables = $camposEditables;
-        $determinacionImpuesto->save();
-
-        return $determinacionImpuesto;
     }
 }

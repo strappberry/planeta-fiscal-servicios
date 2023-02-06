@@ -70,6 +70,11 @@ class Cliente extends Model
         return $this->hasMany(ClaveSat::class);
     }
 
+    public function determinacionCamposEditables()
+    {
+        return $this->hasMany(DeterminacionCampoEditable::class);
+    }
+
     public function determinacionDelImpuesto()
     {
         return $this->hasMany(DeterminacionImpuesto::class);

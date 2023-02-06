@@ -5,6 +5,7 @@ namespace App\Contafacil\Facturas\ViewModels;
 use App\Contafacil\Compartido\Contratos\DebeTenerBaseMaxima;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
+use App\Enums\RegimenFiscal;
 use App\Models\Cliente;
 use App\Models\DeterminacionImpuesto;
 use Carbon\Carbon;
@@ -13,11 +14,11 @@ class DeterminacionDelImpuestoPersonaMoralViewModel extends ViewModel implements
 {
     private $ventasCobradas;
     private $determinacionPasada;
+    private $camposEditables;
 
     public function __construct(
         private Cliente $cliente,
         private Carbon $fecha,
-        private array $camposEditables = [],
     ) {
         $this->ventasCobradas = $this->cliente->facturasCliente()
             ->with('factura')
@@ -32,6 +33,11 @@ class DeterminacionDelImpuestoPersonaMoralViewModel extends ViewModel implements
         $this->determinacionPasada = $cliente->determinacionDelImpuesto()
                 ->where('mes_trabajo', $this->fecha->copy()->subMonth()->format('Y-m-d'))
                 ->first();
+
+        $this->camposEditables = $cliente->determinacionCamposEditables()
+            ->buscarPorRegimen(RegimenFiscal::PERSONA_MORAL)
+            ->buscarPorMes($this->fecha)
+            ->get();
     }
 
     public function ingresos(): float
@@ -51,20 +57,17 @@ class DeterminacionDelImpuestoPersonaMoralViewModel extends ViewModel implements
 
     public function coeficienteUtilidad(): float
     {
-        $coeficienteUtilidad = $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_COEFICIENTE_UTILIDAD
-        ] ?? 0;
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarUltimoMesConValor(
+            DeterminacionImpuestosEnum::CAMPO_COEFICIENTE_UTILIDAD,
+            $this->fecha,
+            RegimenFiscal::PERSONA_MORAL
+        )->first();
 
-        if ($coeficienteUtilidad != 0) return $coeficienteUtilidad;
+        if ($ultimoValor) {
+            return $ultimoValor->valor;
+        }
 
-        $determinacionCoeficienteUtilidad = DeterminacionImpuesto::query()
-            ->select(DeterminacionImpuesto::COEFICIENTE_UTILIDAD)
-            ->buscarUltimoMesConCoeficienteUtilidad($this->cliente, $this->fecha)
-            ->first();
-
-        if (!$determinacionCoeficienteUtilidad) return 0;
-
-        return $determinacionCoeficienteUtilidad->{DeterminacionImpuesto::COEFICIENTE_UTILIDAD};
+        return 0;
     }
 
     public function utilidadFiscalPagoProvisional(): float
@@ -82,16 +85,34 @@ class DeterminacionDelImpuestoPersonaMoralViewModel extends ViewModel implements
 
     public function anticiposRendimientoDistribuidosEnPeriodo(): float
     {
-        return $this->camposEditables[
+        $campo = $this->camposEditables->firstWhere(
+            'clave',
             DeterminacionImpuestosEnum::CAMPO_ANTICIPOS_RENDIMIENTOS_DISTRIBUIDOS_EN_PERIODO
-        ] ?? 0;
+        );
+
+        return $campo ? floatval($campo->valor) : 0;
     }
 
     public function perdidasFiscalesEjerciciosAnteriores(): float
     {
-        return $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES
-        ] ?? 0;
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarUltimoMesConValor(
+            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES,
+            $this->fecha,
+            RegimenFiscal::PERSONA_MORAL
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
+    }
+
+    public function perdidasFiscalesMesAnterior(): float
+    {
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarMesPrevioConValor(
+            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES,
+            $this->fecha,
+            RegimenFiscal::PERSONA_MORAL
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
     }
 
     public function baseMaxima(): float

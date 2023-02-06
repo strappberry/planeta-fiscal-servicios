@@ -5,6 +5,7 @@ namespace App\Contafacil\Facturas\ViewModels;
 use App\Contafacil\Compartido\Contratos\DebeTenerBaseMaxima;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
+use App\Enums\RegimenFiscal;
 use App\Models\Cliente;
 use Carbon\Carbon;
 
@@ -13,11 +14,11 @@ class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel implements Deb
     private $determinacionPasada;
     private $ventasCobradas;
     private $gastosPagados;
+    private $camposEditables;
 
     public function __construct(
         private Cliente $cliente,
         private Carbon $fecha,
-        private array $camposEditables = [],
     ) {
         $this->ventasCobradas = $this->cliente->facturasCliente()
             ->with('factura')
@@ -41,6 +42,11 @@ class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel implements Deb
         $this->determinacionPasada = $cliente->determinacionDelImpuesto()
                 ->where('mes_trabajo', $this->fecha->copy()->subMonth()->format('Y-m-d'))
                 ->first();
+
+        $this->camposEditables = $cliente->determinacionCamposEditables()
+            ->buscarPorRegimen(RegimenFiscal::RESICO)
+            ->buscarPorMes($this->fecha)
+            ->get();
     }
 
     public function ingresos()
@@ -79,30 +85,41 @@ class DeterminacionDelImpuestoResicoPMViewModel extends ViewModel implements Deb
 
     public function costoVendidoEjerciciosAnteriores()
     {
-        return $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_COSTO_VENDIDO_EJERCICIOS_ANTERIORES
-        ] ?? 0;
+        $campo = $this->camposEditables->firstWhere('clave', DeterminacionImpuestosEnum::CAMPO_COSTO_VENDIDO_EJERCICIOS_ANTERIORES);
+
+        return $campo ? floatval($campo->valor) : 0;
     }
 
     public function deduccionInversionesEjerciciosAnteriores()
     {
-        return $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_DEDUCCION_INVERSIONES_EJERCICIOS_ANTERIORES
-        ] ?? 0;
+        $campo = $this->camposEditables->firstWhere('clave', DeterminacionImpuestosEnum::CAMPO_DEDUCCION_INVERSIONES_EJERCICIOS_ANTERIORES);
+
+        return $campo ? floatval($campo->valor) : 0;
     }
 
     public function participacionTrabajadoresUtilidades()
     {
-        return $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_PARTICIPACION_TRABAJADORES_UTILIDADES
-        ] ?? 0;
+        $campo = $this->camposEditables->firstWhere('clave', DeterminacionImpuestosEnum::CAMPO_PARTICIPACION_TRABAJADORES_UTILIDADES);
+
+        return $campo ? floatval($campo->valor) : 0;
     }
 
     public function perdidasFiscalesEjerciciosAnteriores()
     {
-        return $this->camposEditables[
-            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES
-        ] ?? 0;
+        $campo = $this->camposEditables->firstWhere('clave', DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES);
+
+        return $campo ? floatval($campo->valor) : 0;
+    }
+
+    public function perdidasFiscalesMesAnterior(): float
+    {
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarMesPrevioConValor(
+            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES,
+            $this->fecha,
+            RegimenFiscal::RESICO
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
     }
 
     public function baseMaxima(): float

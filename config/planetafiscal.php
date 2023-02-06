@@ -4,23 +4,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | API Kontafacil
+    | API Planeta Fiscal
     |--------------------------------------------------------------------------
     |
-    | Url del servicio de Kontafacil.
+    | Url del servicio de planeta fiscal.
     |
     */
-    'kontafacil_url' => env('KONTAFACIL_URL', ''),
+    'planeta_fiscal_api' => env('PLANETA_FISCAL_API', ''),
 
     /*
     |--------------------------------------------------------------------------
-    | Token API de Kontafacil
+    | Token API de Planeta Fiscal
     |--------------------------------------------------------------------------
     |
     | Este token es necesario para acceder a la API de Planeta Fiscal.
-    | Esta configurado en la configuración de Kontafacil.
     |
     */
-    'kontafacil_token_remoto' => env('KONTAFACIL_TOKEN_REMOTO', ''),
+    'planeta_fiscal_api_token' => env('PLANETA_FISCAL_API_TOKEN', ''),
 
 ];

@@ -15,6 +15,7 @@ class DeterminacionImpuestosEnum
     const CAMPO_PARTICIPACION_TRABAJADORES_UTILIDADES = 'participacion_trabajadores_utilidades';
     const CAMPO_COEFICIENTE_UTILIDAD = 'coeficiente_utilidad';
     const CAMPO_ANTICIPOS_RENDIMIENTOS_DISTRIBUIDOS_EN_PERIODO = 'anticipos_rendimientos_distribuidos_en_periodo';
+    const CAMPO_ISR_A_FAVOR = 'isr_a_favor';
 
     /**
      * Obtener un arreglo de campos editables validos para la determinacion de impuestos

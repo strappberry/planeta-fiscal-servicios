@@ -12,15 +12,12 @@ class DeterminacionImpuesto extends Model
     use HasFactory;
     use PerteneceAUnCliente;
 
-    const COEFICIENTE_UTILIDAD = 'coeficiente_utilidad';
-
     protected $fillable = [
         'mes_trabajo',
         'ingresos_acumulados',
         'deducciones_acumuladas',
         'pp_pagados',
         'isr_actividad',
-        'coeficiente_utilidad',
         'determinacion',
         'campos_editables',
         'cliente_id',
@@ -32,7 +29,6 @@ class DeterminacionImpuesto extends Model
         'deducciones_acumuladas' => 'float',
         'pp_pagados'             => 'float',
         'isr_actividad'          => 'float',
-        'coeficiente_utilidad'   => 'float',
         'determinacion'          => 'array',
         'campos_editables'       => 'array',
     ];

@@ -7,6 +7,7 @@ use App\Acciones\TablasTarifas\ResolverTablaTarifaAAplicar;
 use App\Contafacil\Compartido\Contratos\DebeTenerBaseMaxima;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
+use App\Enums\RegimenFiscal;
 use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use Carbon\Carbon;
@@ -16,11 +17,11 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel im
     private $ventasCobradas;
     private $gastosPagados;
     private $determinacionPasada;
+    private $camposEditables;
 
     public function __construct(
         private Cliente $cliente,
         private Carbon $fecha,
-        private $camposEditables = []
     ) {
         $this->ventasCobradas = $this->cliente->facturasCliente()
             ->with('factura')
@@ -49,6 +50,11 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel im
         $this->determinacionPasada = $cliente->determinacionDelImpuesto()
                 ->where('mes_trabajo', $mesPasado->format('Y-m-d'))
                 ->first();
+
+        $this->camposEditables = $cliente->determinacionCamposEditables()
+            ->buscarPorRegimen(RegimenFiscal::PERSONA_FISICA_ACTIVIDAD_EMPRESARIAL)
+            ->buscarPorMes($this->fecha)
+            ->get();
     }
 
     public function ivaAcreditableAGastos()
@@ -103,7 +109,9 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel im
 
     public function depreciacion()
     {
-        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_DEPRECIACION] ?? 0;
+        $campo = $this->camposEditables->firstWhere('clave', DeterminacionImpuestosEnum::CAMPO_DEPRECIACION);
+
+        return $campo ? floatval($campo->valor) : 0;
     }
 
     public function totalDeducciones()
@@ -113,7 +121,24 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel im
 
     public function perdidasEjercicioAnterior()
     {
-        return $this->camposEditables[DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES] ?? 0;
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarUltimoMesConValor(
+            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES,
+            $this->fecha,
+            RegimenFiscal::PERSONA_FISICA_ACTIVIDAD_EMPRESARIAL
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
+    }
+
+    public function perdidasFiscalesMesAnterior(): float
+    {
+        $ultimoValor = $this->cliente->determinacionCamposEditables()->buscarMesPrevioConValor(
+            DeterminacionImpuestosEnum::CAMPO_PERDIDA_EJERCICIOS_ANTERIORES,
+            $this->fecha,
+            RegimenFiscal::PERSONA_FISICA_ACTIVIDAD_EMPRESARIAL
+        )->first();
+
+        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
     }
 
     public function baseMaxima(): float

@@ -13,6 +13,7 @@ class ResolverDeterminacionDeImpuestos
 {
     public static function ejecutar(Cliente $cliente, Carbon $carbon)
     {
+        if($cliente->regimen == RegimenFiscal::PERSONA_FISICA_ACTIVIDAD_EMPRESARIAL) {}
         if ($cliente->esPersonaMoral && $cliente->tieneRegimen(RegimenFiscal::PERSONA_MORAL)) {
             return new DeterminacionImpuestoRegimen601($cliente, $carbon);
         }
