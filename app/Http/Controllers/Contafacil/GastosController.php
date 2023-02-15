@@ -8,6 +8,7 @@ use App\Acciones\MesTrabajo\ResolverMesTrabajo;
 use App\Contafacil\Gastos\ViewModels\ImpuestosGastosViewModel;
 use App\Http\Controllers\Controller;
 use App\Models\Factura;
+use App\Models\FacturaCliente;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -43,6 +44,33 @@ class GastosController extends Controller
             $mesTrabajo->save();
         }
 
+        $facturasIds = FacturaCliente::query()
+            ->select(
+                'factura_clientes.id as id',
+                'factura_id as factura_id',
+                'facturas.rfc_emisor as rfc_emisor',
+                'factura_clientes.fecha_emision as fecha_emision',
+                'factura_clientes.fecha_pago as fecha_pago',
+                'facturas.tipo_comprobante as tipo_comprobante'
+            )
+            ->join('facturas', 'facturas.id', '=', "factura_clientes.factura_id")
+            ->esGasto()
+            ->where('facturas.rfc_receptor', $rfc)
+            ->whereIn('facturas.tipo_comprobante', ['I', 'E', 'i', 'e'])
+            ->where(function ($query) use($fechaInicio, $fechaFin) {
+                return $query
+                    ->whereBetween('factura_clientes.fecha_emision', [
+                        $fechaInicio,
+                        $fechaFin,
+                    ])
+                    ->orWhereBetween('factura_clientes.fecha_pago', [
+                        $fechaInicio,
+                        $fechaFin,
+                    ]);
+            })
+            ->orderBy('fecha_emision')
+            ->get();
+
         $facturas = Factura::query()
             ->with([
                 'facturasCliente' => function ($query) use ($cliente) {
@@ -52,17 +80,11 @@ class GastosController extends Controller
                 'complementoPagos.pagos',
                 'complementoPagos.pagos.documentosRelacionados',
             ])
-            ->whereBetween('fecha_emision', [
-                $fechaInicio,
-                $fechaFin,
-            ])
-            ->where('rfc_receptor', $rfc)
-            ->whereIn('tipo_comprobante', ['I', 'E', 'i', 'e'])
-            ->orderBy('fecha_emision')
+            ->whereIn('id', $facturasIds->pluck('factura_id'))
             ->get();
 
         return response()->json([
-            'facturas' => $facturas
+            'facturas' => $facturas,
         ]);
     }
 

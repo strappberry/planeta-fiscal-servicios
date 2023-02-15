@@ -95,6 +95,11 @@ class Cliente extends Model
         return $this->hasMany(MesTrabajo::class);
     }
 
+    public function saldosAFavor()
+    {
+        return $this->hasMany(SaldoAFavor::class);
+    }
+
     public function solicitudesDescarga()
     {
         return $this->hasMany(SolicitudDescarga::class, 'cliente_id');

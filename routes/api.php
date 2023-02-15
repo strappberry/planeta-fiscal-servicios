@@ -18,6 +18,7 @@ use App\Http\Controllers\Contafacil\FacturasNumeroCuentaController;
 use App\Http\Controllers\Contafacil\GastosController;
 use App\Http\Controllers\Contafacil\MesTrabajoController;
 use App\Http\Controllers\Contafacil\NumerosCuentasController;
+use App\Http\Controllers\Contafacil\SaldosAFavorController;
 use App\Http\Controllers\Contafacil\TablasTarifasController;
 use App\Http\Controllers\Contafacil\TipoIngresoController;
 use App\Http\Controllers\Contafacil\VentasController;
@@ -214,5 +215,11 @@ Route::prefix('contafacil')->group(function() {
 
     Route::prefix('tipos-ingreso')->group(function () {
         Route::get('/', [TipoIngresoController::class, 'index']);
+    });
+
+    Route::prefix('saldos-a-favor')->group(function () {
+        Route::get('catalogos', [SaldosAFavorController::class, 'catalogos']);
+        Route::get('listar/{clienteId}', [SaldosAFavorController::class, 'index']);
+        Route::post('crear/{clienteId}/{fecha}', [SaldosAFavorController::class, 'agregarSaldoAFavor']);
     });
 });
