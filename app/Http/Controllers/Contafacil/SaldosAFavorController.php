@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Contafacil;
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use App\Http\Controllers\Controller;
+use App\Models\SaldoAFavor;
 use Illuminate\Http\Request;
 
 class SaldosAFavorController extends Controller
@@ -12,7 +13,7 @@ class SaldosAFavorController extends Controller
     public function index($clienteId)
     {
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
-        $saldos = $cliente->saldosAFavor()->get();
+        $saldos = $cliente->saldosAFavor()->with('acreditamientos')->get();
         $saldos = $saldos->append([
             'origen_descripcion',
         ]);
@@ -51,11 +52,29 @@ class SaldosAFavorController extends Controller
         ]);
     }
 
+    public function agregarAcreditamiento(SaldoAFavor $saldoAFavor, Request $request)
+    {
+        $this->validate($request, [
+        ]);
+
+        $saldoAFavor->acreditamientos()->create([
+            'importe' => $request->get('importe', 0),
+            'periodo' => $request->get('periodo', null),
+            'concepto' => $request->get('concepto', null),
+        ]);
+
+        return response()->json([
+            'mensaje' => 'Acreditamiento agregado correctamente',
+            'acreditamientos' => $saldoAFavor->acreditamientos()->get(),
+        ]);
+    }
+
     public function catalogos()
     {
         return response()->json([
             'origen' => SaldosAFavorDatos::ORIGEN,
             'tipos' => SaldosAFavorDatos::TIPOS,
+            'conceptos_acreditamiento' => SaldosAFavorDatos::CONCEPTOS_ACREDITAMIENTO,
         ]);
     }
 }

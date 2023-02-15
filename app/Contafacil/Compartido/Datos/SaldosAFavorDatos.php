@@ -67,4 +67,55 @@ class SaldosAFavorDatos
         ['clave' => 'normal', 'descripcion' => 'Normal'],
         ['clave' => 'complementaria', 'descripcion' => 'Complementaria'],
     ];
+
+    const CONCEPTOS_ACREDITAMIENTO = [
+        [
+            'clave' => 'impuestos_retenidos_isr_sueldos_salarios',
+            'descripcion' => 'Impuestos retenidos de ISR por sueldos y salarios',
+        ],
+        [
+            'clave' => 'impuestos_retenidos_isr_asimilados_salarios',
+            'descripcion' => 'Impuestos retenidos de ISR por asimilados a salarios',
+        ],
+        [
+            'clave' => 'impuestos_retenidos_isr_arrendamiento',
+            'descripcion' => 'Impuestos retenidos de ISR por arrendamiento',
+        ],
+        [
+            'clave' => 'impuestos_retenidos_isr_servicios_profesionales',
+            'descripcion' => 'Impuestos retenidos de ISR por servicios profesionales',
+        ],
+        [
+            'clave' => 'impuestos_retenidos_isr_dividendos',
+            'descripcion' => 'Impuestos retenidos de ISR por dividendos',
+        ],
+        [
+            'clave' => 'impuestos_retenidos_isr_intereses',
+            'descripcion' => 'Impuestos retenidos de ISR por intereses',
+        ],
+        [
+            'clave' => 'impuestos_retenidos_isr_pagos_extrajero',
+            'descripcion' => 'Impuestos retenidos de ISR por pagos al extranjero',
+        ],
+        [
+            'clave' => 'impuestos_retenidos_isr_venta_acciones',
+            'descripcion' => 'Impuestos retenidos de ISR por venta de acciones',
+        ],
+        [
+            'clave' => 'impuestos_retenidos_isr_venta_partes_sociales',
+            'descripcion' => 'Impuestos retenidos de ISR por venta de partes sociales',
+        ],
+        [
+            'clave' => 'iva_retenciones',
+            'descripcion' => 'IVA RETENCIONES',
+        ],
+        [
+            'clave' => 'isr_a_cargo_del_periodo',
+            'descripcion' => 'ISR A CARGO DEL PERIODO',
+        ],
+        [
+            'clave' => 'iva_del_periodo',
+            'descripcion' => 'IVA  DEL PERIODO',
+        ],
+    ];
 }

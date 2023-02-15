@@ -32,6 +32,11 @@ class SaldoAFavor extends Model
         'remanente',
     ];
 
+    public function acreditamientos()
+    {
+        return $this->hasMany(SaldoFavorAcreditamiento::class);
+    }
+
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
