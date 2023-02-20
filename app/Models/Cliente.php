@@ -110,6 +110,11 @@ class Cliente extends Model
         return $this->hasMany(BalanzaComprobacionCliente::class);
     }
 
+    public function polizasNominas()
+    {
+        return $this->hasMany(PolizaNomina::class);
+    }
+
     public function scopeAplicarBusqueda($query, $busqueda)
     {
         if ($busqueda) {

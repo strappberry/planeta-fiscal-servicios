@@ -18,6 +18,7 @@ use App\Http\Controllers\Contafacil\FacturasNumeroCuentaController;
 use App\Http\Controllers\Contafacil\GastosController;
 use App\Http\Controllers\Contafacil\MesTrabajoController;
 use App\Http\Controllers\Contafacil\NumerosCuentasController;
+use App\Http\Controllers\Contafacil\PolizasNominasController;
 use App\Http\Controllers\Contafacil\SaldosAFavorController;
 use App\Http\Controllers\Contafacil\TablasTarifasController;
 use App\Http\Controllers\Contafacil\TipoIngresoController;
@@ -222,5 +223,11 @@ Route::prefix('contafacil')->group(function() {
         Route::get('listar/{clienteId}', [SaldosAFavorController::class, 'index']);
         Route::post('crear/{clienteId}/{fecha}', [SaldosAFavorController::class, 'agregarSaldoAFavor']);
         Route::post('{saldoAFavor}/agregar-acreditamiento', [SaldosAFavorController::class, 'agregarAcreditamiento']);
+    });
+
+    Route::prefix('polizas-nominas')->group(function () {
+        Route::get('/{clienteId}/{fecha}', [PolizasNominasController::class, 'polizasNomina']);
+        Route::post('/{clienteId}/{fecha}/subir-archivo-excel', [PolizasNominasController::class, 'subirExcel']);
+        Route::post('/{clienteId}/{fecha}/confirmar-datos-excel', [PolizasNominasController::class, 'confirmarDatosExcel']);
     });
 });
