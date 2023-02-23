@@ -45,7 +45,9 @@ class PolizasNominasDatos
                 ['accion' => 'resta', 'cuenta' => '672'],
                 ['accion' => 'resta', 'cuenta' => '673'],
                 ['accion' => 'resta', 'cuenta' => '674'],
-                ['accion' => 'resta', 'cuenta' => '676'], // No estaba en excel
+                ['accion' => 'resta', 'cuenta' => '676'],
+                ['accion' => 'resta', 'cuenta' => '677'],
+                ['accion' => 'resta', 'cuenta' => '678'],
                 ['accion' => 'resta', 'cuenta' => '679'],
                 ['accion' => 'resta', 'cuenta' => '680'],
                 ['accion' => 'resta', 'cuenta' => '681'],

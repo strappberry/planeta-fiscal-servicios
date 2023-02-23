@@ -71,6 +71,9 @@ class CuentasDesdeArchivoViewModel extends ViewModel
             PolizasNominasDatos::ASIMILADOS
         );
 
+        $total = $resultado->sum('cargo') - $resultado->sum('abono');
+        $total = $total > 0 ? round($total, 2): 0;
+
         $resultado->push([
             'segmento' => PolizasNominasDatos::SEGMENTO_ASIMILADOS,
             'clave' => 'provision_de_sueldos_y_salarios_por_pagar',
@@ -78,7 +81,7 @@ class CuentasDesdeArchivoViewModel extends ViewModel
             'cuenta' => '210-01',
             'columna' => 'abono',
             'cargo' => 0,
-            'abono' => $resultado->sum('cargo') - $resultado->sum('abono'),
+            'abono' => $total,
         ]);
 
         return $resultado;
