@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
 class CuentasDesdeArchivoViewModel extends ViewModel
 {
     private $montosPorSegmento = [];
+    private $polizasGeneradas = [];
+
     public function __construct(
         private array $datos,
         private int $isn = 3,
@@ -16,6 +18,7 @@ class CuentasDesdeArchivoViewModel extends ViewModel
     ) {
         $this->datos = array_slice($datos, 8);
         $this->procesarDatos($this->datos);
+        $this->generarPolizasNomina();
     }
 
     public function base()
@@ -39,94 +42,119 @@ class CuentasDesdeArchivoViewModel extends ViewModel
     }
 
     /**
-     * Genera tabla: PÓLIZA DE NÓMINA SUELDOS Y SALARIOS PÓLIZAS SEMI AUTOMÁTICAS
+     * -------------------------------------------------------------------------
+     * PÓLIZA DE NÓMINA SUELDOS Y SALARIOS PÓLIZAS SEMI AUTOMÁTICAS
+     * -------------------------------------------------------------------------
+     *
+     * @return void
      */
     public function sueldosYSalariosSemiautomatico()
     {
-        $resultado = $this->generarTablasGenericasDeCuentas(
-            PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS,
-            PolizasNominasDatos::SUELDOS_SALARIOS
-        );
-
-        $resultado->push([
-            'segmento' => PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS,
-            'clave' => 'provision_de_sueldos_y_salarios_por_pagar',
-            'descripcion' => 'Provisión de sueldos y salarios por pagar',
-            'cuenta' => '210-01',
-            'columna' => 'abono',
-            'cargo' => 0,
-            'abono' => $resultado->sum('cargo') - $resultado->sum('abono'),
-        ]);
-
-        return $resultado;
+        return $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS] ?? [];
     }
 
-    /**
-     * Genera tabla: PÓLIZA DE NÓMINA ASIMILADOS PÓLIZAS SEMI AUTOMÁTICAS
-     */
-    public function asimiladosSemiautomatico()
+    public function sueldosYSalariosSemiautomaticoValidacion()
     {
-        $resultado = $this->generarTablasGenericasDeCuentas(
-            PolizasNominasDatos::SEGMENTO_ASIMILADOS,
-            PolizasNominasDatos::ASIMILADOS
-        );
+        $sueldosYSalarios = $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS] ?? collect();
 
-        $total = $resultado->sum('cargo') - $resultado->sum('abono');
-        $total = $total > 0 ? round($total, 2): 0;
-
-        $resultado->push([
-            'segmento' => PolizasNominasDatos::SEGMENTO_ASIMILADOS,
-            'clave' => 'provision_de_sueldos_y_salarios_por_pagar',
-            'descripcion' => 'Provisión de sueldos y salarios por pagar',
-            'cuenta' => '210-01',
-            'columna' => 'abono',
-            'cargo' => 0,
-            'abono' => $total,
-        ]);
-
-        return $resultado;
-    }
-
-    /**
-     * Genera tabla: PROVISIÓN DE COSTOS PATRONALES EMA Y EBA DE PÓLIZAS SEMI AUTOMÁTICAS
-     */
-    public function provisionCostosPatronalesEmaEbaSemiautomatico()
-    {
-        $resultado = $this->generarTablasGenericasDeCuentas(
-            PolizasNominasDatos::SEGMENTO_PROVISION_COSTOS_PATRONALES_EMA_EBA,
-            PolizasNominasDatos::PROVISION_COSTOS_PATRONALES_EMA_EBA
-        );
-
-        return $resultado;
-    }
-
-    /**
-     * Genera tabla: PROVISIÓN DE IMPUESTO SOBRE NÓMINA DE PÓLIZAS SEMI AUTOMÁTICAS
-     */
-    public function provisionImpuestoSobreNominaSemiautomatico()
-    {
         return [
-            [
-                'segmento'    => PolizasNominasDatos::SEGMENTO_PROVISION_IMPUESTOS_SOBRE_NOMINA,
-                'clave'       => 'contribuciones_pagadas_excepto_isr_ietu_impac_iva_e_ieps',
-                'cuenta'      => '601-29',
-                'descripcion' => 'Contribuciones pagadas excepto ISR, IETU, IMPAC, IVA e IEPS ',
-                'columna'     => 'cargo',
-                'cargo'       => $this->isn(),
-                'abono'       => 0,
-            ],
-            [
-                'segmento'    => PolizasNominasDatos::SEGMENTO_PROVISION_IMPUESTOS_SOBRE_NOMINA,
-                'clave'       => 'provision_de_impuesto_estatal_sobre_nomina_por_pagar',
-                'cuenta'      => '212-01',
-                'descripcion' => 'Provisión de impuesto estatal sobre nómina por pagar ',
-                'columna'     => 'abono',
-                'cargo'       => 0,
-                'abono'       => $this->isn(),
-            ],
+            'segmento' => PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS,
+            'descripcion' => 'Validación sueldos y salarios',
+            'cargo' => $sueldosYSalarios->sum('cargo'),
+            'abono' => $sueldosYSalarios->sum('abono'),
+            'es_valido' => (
+                $sueldosYSalarios->sum('cargo') - $sueldosYSalarios->sum('abono')
+            ) == 0,
         ];
     }
 
+    /**
+     * -------------------------------------------------------------------------
+     * PÓLIZA DE NÓMINA ASIMILADOS PÓLIZAS SEMI AUTOMÁTICAS
+     * -------------------------------------------------------------------------
+     *
+     * @return void
+     */
+    public function asimiladosSemiautomatico()
+    {
+        return $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_ASIMILADOS] ?? [];
+    }
+
+    public function asimiladosSemiautomaticoValidacion()
+    {
+        $asimilados = $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_ASIMILADOS] ?? collect();
+
+        return [
+            'segmento' => PolizasNominasDatos::SEGMENTO_ASIMILADOS,
+            'descripcion' => 'Validación asimilados a salarios',
+            'cargo' => $asimilados->sum('cargo'),
+            'abono' => $asimilados->sum('abono'),
+            'es_valido' => (
+                $asimilados->sum('cargo') - $asimilados->sum('abono')
+            ) == 0,
+        ];
+    }
+
+    /**
+     * -------------------------------------------------------------------------
+     * PROVISIÓN DE COSTOS PATRONALES EMA Y EBA DE PÓLIZAS SEMI AUTOMÁTICAS
+     * -------------------------------------------------------------------------
+     *
+     * @return void
+     */
+    public function provisionCostosPatronalesEmaEbaSemiautomatico()
+    {
+        return $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_PROVISION_COSTOS_PATRONALES_EMA_EBA] ?? [];
+    }
+
+    public function provisionCostosPatronalesEmaEbaSemiautomaticoValidacion()
+    {
+        $provisionCostosPatronalesEmaEba = $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_PROVISION_COSTOS_PATRONALES_EMA_EBA] ?? collect();
+
+        return [
+            'segmento' => PolizasNominasDatos::SEGMENTO_PROVISION_COSTOS_PATRONALES_EMA_EBA,
+            'descripcion' => 'Validación provisiones de costos patronales EMA y EBA',
+            'cargo' => $provisionCostosPatronalesEmaEba->sum('cargo'),
+            'abono' => $provisionCostosPatronalesEmaEba->sum('abono'),
+            'es_valido' => (
+                $provisionCostosPatronalesEmaEba->sum('cargo') - $provisionCostosPatronalesEmaEba->sum('abono')
+            ) == 0,
+        ];
+    }
+
+    /**
+     * -------------------------------------------------------------------------
+     * PROVISIÓN DE IMPUESTO SOBRE NÓMINA DE PÓLIZAS SEMI AUTOMÁTICAS
+     * -------------------------------------------------------------------------
+     *
+     * @return void
+     */
+    public function provisionImpuestoSobreNominaSemiautomatico()
+    {
+        return $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_PROVISION_IMPUESTOS_SOBRE_NOMINA] ?? [];
+    }
+
+    public function provisionImpuestoSobreNominaSemiautomaticoValidacion()
+    {
+        $provisionImpuestoSobreNomina = $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_PROVISION_IMPUESTOS_SOBRE_NOMINA] ?? collect();
+
+        return [
+            'segmento' => PolizasNominasDatos::SEGMENTO_PROVISION_IMPUESTOS_SOBRE_NOMINA,
+            'descripcion' => 'Validación provisiones de impuesto sobre nómina',
+            'cargo' => $provisionImpuestoSobreNomina->sum('cargo'),
+            'abono' => $provisionImpuestoSobreNomina->sum('abono'),
+            'es_valido' => (
+                $provisionImpuestoSobreNomina->sum('cargo') - $provisionImpuestoSobreNomina->sum('abono')
+            ) == 0,
+        ];
+    }
+
+    /**
+     * Procesa los datos proporcionados y extrae los montos por segmento de cuenta.
+     *
+     * @param array $datos
+     * @return void
+     */
     private function procesarDatos($datos)
     {
         // $patronCuenta = '/^\d+:\s[A-Z\s]+$/';
@@ -151,6 +179,99 @@ class CuentasDesdeArchivoViewModel extends ViewModel
         }
     }
 
+    /**
+     * Generar todas las tablas de pólizas de nómina
+     *
+     * @return void
+     */
+    private function generarPolizasNomina()
+    {
+        // ---------------------------------------------------------------------
+        // PÓLIZA DE NÓMINA SUELDOS Y SALARIOS PÓLIZAS SEMI AUTOMÁTICAS
+        // ---------------------------------------------------------------------
+        $sueldosYSalarios = $this->generarTablasGenericasDeCuentas(
+            PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS,
+            PolizasNominasDatos::SUELDOS_SALARIOS
+        );
+
+        $sueldosYSalarios->push([
+            'segmento' => PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS,
+            'clave' => 'provision_de_sueldos_y_salarios_por_pagar',
+            'descripcion' => 'Provisión de sueldos y salarios por pagar',
+            'cuenta' => '210-01',
+            'columna' => 'abono',
+            'cargo' => 0,
+            'abono' => $sueldosYSalarios->sum('cargo') - $sueldosYSalarios->sum('abono'),
+        ]);
+
+        $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS] = $sueldosYSalarios;
+
+        // ---------------------------------------------------------------------
+        // PÓLIZA DE NÓMINA ASIMILADOS PÓLIZAS SEMI AUTOMÁTICAS
+        // ---------------------------------------------------------------------
+        $asimilados = $this->generarTablasGenericasDeCuentas(
+            PolizasNominasDatos::SEGMENTO_ASIMILADOS,
+            PolizasNominasDatos::ASIMILADOS
+        );
+
+        $total = $asimilados->sum('cargo') - $asimilados->sum('abono');
+        $total = $total > 0 ? round($total, 2): 0;
+
+        $asimilados->push([
+            'segmento' => PolizasNominasDatos::SEGMENTO_ASIMILADOS,
+            'clave' => 'provision_de_sueldos_y_salarios_por_pagar',
+            'descripcion' => 'Provisión de sueldos y salarios por pagar',
+            'cuenta' => '210-01',
+            'columna' => 'abono',
+            'cargo' => 0,
+            'abono' => $total,
+        ]);
+
+        $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_ASIMILADOS] = $asimilados;
+
+        // ---------------------------------------------------------------------
+        // PROVISIÓN DE COSTOS PATRONALES EMA Y EBA DE PÓLIZAS SEMI AUTOMÁTICAS
+        // ---------------------------------------------------------------------
+        $costosPatronalesEmaEba = $this->generarTablasGenericasDeCuentas(
+            PolizasNominasDatos::SEGMENTO_PROVISION_COSTOS_PATRONALES_EMA_EBA,
+            PolizasNominasDatos::PROVISION_COSTOS_PATRONALES_EMA_EBA
+        );
+
+        $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_PROVISION_COSTOS_PATRONALES_EMA_EBA] = $costosPatronalesEmaEba;
+
+        // ---------------------------------------------------------------------
+        // PROVISIÓN DE IMPUESTO SOBRE NÓMINA DE PÓLIZAS SEMI AUTOMÁTICAS
+        // ---------------------------------------------------------------------
+        $provisionImpuestosSobreNomina = collect();
+        $provisionImpuestosSobreNomina->push([
+            'segmento'    => PolizasNominasDatos::SEGMENTO_PROVISION_IMPUESTOS_SOBRE_NOMINA,
+            'clave'       => 'contribuciones_pagadas_excepto_isr_ietu_impac_iva_e_ieps',
+            'cuenta'      => '601-29',
+            'descripcion' => 'Contribuciones pagadas excepto ISR, IETU, IMPAC, IVA e IEPS ',
+            'columna'     => 'cargo',
+            'cargo'       => $this->isn(),
+            'abono'       => 0,
+        ]);
+        $provisionImpuestosSobreNomina->push([
+            'segmento'    => PolizasNominasDatos::SEGMENTO_PROVISION_IMPUESTOS_SOBRE_NOMINA,
+            'clave'       => 'provision_de_impuesto_estatal_sobre_nomina_por_pagar',
+            'cuenta'      => '212-01',
+            'descripcion' => 'Provisión de impuesto estatal sobre nómina por pagar ',
+            'columna'     => 'abono',
+            'cargo'       => 0,
+            'abono'       => $this->isn(),
+        ]);
+
+        $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_PROVISION_IMPUESTOS_SOBRE_NOMINA] = $provisionImpuestosSobreNomina;
+    }
+
+    /**
+     * Generar array asociativo con las tablas de cuentas de pólizas de nómina y sus montos
+     *
+     * @param string $segmento
+     * @param array $cuentas
+     * @return Collection
+     */
     private function generarTablasGenericasDeCuentas(string $segmento, array $cuentas): Collection
     {
         $resultado = collect();
