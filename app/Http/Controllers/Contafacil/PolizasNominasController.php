@@ -32,6 +32,11 @@ class PolizasNominasController extends Controller
 
     public function subirExcel(Request $request)
     {
+        $this->validate($request, [
+            'archivo_excel' => 'required|file|mimes:xlsx,xls',
+            'isn' => 'required|integer',
+        ]);
+
         $archivos = Excel::toArray(
             new SoloPrimeraPaginaImport(NomilineaAcumuladoImport::class),
             request()->file('archivo_excel')
@@ -40,7 +45,6 @@ class PolizasNominasController extends Controller
         $modelo = new CuentasDesdeArchivoViewModel(
             $archivos[0],
             (int) $request->input('isn', 3),
-            (int) $request->input('isn_documento', 2)
         );
 
         return response()->json([

@@ -157,24 +157,32 @@ class CuentasDesdeArchivoViewModel extends ViewModel
      */
     private function procesarDatos($datos)
     {
-        // $patronCuenta = '/^\d+:\s[A-Z\s]+$/';
-        $patronCuenta = '/^\d+:(.+)+$/';
+        $patronCuenta        = '/^\d+:(.+)+$/';
         $patronExtraerCuenta = '/^(\d+):/';
-        $patronMonto  = '/^\d+(\.\d+)?$/';
+        $patronMonto         = '/^\d+(\.\d+)?$/';
+        $patronIsn           = '/\d+(?:\.\d+)?\s*%/';
 
         $encabezados = array_shift($datos);
 
         foreach($encabezados as $index => $valor) {
             if (!preg_match($patronCuenta, $valor)) continue;
             preg_match($patronExtraerCuenta, $valor, $numeroCuenta);
-            if (!isset($this->montosPorSegmento[$numeroCuenta[1]])) {
-                $this->montosPorSegmento[$numeroCuenta[1]] = collect();
+            $cuenta = $numeroCuenta[1];
+            if (!isset($this->montosPorSegmento[$cuenta])) {
+                $this->montosPorSegmento[$cuenta] = collect();
+            }
+            if ($cuenta == '820') {
+                preg_match($patronIsn, $valor, $isn);
+                if (count($isn)) {
+                    $isn = trim(str_replace('%', '', $isn[0]));
+                    $this->isnDocumento = intval($isn);
+                }
             }
 
             foreach($datos as $fila) {
                 if (!preg_match($patronMonto, $fila[$index])) continue;
                 if (preg_match('/Total/', $fila[1])) break;
-                $this->montosPorSegmento[$numeroCuenta[1]]->push($fila[$index]);
+                $this->montosPorSegmento[$cuenta]->push($fila[$index]);
             }
         }
     }
