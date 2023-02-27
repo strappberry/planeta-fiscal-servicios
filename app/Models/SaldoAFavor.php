@@ -44,7 +44,9 @@ class SaldoAFavor extends Model
 
     public function getRemanenteAttribute()
     {
-        return $this->saldo_original - $this->suma_comp_acred_ejer_ant;
+        $acreditamientos  = $this->acreditamientos->sum('importe');
+
+        return $this->saldo_original - $this->suma_comp_acred_ejer_ant - $acreditamientos;
     }
 
     public function getOrigenDescripcionAttribute()

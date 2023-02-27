@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -23,8 +24,21 @@ class SaldoFavorAcreditamiento extends Model
         'periodo' => 'date',
     ];
 
+    protected $appends = [
+        'concepto_descripcion',
+    ];
+
     public function saldoAFavor()
     {
         return $this->belongsTo(SaldoAFavor::class);
+    }
+
+    public function getConceptoDescripcionAttribute()
+    {
+        $conceptos = collect(SaldosAFavorDatos::CONCEPTOS_ACREDITAMIENTO);
+
+        $concepto = $conceptos->firstWhere('clave', $this->concepto);
+
+        return $concepto ? $concepto['descripcion'] : '';
     }
 }

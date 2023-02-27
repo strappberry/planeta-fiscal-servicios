@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
+use App\Acciones\SaldosAFavor\AgregarAcreditamientoSaldoAFavor;
 use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use App\Http\Controllers\Controller;
 use App\Models\SaldoAFavor;
@@ -55,9 +56,12 @@ class SaldosAFavorController extends Controller
     public function agregarAcreditamiento(SaldoAFavor $saldoAFavor, Request $request)
     {
         $this->validate($request, [
+            'importe' => "required|numeric|min:0|max:{$saldoAFavor->remanente}",
+            'periodo' => 'required|string',
+            'concepto' => 'required|string',
         ]);
 
-        $saldoAFavor->acreditamientos()->create([
+        AgregarAcreditamientoSaldoAFavor::ejecutar($saldoAFavor, [
             'importe' => $request->get('importe', 0),
             'periodo' => $request->get('periodo', null),
             'concepto' => $request->get('concepto', null),
@@ -65,7 +69,6 @@ class SaldosAFavorController extends Controller
 
         return response()->json([
             'mensaje' => 'Acreditamiento agregado correctamente',
-            'acreditamientos' => $saldoAFavor->acreditamientos()->get(),
         ]);
     }
 
