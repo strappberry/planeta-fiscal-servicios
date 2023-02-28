@@ -227,6 +227,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 Str::of($comprobante->comprobante['Conceptos']['Concepto'][0]['Descripcion'] ?? '')
                     ->replace('(', '')
                     ->replace(')', '')
+                    ->replace('=','')
+                    ->replace('+','')
+                    ->replace('-','')
+                    ->replace('>','')
             );
         } else {
             array_push($linea, '');
@@ -381,6 +385,11 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 Str::of($comprobante->comprobante['Conceptos']['Concepto'][0]['Descripcion'] ?? '')
                     ->replace('(', '')
                     ->replace(')', '')
+                    ->replace('=','')
+                    ->replace('+','')
+                    ->replace('-','')
+                    ->replace('>','')
+
             );
         } else {
             array_push($linea, '');
