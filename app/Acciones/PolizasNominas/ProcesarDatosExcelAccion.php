@@ -44,8 +44,9 @@ class ProcesarDatosExcelAccion
             }
 
             foreach($datos as $fila) {
+                if (preg_match('/Total/', $fila[0])) continue;
+                if (preg_match('/Total/', $fila[1])) continue;
                 if (!preg_match($patronMonto, $fila[$index])) continue;
-                if (preg_match('/Total/', $fila[1])) break;
                 $resultado[$cuenta]->push($fila[$index]);
             }
         }
