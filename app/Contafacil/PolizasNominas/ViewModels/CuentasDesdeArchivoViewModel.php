@@ -11,6 +11,7 @@ class CuentasDesdeArchivoViewModel extends ViewModel
 {
     private $montosPorSegmento = [];
     private $polizasGeneradas = [];
+    private $tieneRegistroPatronal = false;
 
     public function __construct(
         private array $datos,
@@ -163,8 +164,9 @@ class CuentasDesdeArchivoViewModel extends ViewModel
     private function procesarDatos($datos)
     {
         $procesado = ProcesarDatosExcelAccion::ejecutar($datos, $this->isnDocumento);
-        $this->isnDocumento      = $procesado['isn_documento'];
-        $this->montosPorSegmento = $procesado['resultado'];
+        $this->isnDocumento          = $procesado['isn_documento'];
+        $this->montosPorSegmento     = $procesado['resultado'];
+        $this->tieneRegistroPatronal = $procesado['tiene_registro_patronal'];
     }
 
     /**
@@ -275,6 +277,14 @@ class CuentasDesdeArchivoViewModel extends ViewModel
                 'abono'       => 0,
             ];
             $monto = 0;
+
+            if (
+                isset($cuenta['registro_patronal']) &&
+                $this->tieneRegistroPatronal != $cuenta['registro_patronal']
+            ) {
+                $resultado->push($informacionCuenta);
+                continue;
+            }
 
             foreach($cuenta['formula'] as $lineaFormula) {
                 if (!isset($this->montosPorSegmento[$lineaFormula['cuenta']])) continue;

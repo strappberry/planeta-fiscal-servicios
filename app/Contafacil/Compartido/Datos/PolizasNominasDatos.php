@@ -218,6 +218,7 @@ class PolizasNominasDatos
             'descripcion' => 'Impuestos retenidos de ISR por sueldos y salarios',
             'cuenta' => '216-01',
             'columna' => 'abono',
+            'registro_patronal' => true,
             'formula' => [
                 ['accion' => 'resta', 'cuenta' => '488'],
                 ['accion' => 'resta', 'cuenta' => '520'],
@@ -286,6 +287,7 @@ class PolizasNominasDatos
             'descripcion' => 'Impuestos retenidos de ISR por asimilados a salarios',
             'cuenta' => '216-02',
             'columna' => 'abono',
+            'registro_patronal' => false,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '621'],
             ],

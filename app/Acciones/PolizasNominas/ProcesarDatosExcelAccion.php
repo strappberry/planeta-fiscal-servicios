@@ -27,6 +27,14 @@ class ProcesarDatosExcelAccion
 
         $encabezados = array_shift($datos);
         $resultado = [];
+        $tieneRegistroPatronal = false;
+
+        foreach($datos as $fila) {
+            if (preg_match('/patronal/', strtolower($fila[0]))) {
+                $tieneRegistroPatronal = strpos($fila[0], '--') === false;
+                break;
+            }
+        }
 
         foreach($encabezados as $index => $valor) {
             if (!preg_match($patronCuenta, $valor)) continue;
@@ -52,8 +60,9 @@ class ProcesarDatosExcelAccion
         }
 
         return [
-            'isn_documento' => $isnDocumento,
-            'resultado' => $resultado,
+            'isn_documento'           => $isnDocumento,
+            'resultado'               => $resultado,
+            'tiene_registro_patronal' => $tieneRegistroPatronal,
         ];
     }
 }
