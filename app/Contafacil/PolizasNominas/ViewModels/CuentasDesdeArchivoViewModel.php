@@ -2,6 +2,7 @@
 
 namespace App\Contafacil\PolizasNominas\ViewModels;
 
+use App\Acciones\PolizasNominas\ProcesarDatosExcelAccion;
 use App\Contafacil\Compartido\Datos\PolizasNominasDatos;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use Illuminate\Support\Collection;
@@ -16,9 +17,13 @@ class CuentasDesdeArchivoViewModel extends ViewModel
         private int $isn = 3,
         private int $isnDocumento = 2,
     ) {
-        $this->datos = array_slice($datos, 8);
         $this->procesarDatos($this->datos);
         $this->generarPolizasNomina();
+    }
+
+    public function firma()
+    {
+        return uniqid() . date('YmdHis');
     }
 
     public function base()
@@ -157,34 +162,9 @@ class CuentasDesdeArchivoViewModel extends ViewModel
      */
     private function procesarDatos($datos)
     {
-        $patronCuenta        = '/^\d+:(.+)+$/';
-        $patronExtraerCuenta = '/^(\d+):/';
-        $patronMonto         = '/^\d+(\.\d+)?$/';
-        $patronIsn           = '/\d+(?:\.\d+)?\s*%/';
-
-        $encabezados = array_shift($datos);
-
-        foreach($encabezados as $index => $valor) {
-            if (!preg_match($patronCuenta, $valor)) continue;
-            preg_match($patronExtraerCuenta, $valor, $numeroCuenta);
-            $cuenta = $numeroCuenta[1];
-            if (!isset($this->montosPorSegmento[$cuenta])) {
-                $this->montosPorSegmento[$cuenta] = collect();
-            }
-            if ($cuenta == '820') {
-                preg_match($patronIsn, $valor, $isn);
-                if (count($isn)) {
-                    $isn = trim(str_replace('%', '', $isn[0]));
-                    $this->isnDocumento = intval($isn);
-                }
-            }
-
-            foreach($datos as $fila) {
-                if (!preg_match($patronMonto, $fila[$index])) continue;
-                if (preg_match('/Total/', $fila[1])) break;
-                $this->montosPorSegmento[$cuenta]->push($fila[$index]);
-            }
-        }
+        $procesado = ProcesarDatosExcelAccion::ejecutar($datos, $this->isnDocumento);
+        $this->isnDocumento      = $procesado['isn_documento'];
+        $this->montosPorSegmento = $procesado['resultado'];
     }
 
     /**
