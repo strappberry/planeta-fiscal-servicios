@@ -26,14 +26,15 @@ class GuardarPolizasNominasAccion
             foreach($datos[$segmento] as $linea) {
                 $cliente->polizasNominas()->updateOrCreate([
                     'mes_trabajo' => $fecha->format('Y-m-d'),
-                    'segmento' => $segmento,
-                    'clave' => $linea['clave'],
+                    'segmento'    => $segmento,
+                    'clave'       => $linea['clave'],
                 ], [
-                    'descripcion' => $linea['descripcion'] ?? '',
-                    'cuenta' => $linea['cuenta'],
-                    'columna' => $linea['columna'],
-                    'cargo' => $linea['cargo'],
-                    'abono' => $linea['abono'],
+                    'descripcion'   => $linea['descripcion'] ?? '',
+                    'cuenta'        => $linea['cuenta'],
+                    'columna'       => $linea['columna'],
+                    'cargo'         => $linea['cargo'],
+                    'abono'         => $linea['abono'],
+                    'deducible_isr' => $linea['deducible_isr'] ?? 0,
                 ]);
             }
         }

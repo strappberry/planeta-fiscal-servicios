@@ -18,6 +18,7 @@ class PolizaNomina extends Model
         'columna',
         'cargo',
         'abono',
+        'deducible_isr',
         'cliente_id',
     ];
 
