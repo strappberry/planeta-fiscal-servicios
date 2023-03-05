@@ -192,6 +192,7 @@ class CuentasDesdeArchivoViewModel extends ViewModel
             'columna' => 'abono',
             'cargo' => 0,
             'abono' => $sueldosYSalarios->sum('cargo') - $sueldosYSalarios->sum('abono'),
+            'deducible_isr' => 0,
         ]);
 
         $this->polizasGeneradas[PolizasNominasDatos::SEGMENTO_SUELDOS_SALARIOS] = $sueldosYSalarios;
@@ -275,6 +276,7 @@ class CuentasDesdeArchivoViewModel extends ViewModel
                 'columna'     => $cuenta['columna'],
                 'cargo'       => 0,
                 'abono'       => 0,
+                'deducible_isr' => 0,
             ];
             $monto = 0;
 
@@ -298,6 +300,10 @@ class CuentasDesdeArchivoViewModel extends ViewModel
 
             $monto = round($monto, 2);
             $informacionCuenta[$informacionCuenta['columna']] = $monto;
+            if (isset($cuenta['conceptos_deducibles_isr']) && $cuenta['conceptos_deducibles_isr']) {
+                $informacionCuenta['conceptos_deducibles_isr'] = $cuenta['conceptos_deducibles_isr'];
+                $informacionCuenta['deducible_isr'] = $monto;
+            }
 
             $resultado->push($informacionCuenta);
         }

@@ -220,7 +220,7 @@ Route::prefix('contafacil')->group(function() {
 
     Route::prefix('saldos-a-favor')->group(function () {
         Route::get('catalogos', [SaldosAFavorController::class, 'catalogos']);
-        Route::get('listar/{clienteId}', [SaldosAFavorController::class, 'index']);
+        Route::get('listar/{clienteId}/{fecha}', [SaldosAFavorController::class, 'index']);
         Route::post('crear/{clienteId}/{fecha}', [SaldosAFavorController::class, 'agregarSaldoAFavor']);
         Route::post('{saldoAFavor}/agregar-acreditamiento', [SaldosAFavorController::class, 'agregarAcreditamiento']);
     });

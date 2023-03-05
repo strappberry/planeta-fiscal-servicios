@@ -7,14 +7,21 @@ use App\Acciones\SaldosAFavor\AgregarAcreditamientoSaldoAFavor;
 use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use App\Http\Controllers\Controller;
 use App\Models\SaldoAFavor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SaldosAFavorController extends Controller
 {
-    public function index($clienteId)
+    public function index($clienteId, string $fecha)
     {
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
-        $saldos = $cliente->saldosAFavor()->with('acreditamientos')->get();
+        $fecha = Carbon::parse($fecha);
+
+        $saldos = $cliente->saldosAFavor()
+            ->where('anio', $fecha->year)
+            ->with('acreditamientos')
+            ->get();
+
         $saldos = $saldos->append([
             'origen_descripcion',
         ]);
@@ -30,7 +37,8 @@ class SaldosAFavorController extends Controller
             'numero_operacion' => 'required|string',
             'origen' => 'required|string',
             'tipo' => 'required|string',
-            'fecha' => 'required|date',
+            'mes' => 'required|string',
+            'anio' => 'required',
             'fecha_presentacion' => 'date',
             'saldo_original' => 'required|numeric',
             'suma_comp_acred_ejer_ant' => 'numeric',
@@ -39,12 +47,13 @@ class SaldosAFavorController extends Controller
         $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
 
         $cliente->saldosAFavor()->create([
-            'numero_operacion' => $request->get('numero_operacion'),
-            'origen' => $request->get('origen'),
-            'tipo' => $request->get('tipo'),
-            'fecha' => $request->get('fecha'),
-            'fecha_presentacion' => $request->get('fecha_presentacion', null),
-            'saldo_original' => $request->get('saldo_original', 0),
+            'numero_operacion'         => $request->get('numero_operacion'),
+            'origen'                   => $request->get('origen'),
+            'tipo'                     => $request->get('tipo'),
+            'mes'                      => $request->get('mes'),
+            'anio'                     => $request->get('anio'),
+            'fecha_presentacion'       => $request->get('fecha_presentacion', null),
+            'saldo_original'           => $request->get('saldo_original', 0),
             'suma_comp_acred_ejer_ant' => $request->get('suma_comp_acred_ejer_ant', 0),
         ]);
 

@@ -8,6 +8,10 @@ use App\Models\Cliente;
 use App\Models\EloquentCollections\FacturaClienteCollection;
 use Carbon\Carbon;
 
+/**
+ * Tabla Calculo de IVA
+ * Tabla Otros impuestos
+ */
 class CalculoDeIvaViewModel extends ViewModel
 {
     private $decimales = 0;

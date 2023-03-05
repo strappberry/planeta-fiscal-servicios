@@ -15,6 +15,7 @@ class PolizasNominasDatos
             'descripcion' => 'Sueldos y salarios',
             'cuenta' => '601-01',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '401'],
                 ['accion' => 'suma', 'cuenta' => '409'],
@@ -58,6 +59,7 @@ class PolizasNominasDatos
             'descripcion' => 'Tiempos extras',
             'cuenta' => '601-03',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '432'],
                 ['accion' => 'suma', 'cuenta' => '433'],
@@ -68,6 +70,7 @@ class PolizasNominasDatos
             'descripcion' => 'Vacaciones',
             'cuenta' => '601-06',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '403'],
                 ['accion' => 'suma', 'cuenta' => '421'],
@@ -79,6 +82,7 @@ class PolizasNominasDatos
             'descripcion' => 'Prima vacacional',
             'cuenta' => '601-07',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '501'],
             ],
@@ -88,6 +92,7 @@ class PolizasNominasDatos
             'descripcion' => 'Prima dominical',
             'cuenta' => '601-08',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '450'],
             ],
@@ -97,6 +102,7 @@ class PolizasNominasDatos
             'descripcion' => 'Días festivos',
             'cuenta' => '601-09',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '434'],
             ],
@@ -106,6 +112,7 @@ class PolizasNominasDatos
             'descripcion' => 'Gratificaciones',
             'cuenta' => '601-10',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '516'],
             ],
@@ -115,6 +122,7 @@ class PolizasNominasDatos
             'descripcion' => 'Primas de antigüedad',
             'cuenta' => '601-11',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'sumar', 'cuenta' => '513'],
             ],
@@ -124,6 +132,7 @@ class PolizasNominasDatos
             'descripcion' => 'Aguinaldo',
             'cuenta' => '601-12',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '502'],
                 ['accion' => 'resta', 'cuenta' => '688'],
@@ -134,6 +143,7 @@ class PolizasNominasDatos
             'descripcion' => 'Indemnizaciones',
             'cuenta' => '601-13',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '514'],
                 ['accion' => 'suma', 'cuenta' => '515'],
@@ -146,6 +156,7 @@ class PolizasNominasDatos
             'descripcion' => 'PTU',
             'cuenta' => '601-21',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => false,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '503'],
             ],
@@ -155,6 +166,7 @@ class PolizasNominasDatos
             'descripcion' => 'Previsión social',
             'cuenta' => '601-23',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'sumar', 'cuenta' => '436'],
                 ['accion' => 'sumar', 'cuenta' => '437'],
@@ -176,6 +188,7 @@ class PolizasNominasDatos
             'descripcion' => 'Otras prestaciones al personal',
             'cuenta' => '601-25',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => true,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '462'],
                 ['accion' => 'suma', 'cuenta' => '463'],
@@ -194,6 +207,7 @@ class PolizasNominasDatos
             'descripcion' => 'Deudores diversos',
             'cuenta' => '107-01',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => false,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '446'],
                 ['accion' => 'suma', 'cuenta' => '487'],
@@ -205,6 +219,7 @@ class PolizasNominasDatos
             'descripcion' => 'Subsidio al empleo por aplicar',
             'cuenta' => '110-01',
             'columna' => 'cargo',
+            'conceptos_deducibles_isr' => false,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '594'],
                 ['accion' => 'suma', 'cuenta' => '595'],
@@ -219,6 +234,7 @@ class PolizasNominasDatos
             'cuenta' => '216-01',
             'columna' => 'abono',
             'registro_patronal' => true,
+            'conceptos_deducibles_isr' => false,
             'formula' => [
                 ['accion' => 'resta', 'cuenta' => '488'],
                 ['accion' => 'resta', 'cuenta' => '520'],
@@ -237,6 +253,7 @@ class PolizasNominasDatos
             'descripcion' => 'Provisión de infonavit por pagar',
             'cuenta' => '211-03',
             'columna' => 'abono',
+            'conceptos_deducibles_isr' => false,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '632'],
             ],
@@ -246,6 +263,7 @@ class PolizasNominasDatos
             'descripcion' => 'Retenciones de IMSS a los trabajadores',
             'cuenta' => '216-11',
             'columna' => 'abono',
+            'conceptos_deducibles_isr' => false,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '630'],
             ],
@@ -255,6 +273,7 @@ class PolizasNominasDatos
             'descripcion' => 'Deudores diversos',
             'cuenta' => '107-01',
             'columna' => 'abono',
+            'conceptos_deducibles_isr' => false,
             'formula' => [
                 ['accion' => 'suma', 'cuenta' => '656'],
                 ['accion' => 'suma', 'cuenta' => '657'],
@@ -264,12 +283,6 @@ class PolizasNominasDatos
                 ['accion' => 'suma', 'cuenta' => '678'],
             ],
         ],
-        // [
-        //     'clave' => 'provision_de_sueldos_y_salarios_por_pagar',
-        //     'descripcion' => 'Provisión de sueldos y salarios por pagar',
-        //     'cuenta' => '210-01',
-        //     'formula' => [],
-        // ],
     ];
 
     const ASIMILADOS = [
