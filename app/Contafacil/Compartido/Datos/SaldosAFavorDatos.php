@@ -68,6 +68,9 @@ class SaldosAFavorDatos
         ['clave' => 'complementaria', 'descripcion' => 'Complementaria'],
     ];
 
+    const IVA_DEL_PERIODO = 'iva_del_periodo';
+    const ISR_A_CARGO_DEL_PERIODO = 'isr_a_cargo_del_periodo';
+
     const CONCEPTOS_ACREDITAMIENTO = [
         [
             'clave' => 'impuestos_retenidos_isr_sueldos_salarios',
@@ -110,11 +113,11 @@ class SaldosAFavorDatos
             'descripcion' => 'IVA RETENCIONES',
         ],
         [
-            'clave' => 'isr_a_cargo_del_periodo',
+            'clave' => self::ISR_A_CARGO_DEL_PERIODO,
             'descripcion' => 'ISR A CARGO DEL PERIODO',
         ],
         [
-            'clave' => 'iva_del_periodo',
+            'clave' => self::IVA_DEL_PERIODO,
             'descripcion' => 'IVA  DEL PERIODO',
         ],
     ];

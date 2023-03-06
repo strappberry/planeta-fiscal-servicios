@@ -2,7 +2,9 @@
 
 namespace App\Contafacil\Facturas\ViewModels;
 
+use App\Acciones\SaldosAFavor\ResolverAcreditamientosCompensacionesAccion;
 use App\Contafacil\Compartido\Contratos\DeterminacionImpuestosPorRegimen;
+use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
 use App\Enums\RegimenFiscal;
@@ -84,7 +86,12 @@ class DeterminacionImpuestoRegimen612 extends ViewModel implements Determinacion
             RegimenFiscal::PERSONA_FISICA_ACTIVIDAD_EMPRESARIAL
         )->first();
 
-        return $ultimoValor ? floatval($ultimoValor->valor) : 0;
+        if ($ultimoValor) return floatval($ultimoValor->valor);
+
+        return ResolverAcreditamientosCompensacionesAccion::ejecutar(
+            $this->fecha,
+            SaldosAFavorDatos::ISR_A_CARGO_DEL_PERIODO,
+        );
     }
 
     public function isrPorPagar(): float

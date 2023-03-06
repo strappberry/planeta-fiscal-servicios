@@ -3,7 +3,10 @@
 namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Acciones\Facturas\CalcularIvaAcreditable;
+use App\Acciones\SaldosAFavor\ResolverAcreditamientosCompensacionesAccion;
+use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
+use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use App\Models\EloquentCollections\FacturaClienteCollection;
 use Carbon\Carbon;
@@ -84,7 +87,7 @@ class CalculoDeIvaViewModel extends ViewModel
             'compras_exentas'  => 0,
             'iva_retenciones'  => 0,
 
-            'acreditamiento_saldo_favor_iva' => 0, // TODO: Pendiente de implementar
+            'acreditamiento_saldo_favor_iva' => 0,
             'iva_del_periodo'  => 0,
             'iva_por_pagar'    => 0,
         ];
@@ -105,6 +108,15 @@ class CalculoDeIvaViewModel extends ViewModel
         $calculos['compras_exentas']  = $this->gastosPagados->sumatoriaTrasladosExentos($this->decimales);
         $calculos['iva_retenciones']  = $this->gastosPagados->sumatoriaRetencionesIva($this->decimales);
 
+        /* Acreditamiento de saldo a favor de IVA
+         * Proviene de los saldos a favor - IVA del periodo
+         */
+        $calculos['acreditamiento_saldo_favor_iva'] = ResolverAcreditamientosCompensacionesAccion::ejecutar(
+            $this->fecha,
+            SaldosAFavorDatos::IVA_DEL_PERIODO,
+            $this->decimales
+        );
+
         /* El iva del periodo de calcula de la siguiente manera
          *   Iva trasladado de las ventas cobradas
          * - Iva acreditable de los gastos pagados
@@ -124,10 +136,23 @@ class CalculoDeIvaViewModel extends ViewModel
     /* TODO: pendiente implementar calculos isr para diferentes regimenes */
     public function calculosIsr(): array
     {
+        $arrendamiento = $this->cliente->facturasCliente()
+            ->with('factura')
+            ->dentroFechaPago(
+                $this->fecha->copy()->startOfMonth(),
+                $this->fecha->copy()->endOfMonth()
+            )
+            ->tiposIngreso([
+                TipoIngreso::ARRENDAMIENTO,
+            ])
+            ->esVenta()
+            ->esConsiderado()
+            ->get();
+
         $calculos = [
             'retenidos_isr_sueldos_salarios'        => 0,
             'retenidos_isr_asimilados_salario'      => 0,
-            'retenidos_isr_arrendamiento'           => 0,
+            'retenidos_isr_arrendamiento'           => $arrendamiento->sumatoriaRetencionesIsr(0),
             'retenidos_isr_servicios_profesionales' => 0,
         ];
 

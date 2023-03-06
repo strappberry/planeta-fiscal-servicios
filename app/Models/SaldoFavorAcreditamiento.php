@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
+use App\Models\QueryBuilders\SaldoFavorAcreditamientoQueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +28,11 @@ class SaldoFavorAcreditamiento extends Model
     protected $appends = [
         'concepto_descripcion',
     ];
+
+    public function newEloquentBuilder($query)
+    {
+        return new SaldoFavorAcreditamientoQueryBuilder($query);
+    }
 
     public function saldoAFavor()
     {
