@@ -9,6 +9,7 @@ use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use App\Models\EloquentCollections\FacturaClienteCollection;
+use App\Models\PolizaNomina;
 use Carbon\Carbon;
 
 /**
@@ -136,27 +137,30 @@ class CalculoDeIvaViewModel extends ViewModel
     /* TODO: pendiente implementar calculos isr para diferentes regimenes */
     public function calculosIsr(): array
     {
-        $arrendamiento = $this->cliente->facturasCliente()
-            ->with('factura')
-            ->dentroFechaPago(
-                $this->fecha->copy()->startOfMonth(),
-                $this->fecha->copy()->endOfMonth()
-            )
-            ->tiposIngreso([
-                TipoIngreso::ARRENDAMIENTO,
-            ])
-            ->esVenta()
-            ->esConsiderado()
-            ->get();
-
         $calculos = [
             'retenidos_isr_sueldos_salarios'        => 0,
             'retenidos_isr_asimilados_salario'      => 0,
-            'retenidos_isr_arrendamiento'           => $arrendamiento->sumatoriaRetencionesIsr(0),
+            'retenidos_isr_arrendamiento'           => 0,
             'retenidos_isr_servicios_profesionales' => 0,
         ];
 
-        $calculos['retenidos_isr_servicios_pr'] = $this->gastosPagados->sumatoriaRetencionesIsr($this->decimales);
+        $calculos['retenidos_isr_servicios_profesionales'] = $this->gastosPagados->sumatoriaRetencionesIsr($this->decimales);
+
+        // Retenidos isr sueldos y salarios
+        // Clave: impuestos_retenidos_de_isr_por_sueldos_y_salarios
+        $polizaSueldosYSalarios = PolizaNomina::porClaveYFecha(
+            'impuestos_retenidos_de_isr_por_sueldos_y_salarios',
+             $this->fecha
+        );
+        $calculos['retenidos_isr_sueldos_salarios'] = $polizaSueldosYSalarios ? $polizaSueldosYSalarios->abono : 0;
+
+        // Retenidos isr asimilados a salarios
+        // Clave: impuestos_retenidos_de_isr_por_asimilados_a_salarios
+        $polizaAsimiladosASalarios = PolizaNomina::porClaveYFecha(
+            'impuestos_retenidos_de_isr_por_asimilados_a_salarios',
+            $this->fecha
+        );
+        $calculos['retenidos_isr_asimilados_salario'] = $polizaAsimiladosASalarios ? $polizaAsimiladosASalarios->abono : 0;
 
         return $calculos;
     }

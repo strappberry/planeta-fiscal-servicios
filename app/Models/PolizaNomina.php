@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\QueryBuilders\PolizaNominaQueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,6 +22,18 @@ class PolizaNomina extends Model
         'deducible_isr',
         'cliente_id',
     ];
+
+    protected $casts = [
+        'mes_trabajo'   => 'date',
+        'cargo'         => 'float',
+        'abono'         => 'float',
+        'deducible_isr' => 'float',
+    ];
+
+    public function newEloquentBuilder($query)
+    {
+        return new PolizaNominaQueryBuilder($query);
+    }
 
     public function cliente()
     {

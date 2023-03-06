@@ -10,7 +10,7 @@ class ResolverAcreditamientosCompensacionesAccion
     public static function ejecutar(Carbon $fecha, string $clave, int $decimales = 2): float
     {
         $importe = SaldoFavorAcreditamiento::query()
-            ->porConceptoYFecha($clave, $fecha)
+            ->buscarPorConceptoYFecha($clave, $fecha)
             ->sum('importe');
 
         return round($importe, $decimales);

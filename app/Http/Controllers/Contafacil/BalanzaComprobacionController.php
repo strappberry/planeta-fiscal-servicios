@@ -8,6 +8,7 @@ use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionSinCalculosViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
+use App\Contafacil\BalanzaComprobacion\ViewModels\ImpuestosFederalesViewModel;
 use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
 use App\Contafacil\Facturas\ViewModels\ColumnasDeduccionesViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoDBViewModel;
@@ -110,11 +111,14 @@ class BalanzaComprobacionController extends Controller
         );
         $validacionPolizaGastos = new ValidacionPolizaVentasGastosViewModel($polizasGastos);
 
+        $modeloImpuestosFederales = new ImpuestosFederalesViewModel($cliente, $fechaInicio);
+
         return response()->json([
             'poliza_automatica_ventas' => $polizasVentas->toArray(),
             'validacion_poliza_ventas' => $validacionPolizaVentas->toArray(),
             'poliza_automatica_gastos' => $polizasGastos->toArray(),
             'validacion_poliza_gatos'  => $validacionPolizaGastos->toArray(),
+            'impuestos_federales'      => $modeloImpuestosFederales->toArray()
         ]);
     }
 
@@ -183,6 +187,7 @@ class BalanzaComprobacionController extends Controller
         $fecha   = Carbon::parse($fecha)->startOfMonth();
 
         $modelo = new CalculoDeIvaViewModel($cliente, $fecha);
+
 
         return response()->json([
             'modelo' => $modelo->toArray(),
