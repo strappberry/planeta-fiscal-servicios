@@ -3,6 +3,13 @@
 namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Acciones\Facturas\CalcularIvaAcreditable;
+use App\Acciones\PolizasNominas\Cuentas\PolizaISRAsimiladosYSalarios;
+use App\Acciones\PolizasNominas\Cuentas\PolizaISRSueldosYSalarios;
+use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRArrendamiento;
+use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRAsimiladosASalarios;
+use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRServiciosProfesionales;
+use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRSueldosYSalarios;
+use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorIVARetenciones;
 use App\Acciones\SaldosAFavor\ResolverAcreditamientosCompensacionesAccion;
 use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
@@ -86,11 +93,17 @@ class CalculoDeIvaViewModel extends ViewModel
             'ventas_exentas'   => 0,
             'compras_al_cero'  => 0,
             'compras_exentas'  => 0,
-            'iva_retenciones'  => 0,
+            // 'iva_retenciones'  => 0,
 
             'acreditamiento_saldo_favor_iva' => 0,
             'iva_del_periodo'  => 0,
             'iva_por_pagar'    => 0,
+
+            'iva_retenciones' => [
+                'retenido' => 0,
+                'a_favor'  => 0,
+                'total'    => 0,
+            ],
         ];
 
         $calculos['ventas_gravadas'] = $this->ventasCobradas->sumatoriaGravados($this->decimales);
@@ -107,7 +120,10 @@ class CalculoDeIvaViewModel extends ViewModel
         $calculos['compras_gravadas'] = $this->gastosPagados->sumatoriaGravados($this->decimales);
         $calculos['compras_al_cero']  = $this->gastosPagados->sumatoriaTasaCero($this->decimales);
         $calculos['compras_exentas']  = $this->gastosPagados->sumatoriaTrasladosExentos($this->decimales);
-        $calculos['iva_retenciones']  = $this->gastosPagados->sumatoriaRetencionesIva($this->decimales);
+
+        $calculos['iva_retenciones']['retenido']  = $this->gastosPagados->sumatoriaRetencionesIva($this->decimales);
+        $calculos['iva_retenciones']['a_favor'] = SaldoFavorIVARetenciones::ejecutar($this->fecha);
+        $calculos['iva_retenciones']['total'] = $calculos['iva_retenciones']['retenido'] + $calculos['iva_retenciones']['a_favor'];
 
         /* Acreditamiento de saldo a favor de IVA
          * Proviene de los saldos a favor - IVA del periodo
@@ -138,29 +154,48 @@ class CalculoDeIvaViewModel extends ViewModel
     public function calculosIsr(): array
     {
         $calculos = [
-            'retenidos_isr_sueldos_salarios'        => 0,
-            'retenidos_isr_asimilados_salario'      => 0,
-            'retenidos_isr_arrendamiento'           => 0,
-            'retenidos_isr_servicios_profesionales' => 0,
+            'sueldos_salarios' => [
+                'retenido' => 0,
+                'a_favor'  => 0,
+                'total'    => 0,
+            ],
+            'asimilados_salario' => [
+                'retenido' => 0,
+                'a_favor'  => 0,
+                'total'    => 0,
+            ],
+            'arrendamiento' => [
+                'retenido' => 0,
+                'a_favor'  => 0,
+                'total'    => 0,
+            ],
+            'servicios_profesionales' => [
+                'retenido' => 0,
+                'a_favor'  => 0,
+                'total'    => 0,
+            ],
         ];
 
-        $calculos['retenidos_isr_servicios_profesionales'] = $this->gastosPagados->sumatoriaRetencionesIsr($this->decimales);
+        // Sueldos y salarios
+        $calculos['sueldos_salarios']['retenido'] = PolizaISRSueldosYSalarios::ejecutar($this->fecha);
+        $calculos['sueldos_salarios']['a_favor'] = SaldoFavorISRSueldosYSalarios::ejecutar($this->fecha);
+        $calculos['sueldos_salarios']['total'] = $calculos['sueldos_salarios']['retenido'] - $calculos['sueldos_salarios']['a_favor'];
 
-        // Retenidos isr sueldos y salarios
-        // Clave: impuestos_retenidos_de_isr_por_sueldos_y_salarios
-        $polizaSueldosYSalarios = PolizaNomina::porClaveYFecha(
-            'impuestos_retenidos_de_isr_por_sueldos_y_salarios',
-             $this->fecha
-        );
-        $calculos['retenidos_isr_sueldos_salarios'] = $polizaSueldosYSalarios ? $polizaSueldosYSalarios->abono : 0;
+        // Asimilados a salarios
+        $calculos['asimilados_salario']['retenido'] = PolizaISRAsimiladosYSalarios::ejecutar($this->fecha);
+        $calculos['asimilados_salario']['a_favor'] = SaldoFavorISRAsimiladosASalarios::ejecutar($this->fecha);
+        $calculos['asimilados_salario']['total'] = $calculos['asimilados_salario']['retenido'] - $calculos['asimilados_salario']['a_favor'];
 
-        // Retenidos isr asimilados a salarios
-        // Clave: impuestos_retenidos_de_isr_por_asimilados_a_salarios
-        $polizaAsimiladosASalarios = PolizaNomina::porClaveYFecha(
-            'impuestos_retenidos_de_isr_por_asimilados_a_salarios',
-            $this->fecha
-        );
-        $calculos['retenidos_isr_asimilados_salario'] = $polizaAsimiladosASalarios ? $polizaAsimiladosASalarios->abono : 0;
+        // Servicios profesionales
+        $calculos['servicios_profesionales']['retenido'] = $this->gastosPagados->sumatoriaRetencionesIsr($this->decimales);
+        $calculos['servicios_profesionales']['a_favor'] = SaldoFavorISRServiciosProfesionales::ejecutar($this->fecha);
+        $calculos['servicios_profesionales']['total'] = $calculos['servicios_profesionales']['retenido'] - $calculos['servicios_profesionales']['a_favor'];
+
+        // Arrendamiento
+        // TODO: pendiente implementar calculos isr para arrendamiento
+        $calculos['arrendamiento']['retenido'] = 0;
+        $calculos['arrendamiento']['a_favor'] = SaldoFavorISRArrendamiento::ejecutar($this->fecha);
+        $calculos['arrendamiento']['total'] = $calculos['arrendamiento']['retenido'] - $calculos['arrendamiento']['a_favor'];
 
         return $calculos;
     }
