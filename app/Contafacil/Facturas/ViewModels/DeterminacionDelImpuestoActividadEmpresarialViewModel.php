@@ -3,6 +3,8 @@
 namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Acciones\Facturas\CalcularIvaAcreditableAGasto;
+use App\Acciones\PolizasNominas\DeduccionesImssInfonavitSarIsnPolizasNomina;
+use App\Acciones\PolizasNominas\DeduccionesSueldosSalariosAsimiladosPolizasNomina;
 use App\Acciones\TablasTarifas\ResolverTablaTarifaAAplicar;
 use App\Contafacil\Compartido\Contratos\DebeTenerBaseMaxima;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
@@ -86,7 +88,12 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel im
         $deducciones = $this->gastosPagados->comprasGastosDevolucionesFacturadosPagados(0);
         $ivaAcreditableAGastos = $this->ivaAcreditableAGastos();
 
-        return $deducciones + $ivaAcreditableAGastos;
+        // IMSS, INFONAVIT, SAR, ISN
+        $imssInfonatit = DeduccionesImssInfonavitSarIsnPolizasNomina::ejecutar($this->fecha);
+        // Sueldos, salarios y asimilados
+        $sueldosSalariosAsimilados = DeduccionesSueldosSalariosAsimiladosPolizasNomina::ejecutar($this->fecha);
+
+        return $deducciones + $ivaAcreditableAGastos + $imssInfonatit + $sueldosSalariosAsimilados;
     }
 
     public function deduccionesAcumuladas()

@@ -3,10 +3,17 @@
 namespace App\Contafacil\Facturas\ViewModels;
 
 use App\Acciones\Facturas\CalcularIvaAcreditableAGasto;
+use App\Acciones\PolizasNominas\DeduccionesSueldosSalariosAsimiladosPolizasNomina;
+use App\Acciones\PolizasNominas\DeduccionesImssInfonavitSarIsnPolizasNomina;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\Cliente;
 use Carbon\Carbon;
 
+/*
+ | -------------------------------------------------------------------
+ | Generar tabla deducciones
+ | -------------------------------------------------------------------
+ */
 class ColumnasDeduccionesViewModel extends ViewModel
 {
     private $ventasCobradas;
@@ -62,13 +69,13 @@ class ColumnasDeduccionesViewModel extends ViewModel
             [
                 'id'        => 3,
                 'titulo'    => 'IMSS, INFONAVIT, SAR, ISN',
-                'importe'   => 0,
+                'importe'   => DeduccionesImssInfonavitSarIsnPolizasNomina::ejecutar($this->fecha),
                 'deducible' => true,
             ],
             [
                 'id'        => 4,
                 'titulo'    => 'Sueldos, Salarios y Asimilados',
-                'importe'   => 0,
+                'importe'   => DeduccionesSueldosSalariosAsimiladosPolizasNomina::ejecutar($this->fecha),
                 'deducible' => true,
             ],
             [
