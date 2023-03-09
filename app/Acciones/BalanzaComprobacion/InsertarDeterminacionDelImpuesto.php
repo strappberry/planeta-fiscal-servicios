@@ -2,6 +2,9 @@
 
 namespace App\Acciones\BalanzaComprobacion;
 
+use App\Contafacil\BalanzaComprobacion\ViewModels\ImpuestosFederalesViewModel;
+use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
+use App\Contafacil\Facturas\ViewModels\ColumnasDeduccionesViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoActividadEmpresarialViewModel;
 use App\Contafacil\Facturas\ViewModels\DeterminacionImpuestoRegimen612;
 use App\Models\Cliente;
@@ -16,12 +19,19 @@ class InsertarDeterminacionDelImpuesto
             $cliente, $fecha
         );
 
+        $tablaDeducciones  = new ColumnasDeduccionesViewModel($cliente, $fecha);
+        $calculosIvaIsr    = new CalculoDeIvaViewModel($cliente, $fecha);
+        $impustosFederales = new ImpuestosFederalesViewModel($cliente, $fecha);
+
         $determinacion = $cliente->determinacionDelImpuesto()->updateOrCreate(
             ['mes_trabajo' => $fecha->format('Y-m-d')],
             array_merge(
                 $determinacionImpuesto->datosDeterminacion(),
                 [
-                    'determinacion' => $determinacionImpuesto->toArray(),
+                    'determinacion'       => $determinacionImpuesto->toArray(),
+                    'deducciones'         => $tablaDeducciones->toArray(),
+                    'calculos_iva_isr'    => $calculosIvaIsr->toArray(),
+                    'impuestos_federales' => $impustosFederales->toArray(),
                 ]
             )
         );

@@ -40,6 +40,7 @@ class ImpuestosFederalesViewModel extends ViewModel
             'abono'       => 0,
         ];
 
+        // TODO: ISR por pagar proviene de la determinación del impuesto
         $cuentas[] = [
             'cuenta'      => '213-03',
             'clave'       => 'isr_por_pagar',

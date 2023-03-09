@@ -150,7 +150,6 @@ class CalculoDeIvaViewModel extends ViewModel
         return $calculos;
     }
 
-    /* TODO: pendiente implementar calculos isr para diferentes regimenes */
     public function calculosIsr(): array
     {
         $calculos = [
@@ -178,13 +177,13 @@ class CalculoDeIvaViewModel extends ViewModel
 
         // Sueldos y salarios
         $calculos['sueldos_salarios']['retenido'] = PolizaISRSueldosYSalarios::ejecutar($this->fecha);
-        $calculos['sueldos_salarios']['a_favor'] = SaldoFavorISRSueldosYSalarios::ejecutar($this->fecha);
-        $calculos['sueldos_salarios']['total'] = $calculos['sueldos_salarios']['retenido'] - $calculos['sueldos_salarios']['a_favor'];
+        $calculos['sueldos_salarios']['a_favor']  = SaldoFavorISRSueldosYSalarios::ejecutar($this->fecha);
+        $calculos['sueldos_salarios']['total']    = $calculos['sueldos_salarios']['retenido'] - $calculos['sueldos_salarios']['a_favor'];
 
         // Asimilados a salarios
         $calculos['asimilados_salario']['retenido'] = PolizaISRAsimiladosYSalarios::ejecutar($this->fecha);
-        $calculos['asimilados_salario']['a_favor'] = SaldoFavorISRAsimiladosASalarios::ejecutar($this->fecha);
-        $calculos['asimilados_salario']['total'] = $calculos['asimilados_salario']['retenido'] - $calculos['asimilados_salario']['a_favor'];
+        $calculos['asimilados_salario']['a_favor']  = SaldoFavorISRAsimiladosASalarios::ejecutar($this->fecha);
+        $calculos['asimilados_salario']['total']    = $calculos['asimilados_salario']['retenido'] - $calculos['asimilados_salario']['a_favor'];
 
         // Servicios profesionales
         $calculos['servicios_profesionales']['retenido'] = $this->gastosPagados->sumatoriaRetencionesIsr($this->decimales);
@@ -194,8 +193,8 @@ class CalculoDeIvaViewModel extends ViewModel
         // Arrendamiento
         // TODO: pendiente implementar calculos isr para arrendamiento
         $calculos['arrendamiento']['retenido'] = 0;
-        $calculos['arrendamiento']['a_favor'] = SaldoFavorISRArrendamiento::ejecutar($this->fecha);
-        $calculos['arrendamiento']['total'] = $calculos['arrendamiento']['retenido'] - $calculos['arrendamiento']['a_favor'];
+        $calculos['arrendamiento']['a_favor']  = SaldoFavorISRArrendamiento::ejecutar($this->fecha);
+        $calculos['arrendamiento']['total']    = $calculos['arrendamiento']['retenido'] - $calculos['arrendamiento']['a_favor'];
 
         return $calculos;
     }

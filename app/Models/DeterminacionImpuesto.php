@@ -19,7 +19,9 @@ class DeterminacionImpuesto extends Model
         'pp_pagados',
         'isr_actividad',
         'determinacion',
-        'campos_editables',
+        'deducciones',
+        'calculos_iva_isr',
+        'impuestos_federales',
         'cliente_id',
     ];
 
@@ -30,7 +32,9 @@ class DeterminacionImpuesto extends Model
         'pp_pagados'             => 'float',
         'isr_actividad'          => 'float',
         'determinacion'          => 'array',
-        'campos_editables'       => 'array',
+        'deducciones'            => 'array',
+        'calculos_iva_isr'       => 'array',
+        'impuestos_federales'    => 'array',
     ];
 
     public function newEloquentBuilder($query)

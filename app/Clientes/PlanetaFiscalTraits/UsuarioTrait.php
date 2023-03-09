@@ -9,7 +9,7 @@ trait UsuarioTrait
     public function validarUsuarioPassword(string $usuario, string $password): bool
     {
         $respuesta = Http::planetaFiscalApi()->asForm()->post(
-            "/usuario/validar-usuario-password",
+            "/usuarios/validar-usuario-password",
             [
                 'usuario'  => $usuario,
                 'password' => $password,
