@@ -7,6 +7,7 @@ use App\Http\Controllers\ArchivosController;
 use App\Http\Controllers\Contafacil\BalanzaComprobacionController;
 use App\Http\Controllers\Contafacil\BancosController;
 use App\Http\Controllers\Contafacil\BancosProyectosController;
+use App\Http\Controllers\Contafacil\CamposEditablesController;
 use App\Http\Controllers\Contafacil\ComentariosController;
 use App\Http\Controllers\Contafacil\ClienteController as ContafacilClienteController;
 use App\Http\Controllers\Contafacil\ComplementosController;
@@ -229,5 +230,11 @@ Route::prefix('contafacil')->group(function() {
         Route::get('/{clienteId}/{fecha}', [PolizasNominasController::class, 'polizasNomina']);
         Route::post('/{clienteId}/{fecha}/subir-archivo-excel', [PolizasNominasController::class, 'subirExcel']);
         Route::post('/{clienteId}/{fecha}/confirmar-datos-excel', [PolizasNominasController::class, 'confirmarDatosExcel']);
+    });
+
+    Route::prefix('campos-editables')->group(function () {
+        Route::post('actualizar-campo/{clienteId}/{fecha}', [
+            CamposEditablesController::class, 'actualizarCampoEditable'
+        ]);
     });
 });

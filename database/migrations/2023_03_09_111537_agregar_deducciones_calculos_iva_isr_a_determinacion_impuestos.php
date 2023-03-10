@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::table('determinacion_impuestos', function (Blueprint $table) {
             $table->after('determinacion', function (Blueprint $table) {
-                $table->longText('deducciones')->default('[]');
-                $table->longText('calculos_iva_isr')->default('[]');
-                $table->longText('impuestos_federales')->default('[]');
+                $table->longText('deducciones')->nullable();
+                $table->longText('calculos_iva_isr')->nullable();
+                $table->longText('impuestos_federales')->nullable();
             });
         });
     }

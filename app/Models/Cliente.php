@@ -65,6 +65,11 @@ class Cliente extends Model
         return TipoPersona::FISICA;
     }
 
+    public function camposEditables()
+    {
+        return $this->hasMany(CampoEditable::class);
+    }
+
     public function clavesSat()
     {
         return $this->hasMany(ClaveSat::class);

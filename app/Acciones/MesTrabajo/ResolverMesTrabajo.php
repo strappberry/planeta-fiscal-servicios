@@ -12,7 +12,7 @@ class ResolverMesTrabajo
      * Dada una fecha y un cliente se obtienen los datos del mes de trabajo.
      * Si no se encuentra el mes de trabajo se crea uno nuevo con datos por default.
      */
-    public static function ejecutar(Carbon $fecha, Cliente $cliente)
+    public static function ejecutar(Carbon $fecha, Cliente $cliente): MesTrabajo
     {
         return MesTrabajo::firstOrCreate(
             [

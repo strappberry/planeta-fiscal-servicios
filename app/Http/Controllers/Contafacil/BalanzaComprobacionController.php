@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Contafacil;
 use App\Acciones\BalanzaComprobacion\ActualizarCamposEditablesDeterminacionImpuesto;
 use App\Acciones\BalanzaComprobacion\ResolverDeterminacionDeImpuestos;
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
-use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionSinCalculosViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaComprobacionViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\BalanzaImpuestsoViewModel;
+use App\Contafacil\BalanzaComprobacion\ViewModels\DeterminacionMesVistaAnualViewModel;
 use App\Contafacil\BalanzaComprobacion\ViewModels\ImpuestosFederalesViewModel;
 use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
 use App\Contafacil\Facturas\ViewModels\ColumnasDeduccionesViewModel;
-use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoDBViewModel;
 use App\Contafacil\Polizas\ViewModels\PolizasAutomaticasVentasYGastosViewModel;
 use App\Contafacil\Polizas\ViewModels\ValidacionPolizaVentasGastosViewModel;
 use App\Enums\DeterminacionImpuestosEnum;
@@ -136,44 +135,7 @@ class BalanzaComprobacionController extends Controller
         $polizasAnuales = [];
 
         foreach ($periodo as $mes) {
-            $fechaInicio = Carbon::parse($mes)->startOfMonth();
-            $fechaFin    = Carbon::parse($mes)->endOfMonth();
-            $mesTrabajo  = $cliente->mesesTrabajo()->where('fecha', $fechaInicio)->first();
-
-            $polizasVentasAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
-                NumeroCuenta::TIPO_POLIZA_VENTAS,
-                $fechaInicio,
-                $fechaFin,
-                $cliente
-            ))->toArray();
-            $polizasGastosAutomaticas = (new PolizasAutomaticasVentasYGastosViewModel(
-                NumeroCuenta::TIPO_POLIZA_GASTOS,
-                $fechaInicio,
-                $fechaFin,
-                $cliente
-            ))->toArray();
-
-            $balanzaComprobacionDelMes = (new BalanzaComprobacionSinCalculosViewModel(
-                $fechaInicio,
-                $cliente
-            ))->toArray();
-
-            $determinacion = (new DeterminacionDelImpuestoDBViewModel(
-                $cliente,
-                $fechaInicio,
-            ))->toArray();
-
-            array_push($polizasAnuales, [
-                'mes'   => $mes->monthName,
-                'anio'  => $mes->year,
-                'desde' => $fechaInicio->format('Y-m-d'),
-                'hasta' => $fechaFin->format('Y-m-d'),
-                'bloqueado' => $mesTrabajo ? $mesTrabajo->bloqueado : false,
-                'poliza_automatica_ventas' => $polizasVentasAutomaticas,
-                'poliza_automatica_gastos' => $polizasGastosAutomaticas,
-                'balanza_comprobacion'     => $balanzaComprobacionDelMes,
-                'determinacion_impuesto'   => $determinacion,
-            ]);
+            $polizasAnuales[] = (new DeterminacionMesVistaAnualViewModel($cliente, $mes))->toArray();
         }
 
         return response()->json([

@@ -7,6 +7,18 @@ use App\Models\QueryBuilders\DeterminacionImpuestosQueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property Carbon $mes_trabajo
+ * @property float $ingresos_acumulados
+ * @property float $deducciones_acumuladas
+ * @property float $pp_pagados
+ * @property float $isr_actividad
+ * @property array $determinacion
+ * @property array $deducciones
+ * @property array $calculos_iva_isr
+ * @property array $impuestos_federales
+ * @property Cliente $cliente
+ */
 class DeterminacionImpuesto extends Model
 {
     use HasFactory;

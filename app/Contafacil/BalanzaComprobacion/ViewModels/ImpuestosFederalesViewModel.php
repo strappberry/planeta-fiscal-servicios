@@ -2,12 +2,11 @@
 
 namespace App\Contafacil\BalanzaComprobacion\ViewModels;
 
-use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRSueldosYSalarios;
-use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
+use App\Acciones\BalanzaComprobacion\ResolverDeterminacionImpuestosDB;
+use App\Acciones\CamposEditables\ImpuestoFederalGastosNoDeducibleAccion;
+use App\Acciones\CamposEditables\ImpuestoFederalOtrosGastosAccion;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
-use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
 use App\Models\Cliente;
-use App\Models\SaldoFavorAcreditamiento;
 use Carbon\Carbon;
 
 class ImpuestosFederalesViewModel extends ViewModel
@@ -17,14 +16,12 @@ class ImpuestosFederalesViewModel extends ViewModel
         private Cliente $cliente,
         private Carbon $fecha,
     ) {
-        // TODO: refactorizar para usar saldos guardados del mes anterior
-        // cuando el mes sea mayor a enero del año en curso
-        $this->calculosIvaIsr = (new CalculoDeIvaViewModel($cliente, $fecha))->toArray();
-        // if ($fecha->greaterThan(Carbon::create($fecha->year, 1, 1))) {
-        //     $this->calculosIvaIsr = (
-        //         new CalculoDeIvaViewModel($cliente, $fecha->copy()->subMonth())
-        //     )->toArray();
-        // }
+        $determinacionImpuesto = ResolverDeterminacionImpuestosDB::ejecutar(
+            $cliente,
+            $fecha->copy()->subMonth()->startOfMonth()
+        );
+
+        $this->calculosIvaIsr = $determinacionImpuesto ? $determinacionImpuesto->calculos_iva_isr : [];
     }
 
     public function cuentas(): array
@@ -55,7 +52,7 @@ class ImpuestosFederalesViewModel extends ViewModel
             'clave'       => 'impuestos_retenidos_isr_sueldos',
             'descripcion' => 'Impuestos retenidos de ISR por sueldos y salarios',
             'columna'     => 'cargo',
-            'cargo'       => $this->calculosIvaIsr['calculos_isr']['sueldos_salarios']['retenido'] ?? '',
+            'cargo'       => $this->calculosIvaIsr['calculos_isr']['sueldos_salarios']['retenido'] ?? 0,
             'abono'       => 0,
         ];
 
@@ -64,7 +61,7 @@ class ImpuestosFederalesViewModel extends ViewModel
             'clave'       => 'impuestos_retenidos_isr_asimilados',
             'descripcion' => 'Impuestos retenidos de ISR por asimilados a salarios',
             'columna'     => 'cargo',
-            'cargo'       => $this->calculosIvaIsr['calculos_isr']['asimilados_salario']['retenido'] ?? '',
+            'cargo'       => $this->calculosIvaIsr['calculos_isr']['asimilados_salario']['retenido'] ?? 0,
             'abono'       => 0,
         ];
 
@@ -73,7 +70,7 @@ class ImpuestosFederalesViewModel extends ViewModel
             'clave'       => 'impuestos_retenidos_isr_arrendamiento',
             'descripcion' => 'Impuestos retenidos de ISR Arrendamiento',
             'columna'     => 'cargo',
-            'cargo'       => $this->calculosIvaIsr['calculos_isr']['arrendamiento']['retenido'] ?? '',
+            'cargo'       => $this->calculosIvaIsr['calculos_isr']['arrendamiento']['retenido'] ?? 0,
             'abono'       => 0,
         ];
 
@@ -82,7 +79,7 @@ class ImpuestosFederalesViewModel extends ViewModel
             'clave'       => 'impuestos_retenidos_isr_servicios_profesionales',
             'descripcion' => 'Impuestos retenidos de ISR Servicios profesionales',
             'columna'     => 'cargo',
-            'cargo'       => $this->calculosIvaIsr['calculos_isr']['servicios_profesionales']['retenido'] ?? '',
+            'cargo'       => $this->calculosIvaIsr['calculos_isr']['servicios_profesionales']['retenido'] ?? 0,
             'abono'       => 0,
         ];
 
@@ -91,27 +88,25 @@ class ImpuestosFederalesViewModel extends ViewModel
             'clave'       => 'impuestos_retenidos_iva',
             'descripcion' => 'Impuestos retenidos de IVA',
             'columna'     => 'cargo',
-            'cargo'       => $this->calculosIvaIsr['calculos_iva']['iva_retenciones']['retenido'] ?? '',
+            'cargo'       => $this->calculosIvaIsr['calculos_iva']['iva_retenciones']['retenido'] ?? 0,
             'abono'       => 0,
         ];
 
-        // TODO: hacer editable
         $cuentas[] = [
             'cuenta'      => '601-81',
             'clave'       => 'gastos_no_deducibles',
             'descripcion' => 'GASTOS NO DEDUCIBLE',
             'columna'     => 'cargo',
-            'cargo'       => 0,
+            'cargo'       => ImpuestoFederalGastosNoDeducibleAccion::resolver($this->cliente, $this->fecha),
             'abono'       => 0,
         ];
 
-        // TODO: hacer editable
         $cuentas[] = [
             'cuenta'      => '601-84',
             'clave'       => 'otros_gastos',
             'descripcion' => 'Otros gastos',
             'columna'     => 'cargo',
-            'cargo'       => 0,
+            'cargo'       => ImpuestoFederalOtrosGastosAccion::resolver($this->cliente, $this->fecha),
             'abono'       => 0,
         ];
 

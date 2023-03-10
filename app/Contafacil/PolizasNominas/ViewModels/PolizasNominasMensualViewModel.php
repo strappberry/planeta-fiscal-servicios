@@ -14,7 +14,6 @@ class PolizasNominasMensualViewModel extends ViewModel
         private Cliente $cliente,
         private Carbon $fecha,
     ) {
-
     }
 
     public function sueldosYSalariosSemiautomatico()

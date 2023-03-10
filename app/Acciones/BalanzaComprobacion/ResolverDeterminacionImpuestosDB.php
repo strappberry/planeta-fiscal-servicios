@@ -14,7 +14,10 @@ class ResolverDeterminacionImpuestosDB
         return $cliente->determinacionDelImpuesto()->firstOrCreate(
             ['mes_trabajo' => $fecha->format('Y-m-d')],
             [
-                'determinacion' => null,
+                'determinacion'       => null,
+                'deducciones'         => [],
+                'calculos_iva_isr'    => [],
+                'impuestos_federales' => [],
             ],
         );
     }

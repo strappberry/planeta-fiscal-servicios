@@ -22,7 +22,7 @@ class PolizaNominaQueryBuilder extends Builder
             ;
     }
 
-    public function porClaveYFecha(string $clave, Carbon $fecha): PolizaNomina
+    public function porClaveYFecha(string $clave, Carbon $fecha): ?PolizaNomina
     {
         return $this
             ->mesTrabajo($fecha)
