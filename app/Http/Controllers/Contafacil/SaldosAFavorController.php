@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
 use App\Acciones\SaldosAFavor\AgregarAcreditamientoSaldoAFavor;
+use App\Acciones\SaldosAFavor\EliminarAcreditamientoSaldoAFavor;
+use App\Acciones\SaldosAFavor\EliminarSaldoAFavorAccion;
 use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use App\Http\Controllers\Controller;
 use App\Models\SaldoAFavor;
+use App\Models\SaldoFavorAcreditamiento;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -78,6 +81,36 @@ class SaldosAFavorController extends Controller
 
         return response()->json([
             'mensaje' => 'Acreditamiento agregado correctamente',
+        ]);
+    }
+
+    public function eliminarSaldoAFavor(SaldoAFavor $saldoAFavor)
+    {
+        $eliminado = EliminarSaldoAFavorAccion::ejecutar($saldoAFavor);
+
+        if (!$eliminado) {
+            return response()->json([
+                'mensaje' => 'No se pudo eliminar el saldo a favor',
+            ], 422);
+        }
+
+        return response()->json([
+            'mensaje' => 'Saldo a favor eliminado correctamente',
+        ]);
+    }
+
+    public function eliminarAcreditamiento(SaldoAFavor $saldoAFavor, SaldoFavorAcreditamiento $acreditamiento)
+    {
+        $eliminado = EliminarAcreditamientoSaldoAFavor::ejecutar($saldoAFavor, $acreditamiento);
+
+        if (!$eliminado) {
+            return response()->json([
+                'mensaje' => 'No se pudo eliminar el acreditamiento',
+            ], 422);
+        }
+
+        return response()->json([
+            'mensaje' => 'Acreditamiento eliminado correctamente',
         ]);
     }
 

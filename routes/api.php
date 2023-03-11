@@ -224,6 +224,12 @@ Route::prefix('contafacil')->group(function() {
         Route::get('listar/{clienteId}/{fecha}', [SaldosAFavorController::class, 'index']);
         Route::post('crear/{clienteId}/{fecha}', [SaldosAFavorController::class, 'agregarSaldoAFavor']);
         Route::post('{saldoAFavor}/agregar-acreditamiento', [SaldosAFavorController::class, 'agregarAcreditamiento']);
+        Route::delete('eliminar/{saldoAFavor}/{acreditamiento}', [
+            SaldosAFavorController::class, 'eliminarAcreditamiento'
+        ]);
+        Route::delete('eliminar/{saldoAFavor}', [
+            SaldosAFavorController::class, 'eliminarSaldoAFavor'
+        ]);
     });
 
     Route::prefix('polizas-nominas')->group(function () {

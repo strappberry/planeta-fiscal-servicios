@@ -22,4 +22,11 @@ class SaldoFavorAcreditamientoQueryBuilder extends Builder
             ->buscarPorConceptoYFecha($clave, $fecha)
             ->first();
     }
+
+    public function ultimoAcreditamiento(): ?SaldoFavorAcreditamiento
+    {
+        return $this
+            ->orderBy('id', 'desc')
+            ->first();
+    }
 }
