@@ -113,8 +113,8 @@ class ImpuestosFederalesViewModel extends ViewModel
         ];
 
         // TODO: Debe estar condicionado a que el impuesto diga Pago de lo indebido de IVA y de pago de lo indebido de retención de IVA
-        $ivaAFavor = $this->calculosIvaIsr['calculos_iva']['iva_retenciones']['a_favor']
-            + $this->calculosIvaIsr['calculos_iva']['acreditamiento_saldo_favor_iva'];
+        $ivaAFavor = ($this->calculosIvaIsr['calculos_iva']['iva_retenciones']['a_favor'] ?? 0)
+            + ($this->calculosIvaIsr['calculos_iva']['acreditamiento_saldo_favor_iva'] ?? 0);
         $cuentas[] = [
             'cuenta'      => '113-01-03',
             'clave'       => 'iva_a_favor',
