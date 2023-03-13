@@ -8,19 +8,17 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SaldoFavorAcreditamientoQueryBuilder extends Builder
 {
-    public function buscarPorConceptoYFecha(string $clave, Carbon $fecha): Builder
+    public function conceptoFecha(string $concepto, Carbon $fecha)
     {
         return $this
-            ->where('concepto', $clave)
-            ->whereYear('periodo', $fecha->year)
-            ->whereMonth('periodo', $fecha->month);
+            ->where('concepto', $concepto)
+            ->whereMonth('periodo', $fecha->month)
+            ->whereYear('periodo', $fecha->year);
     }
 
-    public function porConceptoYFecha(string $clave, Carbon $fecha): ?SaldoFavorAcreditamiento
+    public function sumarImporte(int $decimal = 2): float
     {
-        return $this
-            ->buscarPorConceptoYFecha($clave, $fecha)
-            ->first();
+        return round($this->sum('importe'), $decimal);
     }
 
     public function ultimoAcreditamiento(): ?SaldoFavorAcreditamiento

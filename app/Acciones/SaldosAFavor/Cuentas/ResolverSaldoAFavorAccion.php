@@ -7,12 +7,10 @@ use Carbon\Carbon;
 
 class ResolverSaldoAFavorAccion
 {
-    public static function ejecutar(string $concepto, Carbon $fecha)
+    public static function ejecutar(string $concepto, Carbon $fecha, int $decimales = 2): float
     {
-        $saldoAFavor = SaldoFavorAcreditamiento::porConceptoYFecha($concepto, $fecha);
-
-        if (!$saldoAFavor) return 0;
-
-        return round($saldoAFavor->importe, 2);
+        return SaldoFavorAcreditamiento::query()
+            ->conceptoFecha($concepto, $fecha)
+            ->sumarImporte($decimales);
     }
 }

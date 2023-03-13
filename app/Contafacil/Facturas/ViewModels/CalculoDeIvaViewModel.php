@@ -9,14 +9,11 @@ use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRArrendamiento;
 use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRAsimiladosASalarios;
 use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRServiciosProfesionales;
 use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorISRSueldosYSalarios;
+use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorIVADelPeriodo;
 use App\Acciones\SaldosAFavor\Cuentas\SaldoFavorIVARetenciones;
-use App\Acciones\SaldosAFavor\ResolverAcreditamientosCompensacionesAccion;
-use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
-use App\Enums\TipoIngreso;
 use App\Models\Cliente;
 use App\Models\EloquentCollections\FacturaClienteCollection;
-use App\Models\PolizaNomina;
 use Carbon\Carbon;
 
 /**
@@ -128,11 +125,7 @@ class CalculoDeIvaViewModel extends ViewModel
         /* Acreditamiento de saldo a favor de IVA
          * Proviene de los saldos a favor - IVA del periodo
          */
-        $calculos['acreditamiento_saldo_favor_iva'] = ResolverAcreditamientosCompensacionesAccion::ejecutar(
-            $this->fecha,
-            SaldosAFavorDatos::IVA_DEL_PERIODO,
-            $this->decimales
-        );
+        $calculos['acreditamiento_saldo_favor_iva'] = SaldoFavorIVADelPeriodo::ejecutar($this->fecha, $this->decimales);
 
         /* El iva del periodo de calcula de la siguiente manera
          *   Iva trasladado de las ventas cobradas

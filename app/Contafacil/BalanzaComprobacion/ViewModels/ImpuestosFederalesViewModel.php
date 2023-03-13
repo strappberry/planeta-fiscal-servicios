@@ -12,6 +12,8 @@ use Carbon\Carbon;
 class ImpuestosFederalesViewModel extends ViewModel
 {
     private $calculosIvaIsr = [];
+    private $isrActividad   = 0;
+
     public function __construct(
         private Cliente $cliente,
         private Carbon $fecha,
@@ -22,6 +24,7 @@ class ImpuestosFederalesViewModel extends ViewModel
         );
 
         $this->calculosIvaIsr = $determinacionImpuesto ? $determinacionImpuesto->calculos_iva_isr : [];
+        $this->isrActividad   = $determinacionImpuesto ? $determinacionImpuesto->isr_actividad : 0;
     }
 
     public function cuentas(): array
@@ -37,13 +40,12 @@ class ImpuestosFederalesViewModel extends ViewModel
             'abono'       => 0,
         ];
 
-        // TODO: ISR por pagar proviene de la determinación del impuesto
         $cuentas[] = [
             'cuenta'      => '213-03',
             'clave'       => 'isr_por_pagar',
             'descripcion' => 'ISR por pagar',
             'columna'     => 'cargo',
-            'cargo'       => 0,
+            'cargo'       => $this->isrActividad,
             'abono'       => 0,
         ];
 
@@ -110,13 +112,16 @@ class ImpuestosFederalesViewModel extends ViewModel
             'abono'       => 0,
         ];
 
+        // TODO: Debe estar condicionado a que el impuesto diga Pago de lo indebido de IVA y de pago de lo indebido de retención de IVA
+        $ivaAFavor = $this->calculosIvaIsr['calculos_iva']['iva_retenciones']['a_favor']
+            + $this->calculosIvaIsr['calculos_iva']['acreditamiento_saldo_favor_iva'];
         $cuentas[] = [
             'cuenta'      => '113-01-03',
             'clave'       => 'iva_a_favor',
             'descripcion' => 'IVA a favor',
             'columna'     => 'abono',
             'cargo'       => 0,
-            'abono'       => 0,
+            'abono'       => $ivaAFavor,
         ];
 
         $abonoIsrAFavor =
