@@ -89,9 +89,9 @@ class DeterminacionDelImpuestoActividadEmpresarialViewModel extends ViewModel im
         $ivaAcreditableAGastos = $this->ivaAcreditableAGastos();
 
         // IMSS, INFONAVIT, SAR, ISN
-        $imssInfonatit = DeduccionesImssInfonavitSarIsnPolizasNomina::ejecutar($this->fecha);
+        $imssInfonatit = DeduccionesImssInfonavitSarIsnPolizasNomina::ejecutar($this->cliente, $this->fecha);
         // Sueldos, salarios y asimilados
-        $sueldosSalariosAsimilados = DeduccionesSueldosSalariosAsimiladosPolizasNomina::ejecutar($this->fecha);
+        $sueldosSalariosAsimilados = DeduccionesSueldosSalariosAsimiladosPolizasNomina::ejecutar($this->cliente, $this->fecha);
 
         return $deducciones + $ivaAcreditableAGastos + $imssInfonatit + $sueldosSalariosAsimilados;
     }

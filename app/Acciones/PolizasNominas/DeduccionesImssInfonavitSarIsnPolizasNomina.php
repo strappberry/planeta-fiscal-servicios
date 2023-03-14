@@ -2,6 +2,7 @@
 
 namespace App\Acciones\PolizasNominas;
 
+use App\Models\Cliente;
 use App\Models\PolizaNomina;
 use Carbon\Carbon;
 
@@ -14,9 +15,10 @@ use Carbon\Carbon;
  */
 class DeduccionesImssInfonavitSarIsnPolizasNomina
 {
-    public static function ejecutar(Carbon $fecha): float
+    public static function ejecutar(Cliente $cliente, Carbon $fecha): float
     {
-        $total = PolizaNomina::query()
+        $total = $cliente
+            ->polizasNominas()
             ->enClaves([
                 'cuotas_al_imss_uno',
                 'cuotas_al_imss_dos',

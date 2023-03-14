@@ -3,6 +3,7 @@
 namespace App\Acciones\PolizasNominas;
 
 use App\Acciones\PolizasNominas\Cuentas\PolizaAsimiladosASalarios;
+use App\Models\Cliente;
 use App\Models\PolizaNomina;
 use Carbon\Carbon;
 
@@ -15,13 +16,14 @@ use Carbon\Carbon;
  */
 class DeduccionesSueldosSalariosAsimiladosPolizasNomina
 {
-    public static function ejecutar(Carbon $fecha): float
+    public static function ejecutar(Cliente $cliente, Carbon $fecha): float
     {
-        $deducibleISR = PolizaNomina::query()
+        $deducibleISR = $cliente
+            ->polizasNominas()
             ->mesTrabajo($fecha)
             ->sumarDeducibleIsr();
 
-        $asimiladosASalarios = PolizaAsimiladosASalarios::ejecutar($fecha);
+        $asimiladosASalarios = PolizaAsimiladosASalarios::ejecutar($cliente, $fecha);
 
         return round(
             ($deducibleISR ?? 0) + $asimiladosASalarios,

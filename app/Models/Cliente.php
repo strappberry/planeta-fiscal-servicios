@@ -105,6 +105,11 @@ class Cliente extends Model
         return $this->hasMany(SaldoAFavor::class);
     }
 
+    public function acreditamientosCompensaciones()
+    {
+        return $this->hasManyThrough(SaldoFavorAcreditamiento::class, SaldoAFavor::class);
+    }
+
     public function solicitudesDescarga()
     {
         return $this->hasMany(SolicitudDescarga::class, 'cliente_id');

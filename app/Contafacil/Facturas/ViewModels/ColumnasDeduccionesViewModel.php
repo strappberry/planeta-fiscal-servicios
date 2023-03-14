@@ -69,13 +69,13 @@ class ColumnasDeduccionesViewModel extends ViewModel
             [
                 'id'        => 3,
                 'titulo'    => 'IMSS, INFONAVIT, SAR, ISN',
-                'importe'   => DeduccionesImssInfonavitSarIsnPolizasNomina::ejecutar($this->fecha),
+                'importe'   => DeduccionesImssInfonavitSarIsnPolizasNomina::ejecutar($this->cliente, $this->fecha),
                 'deducible' => true,
             ],
             [
                 'id'        => 4,
                 'titulo'    => 'Sueldos, Salarios y Asimilados',
-                'importe'   => DeduccionesSueldosSalariosAsimiladosPolizasNomina::ejecutar($this->fecha),
+                'importe'   => DeduccionesSueldosSalariosAsimiladosPolizasNomina::ejecutar($this->cliente, $this->fecha),
                 'deducible' => true,
             ],
             [

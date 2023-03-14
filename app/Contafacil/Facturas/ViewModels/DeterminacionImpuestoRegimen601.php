@@ -47,7 +47,7 @@ class DeterminacionImpuestoRegimen601 extends ViewModel implements Determinacion
 
         if ($ultimoValor) return floatval($ultimoValor->valor);
 
-        return SaldoFavorIVADelPeriodo::ejecutar($this->fecha);
+        return SaldoFavorIVADelPeriodo::ejecutar($this->cliente, $this->fecha);
     }
 
     public function isrPorPagar(): float
