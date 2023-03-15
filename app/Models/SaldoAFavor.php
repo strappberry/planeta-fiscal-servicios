@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contafacil\Compartido\Datos\SaldosAFavorDatos;
+use App\Models\QueryBuilders\SaldoAFavorQueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,6 +33,11 @@ class SaldoAFavor extends Model
     protected $appends = [
         'remanente',
     ];
+
+    public function newEloquentBuilder($query)
+    {
+        return new SaldoAFavorQueryBuilder($query);
+    }
 
     public function acreditamientos()
     {

@@ -5,6 +5,7 @@ namespace App\Contafacil\BalanzaComprobacion\ViewModels;
 use App\Acciones\BalanzaComprobacion\ResolverDeterminacionImpuestosDB;
 use App\Acciones\CamposEditables\ImpuestoFederalGastosNoDeducibleAccion;
 use App\Acciones\CamposEditables\ImpuestoFederalOtrosGastosAccion;
+use App\Acciones\SaldosAFavor\SaldosFavorOriginadosEnSubsidioAlEmpleoPorAplicar;
 use App\Contafacil\Compartido\ViewModels\ViewModel;
 use App\Models\Cliente;
 use Carbon\Carbon;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 class ImpuestosFederalesViewModel extends ViewModel
 {
     private $calculosIvaIsr = [];
+    private $impuestosFederales = [];
     private $isrActividad   = 0;
 
     public function __construct(
@@ -25,6 +27,7 @@ class ImpuestosFederalesViewModel extends ViewModel
 
         $this->calculosIvaIsr = $determinacionImpuesto ? $determinacionImpuesto->calculos_iva_isr : [];
         $this->isrActividad   = $determinacionImpuesto ? $determinacionImpuesto->isr_actividad : 0;
+        $this->impuestosFederales = $determinacionImpuesto ? $determinacionImpuesto->impuestos_federales : [];
     }
 
     public function cuentas(): array
@@ -124,11 +127,16 @@ class ImpuestosFederalesViewModel extends ViewModel
             'abono'       => $ivaAFavor,
         ];
 
+        $subsidioPorAplicar = $this->impuestosFederales['saldos_favor_origen']['subsidio_empleo_por_aplicar'] ?? 0;
+        // SaldosFavorOriginadosEnSubsidioAlEmpleoPorAplicar::ejecutar($this->cliente, $this->fecha);
+
         $abonoIsrAFavor =
             ($this->calculosIvaIsr['calculos_isr']['sueldos_salarios']['a_favor'] ?? 0)
             + ($this->calculosIvaIsr['calculos_isr']['asimilados_salario']['a_favor'] ?? 0)
             + ($this->calculosIvaIsr['calculos_isr']['arrendamiento']['a_favor'] ?? 0)
             + ($this->calculosIvaIsr['calculos_isr']['servicios_profesionales']['a_favor'] ?? 0);
+        $abonoIsrAFavor = ($abonoIsrAFavor > 0) ? ($abonoIsrAFavor - $subsidioPorAplicar) : 0;
+
         $cuentas[] = [
             'cuenta'      => '113-02-03',
             'clave'       => 'isr_a_favor',
@@ -144,7 +152,7 @@ class ImpuestosFederalesViewModel extends ViewModel
             'descripcion' => 'Subsidio al empleo por aplicar',
             'columna'     => 'abono',
             'cargo'       => 0,
-            'abono'       => 0,
+            'abono'       => $subsidioPorAplicar,
         ];
 
         $cargos = $cuentas->where('columna', 'cargo')->sum('cargo');
@@ -159,5 +167,13 @@ class ImpuestosFederalesViewModel extends ViewModel
         ];
 
         return $cuentas->toArray();
+    }
+
+    public function saldosFavorOrigen(): array
+    {
+        return [
+            'subsidio_empleo_por_aplicar' =>
+                SaldosFavorOriginadosEnSubsidioAlEmpleoPorAplicar::ejecutar($this->cliente, $this->fecha),
+        ];
     }
 }

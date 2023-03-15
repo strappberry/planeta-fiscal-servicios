@@ -5,8 +5,6 @@ namespace App\Acciones\BalanzaComprobacion;
 use App\Contafacil\BalanzaComprobacion\ViewModels\ImpuestosFederalesViewModel;
 use App\Contafacil\Facturas\ViewModels\CalculoDeIvaViewModel;
 use App\Contafacil\Facturas\ViewModels\ColumnasDeduccionesViewModel;
-use App\Contafacil\Facturas\ViewModels\DeterminacionDelImpuestoActividadEmpresarialViewModel;
-use App\Contafacil\Facturas\ViewModels\DeterminacionImpuestoRegimen612;
 use App\Models\Cliente;
 use App\Models\DeterminacionImpuesto;
 use Carbon\Carbon;
