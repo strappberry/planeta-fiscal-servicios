@@ -20,8 +20,11 @@ class SolicitudesFacturaController extends Controller
 
         // Verificar si hay una solicitud activa
         $solicitud = $cliente->solicitudesDescarga()
-            ->where('status', '!=', SolicitudDescarga::STATUS_PROCESADO)
-            ->where('status', '!=', SolicitudDescarga::STATUS_ERROR_AL_PROCESAR)
+            ->whereNotIn('status', [
+                SolicitudDescarga::STATUS_PROCESADO,
+                SolicitudDescarga::STATUS_ERROR_AL_PROCESAR,
+                SolicitudDescarga::STATUS_CANCELADO,
+            ])
             ->count();
 
         if ($solicitud > 0) {
@@ -74,6 +77,22 @@ class SolicitudesFacturaController extends Controller
 
         return response()->json([
             'solicitudes' => $solicitudes,
+        ]);
+    }
+
+    public function cancelarSolicitud(Request $request)
+    {
+        $this->validate($request, [
+            'solicitud_descarga_id' => 'required|integer',
+        ]);
+
+        $solicitud = SolicitudDescarga::findOrFail($request->solicitud_descarga_id);
+        $solicitud->status = SolicitudDescarga::STATUS_CANCELADO;
+        $solicitud->save();
+
+        return response()->json([
+            'message' => 'Solicitud cancelada',
+            'solicitud' => $solicitud,
         ]);
     }
 

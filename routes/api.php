@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('listar-solicitudes-descarga', [SolicitudesFacturaController::class, 'listarSolicitudes']);
         Route::post('solicitar-descarga', [SolicitudesFacturaController::class, 'crearSolicitudDescarga']);
+        Route::post('cancelar-descarga', [SolicitudesFacturaController::class, 'cancelarSolicitud']);
     });
 
     Route::prefix('clientes')->group(function () {
