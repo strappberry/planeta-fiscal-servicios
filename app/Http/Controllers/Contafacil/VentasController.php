@@ -43,43 +43,21 @@ class VentasController extends Controller
             $mesTrabajo->save();
         }
 
-        $facturasIds = FacturaCliente::query()
-            ->select(
-                'factura_clientes.id as id',
-                'factura_id as factura_id',
-                'facturas.rfc_emisor as rfc_emisor',
-                'factura_clientes.fecha_emision as fecha_emision',
-                'factura_clientes.fecha_pago as fecha_pago',
-                'facturas.tipo_comprobante as tipo_comprobante'
-            )
-            ->join('facturas', 'facturas.id', '=', "factura_clientes.factura_id")
+        $facturas = $cliente->facturasCliente()
+            ->with([
+                'factura',
+                'factura.complementoPagos',
+                'factura.complementoPagos.pagos',
+                'factura.complementoPagos.pagos.documentosRelacionados',
+            ])
             ->esVenta()
-            ->where('facturas.rfc_emisor', $rfc)
-            ->whereIn('facturas.tipo_comprobante', ['I', 'E', 'i', 'e'])
             ->where(function ($query) use($fechaInicio, $fechaFin) {
                 return $query
-                    ->whereBetween('factura_clientes.fecha_emision', [
-                        $fechaInicio,
-                        $fechaFin,
-                    ])
-                    ->orWhereBetween('factura_clientes.fecha_pago', [
-                        $fechaInicio,
-                        $fechaFin,
-                    ]);
+                    ->whereBetween('fecha_emision', [$fechaInicio, $fechaFin])
+                    ->orWhereBetween('fecha_pago', [$fechaInicio, $fechaFin]);
             })
-            ->orderBy('fecha_emision')
-            ->get();
-
-        $facturas = Factura::query()
-            ->with([
-                'facturasCliente' => function ($query) use ($cliente) {
-                    $query->where('cliente_id', $cliente->id);
-                },
-                'complementoPagos',
-                'complementoPagos.pagos',
-                'complementoPagos.pagos.documentosRelacionados',
-            ])
-            ->whereIn('id', $facturasIds->pluck('factura_id'))
+            ->orderBy('considerado', 'asc')
+            ->orderBy('fecha_emision', 'asc')
             ->get();
 
         return response()->json([

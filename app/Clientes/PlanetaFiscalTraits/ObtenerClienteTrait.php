@@ -31,7 +31,7 @@ trait ObtenerClienteTrait
             'razon_social'         => $cliente['razon_social'],
             'regimen'              => $cliente['regimen'],
             'activo'               => $cliente['activo'],
-            'planeta_ejecutivo_id' => $cliente['planeta_ejecutivo_id'],
+            'planeta_ejecutivo_id' => $cliente['planeta_ejecutivo_id'] ?? null,
             'planeta_ejecutivo'    => [
                 'id'     => $cliente['planeta_ejecutivo']['planeta_id'],
                 'nombre' => $cliente['planeta_ejecutivo']['nombre'],

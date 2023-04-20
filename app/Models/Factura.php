@@ -188,7 +188,7 @@ class Factura extends Model
     {
         /* Invertiendo el calculo del iva se puede obtener el monto gravado de forma sencilla */
         if ($this->traslado_iva > 0) {
-            return $this->traslado_iva / 0.16;
+            return round($this->traslado_iva / 0.16, 2);
         }
         return 0;
     }
