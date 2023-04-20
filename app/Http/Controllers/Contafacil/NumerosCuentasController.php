@@ -13,7 +13,7 @@ class NumerosCuentasController extends Controller
     {
         $numerosCuenta = NumeroCuenta::query()
             ->orderBy('tipo_cuenta', 'asc')
-            ->orderBy('descripcion', 'asc')
+            ->orderBy('numero_cuenta', 'asc')
             ->get();
 
         return response()->json([

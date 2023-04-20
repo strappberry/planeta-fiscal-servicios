@@ -37,6 +37,12 @@ class ValidarPolizasMes
             $modelo         = new PolizaAutomaticaFacturaViewModel($facturaCliente);
             $validaciones   = (new ValidacionPolizaAutomaticaFacturaViewModel($modelo))->toArray();
 
+            if ($factura->comprobanteXml) {
+                $facturaCliente->primer_concepto = $factura
+                    ->comprobanteXml
+                    ->obtenerDescripcionPrimerConcepto();
+            }
+
             $facturaCliente->poliza_valida = $validaciones['validaciones']['validacion'];
             $facturaCliente->save();
 

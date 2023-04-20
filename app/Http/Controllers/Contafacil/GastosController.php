@@ -83,6 +83,11 @@ class GastosController extends Controller
             ->whereIn('id', $facturasIds->pluck('factura_id'))
             ->get();
 
+        $facturas = $facturas->sortBy([
+            fn($f1, $f2) => $f1->facturasCliente[0]->considerado
+            <=> $f2->facturasCliente[0]->considerado,
+        ])->values()->all();
+
         return response()->json([
             'facturas' => $facturas,
         ]);
