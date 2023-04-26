@@ -173,6 +173,9 @@ Route::prefix('contafacil')->group(function() {
         Route::delete('/eliminar-cuenta-manual/{factura}/{numeroCuenta}', [
             FacturasNumeroCuentaController::class, 'eliminarNumeroCuentaManual'
         ]);
+        Route::post('/vinculacion-masiva', [
+            FacturasNumeroCuentaController::class, 'vinculacionMasiva'
+        ]);
     });
 
     Route::prefix('facturas')->group(function() {

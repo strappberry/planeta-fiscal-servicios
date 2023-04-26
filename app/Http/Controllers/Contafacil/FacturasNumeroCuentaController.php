@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Contafacil;
 
 use App\Acciones\Clientes\ResolverClientePlanetaFiscal;
+use App\Acciones\Facturas\ConderarParaDeclaracionMasivamente;
 use App\Acciones\Facturas\GenerarValidacionPolizaIndividual;
 use App\Acciones\Facturas\RemoverNumeroDeCuentaDeFacturaCliente;
 use App\Acciones\Facturas\ResolverFacturaCliente;
 use App\Acciones\Facturas\VerificarFacturaClienteDeducible;
 use App\Acciones\Facturas\VerificarMontoResidualPolizaIndividual;
+use App\Acciones\Facturas\VinculacionMasivaNumeroCuenta;
 use App\Acciones\Facturas\VincularNumeroDeCuentaFacturaCliente;
 use App\Contafacil\Facturas\ViewModels\PolizaAutomaticaFacturaViewModel;
 use App\Contafacil\Facturas\ViewModels\ValidacionPolizaAutomaticaFacturaViewModel;
@@ -82,6 +84,38 @@ class FacturasNumeroCuentaController extends Controller
             'poliza_valida' => $facturaCliente->poliza_valida,
             'considerado'   => $facturaCliente->considerado,
             'deducible'     => $facturaCliente->deducible,
+        ]);
+    }
+
+    public function vinculacionMasiva(Request $request, $clienteId)
+    {
+        $this->validate($request, [
+            'ids' => 'required|array',
+            'accion' => 'required|in:agregar_cuenta,considerar,no_considerar',
+        ]);
+
+        $cliente = ResolverClientePlanetaFiscal::ejecutar($clienteId);
+
+        if ($request->accion == 'agregar_cuenta') {
+            $this->validate($request, [
+                'cuenta' => 'required',
+            ]);
+            VinculacionMasivaNumeroCuenta::ejecutar(
+                $request->ids,
+                $request->cuenta,
+                $request->get('monto', '')
+            );
+        }
+
+        if ($request->accion == 'considerar') {
+            ConderarParaDeclaracionMasivamente::ejecutar($request->ids, true);
+        }
+        if ($request->accion == 'no_considerar') {
+            ConderarParaDeclaracionMasivamente::ejecutar($request->ids, false);
+        }
+
+        return response()->json([
+            'success' => true,
         ]);
     }
 }
