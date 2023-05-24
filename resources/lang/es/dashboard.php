@@ -11,6 +11,7 @@ return [
     ],
 
     'facturas' => [
+        'año' => 'Año',
         'complementos' => 'Complementos',
         'descuento' => 'Descuento',
         'efecto_comprobante' => 'Efecto Comprobante',
@@ -26,6 +27,7 @@ return [
         'folio' => 'Folio',
         'folio_pago' => 'Folio Pago',
         'forma_pago' => 'Forma Pago',
+        'mes' => 'Mes',
         'mes_pago' => 'Mes Pago',
         'mes_emision_cfdi' => 'Mes Emisión CFDI',
         'metodo_pago' => 'Método Pago',
@@ -36,6 +38,7 @@ return [
         'pago' => 'Pago',
         'pagos' => 'Pagos',
         'pac_certifico' => 'PAC Certificó',
+        'periodicidad' => 'Periodicidad',
         'registro_patronal' => 'Registro Patronal',
         'rfc_emisor' => 'RFC Emisor',
         'rfc_receptor' => 'RFC Receptor',
@@ -108,5 +111,5 @@ return [
         'guardar_fiel' => 'Guardar FIEL',
         'fecha_de_caducidad' => 'Fecha de Caducidad',
     ],
-    
+
 ];

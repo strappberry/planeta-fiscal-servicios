@@ -695,7 +695,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.uso_cfdi'),
                 __('dashboard.reportes.validacion_uso_cfdi'),
                 __('dashboard.reportes.validacion_metodo_forma_pago'),
-
+                __('dashboard.facturas.periodicidad'),
+                __('dashboard.facturas.mes'),
+                __('dashboard.facturas.año'),
             ],
             'lineas' => [],
         ];
@@ -720,7 +722,8 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 $pagina['lineas'],
                 array_merge(
                     $this->generarLineaIngresosEmitidos($ingreso),
-                    $this->generarColumnasValidaciones($ingreso)
+                    $this->generarColumnasValidaciones($ingreso),
+                    $this->generarColumnasInformacionGlobal($ingreso)
                 )
             );
         }
@@ -842,6 +845,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.reportes.primer_concepto'),
                 __('dashboard.reportes.iva_tasa_0'),
                 __('dashboard.reportes.iva_exento'),
+                __('dashboard.facturas.periodicidad'),
+                __('dashboard.facturas.mes'),
+                __('dashboard.facturas.año'),
             ],
             'lineas' => [],
         ];
@@ -860,7 +866,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
         foreach ($ingresos as $ingreso) {
             array_push(
                 $pagina['lineas'],
-                $this->generarLineaEgresosEmitidos($ingreso)
+                array_merge(
+                    $this->generarLineaEgresosEmitidos($ingreso),
+                    $this->generarColumnasInformacionGlobal($ingreso)
+                )
             );
         }
 
@@ -1236,7 +1245,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
         $linea = [];
 
         if (!$comprobante) {
-            return [];
+            return ['', '', '', '', '', ''];
         }
 
         $regimenEmisor = $comprobante->obtenerRegimenEmisor();
@@ -1363,6 +1372,30 @@ class ReporteSimplificado implements ReporteFacturacionPF
         ));
 
         return $linea;
+    }
+
+    /**
+     * -------------------------------------------------------------------------
+     * Otras funciones
+     * -------------------------------------------------------------------------
+     */
+    private function generarColumnasInformacionGlobal(Factura $factura)
+    {
+        $comprobante = $factura->comprobanteXml;
+        if (!$comprobante) {
+            return ['', '', ''];
+        }
+
+        $informacionGlobal = $comprobante->obtenerInformacionGlobal();
+        if (!$informacionGlobal) {
+            return ['', '', ''];
+        }
+
+        return [
+            $informacionGlobal['Periodicidad'] ?? '',
+            $informacionGlobal['Meses'] ?? '',
+            $informacionGlobal['Año'] ?? '',
+        ];
     }
 
 }

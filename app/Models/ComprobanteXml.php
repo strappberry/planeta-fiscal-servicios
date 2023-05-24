@@ -199,5 +199,9 @@ class ComprobanteXml extends Model
         return $this->comprobante['Receptor']['UsoCFDI'];
     }
 
+    public function obtenerInformacionGlobal()
+    {
+        return $this->comprobante['InformacionGlobal'] ?? [];
+    }
 
 }
