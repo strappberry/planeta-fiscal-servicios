@@ -56,6 +56,14 @@ class ProcesarXmlConErrores extends Command
                 );
                 $uuid = $cfdi['Complemento']['TimbreFiscalDigital']['UUID'];
 
+                $existe = \App\Models\Factura::where('uuid', $uuid)->exists();
+                if (!$existe) {
+                    $datos = FacturaArray::obtenerDatosParaFactura($cfdi);
+                    $datos['uuid'] = $uuid;
+                    $datos['cliente_id'] = 531;
+                    \App\Models\Factura::create($datos);
+                }
+
                 FacturaArray::guardarCfdiArray($uuid, $cfdi);
                 File::delete($archivo->getPathname());
             } catch(Exception $e) {
