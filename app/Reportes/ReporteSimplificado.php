@@ -1478,121 +1478,111 @@ class ReporteSimplificado implements ReporteFacturacionPF
         if(isset($arrJson['comprobante'])){
             $comprobante = $arrJson['comprobante'];
             switch($campo){
-                case "cfdiRelacionados":
-                    if (isset($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID']) &&
-                        !empty($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'])
-                    ) {
+            case "cfdiRelacionados":
+                if (isset($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID']) &&
+                    !empty($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'])
+                ) {
+                    $field = $comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'];
+                }
+                break;
+            case "fechaEmision":
+                if (isset($comprobante['Fecha'])) {
+                    $fecha = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $comprobante['Fecha']);
+                    //Valida la fecha de la factura
+                    $field = ($fecha && $fecha->format('Y-m-d\TH:i:s') === $comprobante['Fecha']) ? $fecha->format('Y-m-d') : '';
+                }
+                break;
+            case "uuidSustitucion":
+                if (isset($comprobante['CfdiRelacionados'][0]['TipoRelacion'])){
+                    //Solo para tipo de relacion 04
+                    $tipoRelacion = $comprobante['CfdiRelacionados'][0]['TipoRelacion'];
+                    if($tipoRelacion == "04" && isset($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'])){
                         $field = $comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'];
                     }
-                    break;
-                case "fechaEmision":
-                        if (isset($comprobante['Fecha'])
-                        ) {
-                            $fecha = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $comprobante['Fecha']);
-                            //Valida la fecha de la factura
-                            $field = ($fecha && $fecha->format('Y-m-d\TH:i:s') === $comprobante['Fecha']) ? $fecha->format('Y-m-d') : '';
-                        }
-                        break;
-                case "uuidSustitucion":
-                    if (isset($comprobante['CfdiRelacionados'][0]['TipoRelacion']) ) 
-                    {
-                        //Solo para tipo de relacion 04
-                        $tipoRelacion = $comprobante['CfdiRelacionados'][0]['TipoRelacion'];
-                        if($tipoRelacion == "04" && isset($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'])){
-                            $field = $comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'];
-                        }
-                    }
-                    break;
-                case "TasaDeImpuesto":
-                        if (isset($comprobante['Impuestos']['Traslados']) ) 
-                        {
-                            $traslados = $comprobante['Impuestos']['Traslados'];
-                            $arrImpuestos = [
-                                "Tasa16" => '0',
-                                "Tasa8" => '0',
-                                "Tasa0" => '0',
-                                "exento" => 'N/A'
-                            ];
-                            if(isset($traslados['Traslado'])){
-                                
-                                foreach ($traslados['Traslado'] as $impuesto) {
-                                   if(isset($impuesto['TasaOCuota'])){
-                                        switch($impuesto['TasaOCuota']){
-                                            case "0.160000":
-                                                $arrImpuestos["Tasa16"] = $impuesto['Importe'] ?? '0';
-                                                break;
-                                            case "0.080000":
-                                                $arrImpuestos["Tasa8"] = $impuesto['Importe'] ?? '0';
-                                                break;
-                                            case "0.000000":
-                                                $arrImpuestos["Tasa0"] = 'CONTIENE';
-                                                break;
-                                        }
-                                   }else{
-                                        if(isset($impuesto['TipoFactor']) && $impuesto['TipoFactor'] =="Exento"){
-                                            $arrImpuestos["exento"]  = 'CONTIENE';
-                                        }
-                                   } 
-                                }
-
-                                
-                            }
-                            $field = $arrImpuestos;
-                        }
-                        break;
-                case "InfoGlobal":
-                    $arrGlobalInfo = [
-                        "Periodicidad" =>  '',
-                        "Meses" =>  '',
-                        "Año" =>  ''
+                }
+                break;
+            case "TasaDeImpuesto":
+                if (isset($comprobante['Impuestos']['Traslados'])){
+                    $traslados = $comprobante['Impuestos']['Traslados'];
+                    $arrImpuestos = [
+                        "Tasa16" => '0',
+                        "Tasa8" => '0',
+                        "Tasa0" => '0',
+                        "exento" => 'N/A'
                     ];
-                    if(isset($comprobante['InformacionGlobal'])){
-                        $receptor = $comprobante['Receptor']['Nombre'] ?? '';
-                        if(strtolower($receptor) == "publico en general"){
-                            $arrGlobalInfo = [
-                                "Periodicidad" =>  $comprobante['InformacionGlobal']['Periodicidad'] ?? '',
-                                "Meses" =>  $comprobante['InformacionGlobal']['Meses'] ?? '',
-                                "Año" =>  $comprobante['InformacionGlobal']['Año'] ?? ''
-                            ];
+                    if(isset($traslados['Traslado'])){
+
+                        foreach ($traslados['Traslado'] as $impuesto) {
+                            if(isset($impuesto['TasaOCuota'])){
+                                switch($impuesto['TasaOCuota']){
+                                    case "0.160000":
+                                        $arrImpuestos["Tasa16"] = $impuesto['Importe'] ?? '0';
+                                        break;
+                                    case "0.080000":
+                                        $arrImpuestos["Tasa8"] = $impuesto['Importe'] ?? '0';
+                                        break;
+                                    case "0.000000":
+                                        $arrImpuestos["Tasa0"] = 'CONTIENE';
+                                        break;
+                                }
+                            }else{
+                                if(isset($impuesto['TipoFactor']) && $impuesto['TipoFactor'] =="Exento"){
+                                    $arrImpuestos["exento"]  = 'CONTIENE';
+                                }
+                            } 
                         }
+                        
                     }
-                    $field = $arrGlobalInfo;
-                    break;
-                case "NominaGeneral":
-                        $arrNominaGeneral = [
-                            "FechaTimbrado" =>  '',
-                            "FechaPago" =>  '',
-                            "TotalSueldos" =>  '0'
+                    $field = $arrImpuestos;
+                }
+                break;
+            case "InfoGlobal":
+                $arrGlobalInfo = [
+                    "Periodicidad" =>  '',
+                    "Meses" =>  '',
+                    "Año" =>  ''
+                ];
+                if(isset($comprobante['InformacionGlobal'])){
+                    $receptor = $comprobante['Receptor']['Nombre'] ?? '';
+                    if(strtolower($receptor) == "publico en general"){
+                        $arrGlobalInfo = [
+                        "Periodicidad" =>  $comprobante['InformacionGlobal']['Periodicidad'] ?? '',
+                        "Meses" =>  $comprobante['InformacionGlobal']['Meses'] ?? '',
+                        "Año" =>  $comprobante['InformacionGlobal']['Año'] ?? ''
                         ];
-                        if (isset($comprobante['Fecha'])
-                        ) {
-                            $fechaTimbrado = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $comprobante['Fecha']);
-                            //Valida la fecha de la factura
-                            $arrNominaGeneral['FechaTimbrado'] = ($fechaTimbrado && $fechaTimbrado->format('Y-m-d\TH:i:s') === $comprobante['Fecha']) ? $fechaTimbrado->format('Y-m-d') : '';
-                        }
+                    }
+                }
+                $field = $arrGlobalInfo;
+                break;
+            case "NominaGeneral":
+                $arrNominaGeneral = [
+                    "FechaTimbrado" =>  '',
+                    "FechaPago" =>  '',
+                    "TotalSueldos" =>  '0'
+                ];
+                if (isset($comprobante['Fecha'])) {
+                    $fechaTimbrado = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $comprobante['Fecha']);
+                    //Valida la fecha de la factura
+                    $arrNominaGeneral['FechaTimbrado'] = ($fechaTimbrado && $fechaTimbrado->format('Y-m-d\TH:i:s') === $comprobante['Fecha']) ? $fechaTimbrado->format('Y-m-d') : '';
+                }
 
-                        if (isset($comprobante['Complemento']['Nomina']['FechaPago'])
-                        ) {
-                            $fechaPago = $comprobante['Complemento']['Nomina']['FechaPago'];
-                            $fechaPagoFormat = DateTimeImmutable::createFromFormat('Y-m-d', $fechaPago);
-                            //Valida la fecha de la factura
-                            $arrNominaGeneral['FechaPago'] = ($fechaPagoFormat && $fechaPagoFormat->format('Y-m-d') === $fechaPago) ? $fechaPagoFormat->format('Y-m-d') : '';
-                        }
+                if (isset($comprobante['Complemento']['Nomina']['FechaPago'])) {
+                    $fechaPago = $comprobante['Complemento']['Nomina']['FechaPago'];
+                    $fechaPagoFormat = DateTimeImmutable::createFromFormat('Y-m-d', $fechaPago);
+                    //Valida la fecha de la factura
+                    $arrNominaGeneral['FechaPago'] = ($fechaPagoFormat && $fechaPagoFormat->format('Y-m-d') === $fechaPago) ? $fechaPagoFormat->format('Y-m-d') : '';
+                }
 
-                        if (isset($comprobante['Complemento']['Nomina']['Percepciones']))
-                        {
-                            $totalSueldos = $comprobante['Complemento']['Nomina']['Percepciones']['TotalSueldos'] ?? '0';
-                            $arrNominaGeneral['TotalSueldos'] = $totalSueldos;
-                        }
+                if (isset($comprobante['Complemento']['Nomina']['Percepciones'])){
+                    $totalSueldos = $comprobante['Complemento']['Nomina']['Percepciones']['TotalSueldos'] ?? '0';
+                    $arrNominaGeneral['TotalSueldos'] = $totalSueldos;
+                }
 
-                        $field = $arrNominaGeneral;
-                        break;
+                $field = $arrNominaGeneral;
+                break;
             }
         }
-        
-
         return $field;
-
     }
 
 }
