@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class PaginaReporteSimplificado implements FromView, WithTitle, WithStyles
 {
@@ -40,8 +41,9 @@ class PaginaReporteSimplificado implements FromView, WithTitle, WithStyles
     public function styles(Worksheet $sheet)
     {
         // Columnas con tamaño horizontal automatico
-        foreach(range('A','Z') as $columna) {
-            $sheet->getColumnDimension($columna)->setAutoSize(true);
+        for ($i = 1; $i <= 40; $i++) {
+            $col = Coordinate::stringFromColumnIndex($i);
+            $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
         // Color fondo informacion cliente
@@ -57,13 +59,13 @@ class PaginaReporteSimplificado implements FromView, WithTitle, WithStyles
             ->setARGB('FFFFFF');
 
         // Color fondo linea de encabezado
-        $sheet->getStyle('A4:AE4')
+        $sheet->getStyle('A4:AN4')
             ->getFill()
             ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()
             ->setARGB('212770');
         // Color texto encabezados
-        $sheet->getStyle('A4:AE4')
+        $sheet->getStyle('A4:AN4')
             ->getFont()
             ->getColor()
             ->setARGB('FFFFFF');
