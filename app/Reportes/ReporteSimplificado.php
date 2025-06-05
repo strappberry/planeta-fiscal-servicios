@@ -111,8 +111,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
-                __('dashboard.reportes.iva_tasa_0'),
-                __('dashboard.reportes.iva_exento'),
                 __('dashboard.reportes.tipo_contribuyente'),
                 __('dashboard.reportes.regimen_contribuyente'),
                 __('dashboard.reportes.validacion_rfc_emisor'),
@@ -241,10 +239,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
         } else {
             array_push($linea, '');
         }
-
-        $columnasIvaExentoY0 = $this->obtenerColumnasIva0YExento($comprobante);
-        array_push($linea, $columnasIvaExentoY0['iva_0']);
-        array_push($linea, $columnasIvaExentoY0['iva_exento']);
 
         return $linea;
     }
@@ -702,8 +696,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
-                __('dashboard.reportes.iva_tasa_0'),
-                __('dashboard.reportes.iva_exento'),
                 __('dashboard.reportes.tipo_contribuyente'),
                 __('dashboard.reportes.regimen_contribuyente'),
                 __('dashboard.reportes.validacion_rfc_emisor'),
@@ -777,7 +769,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
         $multiplicador = $factura->tipo_comprobante == 'I' ? 1 : -1;
 
         array_push($linea, ConvertirMontoAPesos::convertir(
-            $factura->total,
+            $factura->subtotal,
             $comprobante->comprobante['Moneda'] ?? '',
             $comprobante->comprobante['TipoCambio'] ?? 1
         ) * $multiplicador);
@@ -829,9 +821,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
             array_push($linea, '');
         }
 
-        $columnasIvaExentoY0 = $this->obtenerColumnasIva0YExento($comprobante);
-        array_push($linea, $columnasIvaExentoY0['iva_0']);
-        array_push($linea, $columnasIvaExentoY0['iva_exento']);
 
         return $linea;
     }
