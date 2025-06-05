@@ -895,7 +895,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
                     $this->generarColumnasExtra($ingreso, 'EgresosEmitidos')
                 )
             );
-            /* dd($this->generarLineaEgresosEmitidos($ingreso),$this->generarColumnasInformacionGlobal($ingreso)); */
         }
 
         return $pagina;
