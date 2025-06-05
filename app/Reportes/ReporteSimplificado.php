@@ -93,7 +93,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
             'titulo' => __('dashboard.reportes.ingresos_recibidos'),
             'encabezados' => [
                 __('dashboard.facturas.uuid'),
-                __('dashboard.facturas.uuid_sustitucion'),
                 __('dashboard.general.fecha'),
                 __('dashboard.facturas.serie'),
                 __('dashboard.facturas.folio'),
@@ -120,6 +119,11 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.uso_cfdi'),
                 __('dashboard.reportes.validacion_uso_cfdi'),
                 __('dashboard.reportes.validacion_metodo_forma_pago'),
+                __('dashboard.facturas.uuid_sustitucion'),
+                __('dashboard.facturas.tasa16'),
+                __('dashboard.facturas.tasa8'),
+                __('dashboard.facturas.tasa0'),
+                __('dashboard.facturas.tasaExento'),
             ],
             'lineas' => [],
         ];
@@ -144,7 +148,8 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 $pagina['lineas'],
                 array_merge(
                     $this->generarLineaIngresosRecibido($ingreso),
-                    $this->generarColumnasValidaciones($ingreso)
+                    $this->generarColumnasValidaciones($ingreso),
+                    $this->generarColumnasExtra($ingreso,'IngresosRecibidos'),
                 )
             );
         }
@@ -154,13 +159,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
 
     private function generarLineaIngresosRecibido(Factura $factura)
     {
-        $comprobante = $factura->comprobanteXml;
-        //Agrega la columna de UUID por Sustitución si el TipoRelacion es igual a '04'
-        $uuidSustitucion = $this->obtenerCampoArrayFactura($comprobante, 'uuidSustitucion');
-        
+        $comprobante = $factura->comprobanteXml;   
         $linea = [
             $factura->uuid,
-            $uuidSustitucion,
             $factura->fecha_emision->format('Y-m-d'),
             $factura->serie,
             $factura->folio,
@@ -259,7 +260,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
             'titulo' => __('dashboard.reportes.egresos_recibidos'),
             'encabezados' => [
                 __('dashboard.facturas.uuid'),
-                __('dashboard.facturas.uuid_relacionado'),
                 __('dashboard.general.fecha'),
                 __('dashboard.facturas.serie'),
                 __('dashboard.facturas.folio'),
@@ -280,6 +280,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.reportes.primer_concepto'),
                 __('dashboard.reportes.iva_tasa_0'),
                 __('dashboard.reportes.iva_exento'),
+                __('dashboard.facturas.uuid_relacionado'),
             ],
             'lineas' => [],
         ];
@@ -298,7 +299,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
         foreach ($ingresos as $ingreso) {
             array_push(
                 $pagina['lineas'],
-                $this->generarLineaEgresosRecibido($ingreso)
+                array_merge(
+                    $this->generarLineaEgresosRecibido($ingreso),
+                    $this->generarColumnasExtra($ingreso, 'EgresosRecibidos')
+                )
             );
         }
 
@@ -308,11 +312,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaEgresosRecibido(Factura $factura)
     {
         $comprobante = $factura->comprobanteXml;
-        $uuidRelacion = $this->obtenerCampoArrayFactura($comprobante,"cfdiRelacionados");
-       
+        
         $linea = [
             $factura->uuid,
-            $uuidRelacion,
             $factura->fecha_emision->format('Y-m-d'),
             $factura->serie,
             $factura->folio,
@@ -526,7 +528,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.uuid'),
                 __('dashboard.facturas.rfc_emisor'),
                 __('dashboard.facturas.nombre_emisor'),
-                __('dashboard.facturas.fecha_emision'),
                 __('dashboard.facturas.fecha_de_pago'),
                 __('dashboard.facturas.uuid_pago'),
                 __('dashboard.facturas.serie'),
@@ -535,6 +536,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.saldo_anterior'),
                 __('dashboard.facturas.pago'),
                 __('dashboard.facturas.saldo_insoluto'),
+                __('dashboard.facturas.fecha_emision'),
             ],
             'lineas' => [],
         ];
@@ -563,13 +565,14 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaPagosRecibidos(Factura $factura)
     {
         $comprobante = $factura->comprobanteXml;
-        $fechaEmision = $this->obtenerCampoArrayFactura($comprobante,'fechaEmision'); 
+        // Agregar fecha de emisión de cada documento
+        $fechaEmision = $this->obtenerCampoArrayFactura($comprobante, 'fechaEmision');
+        
         $lineas = [];
         $linea = [
             $factura->uuid,
             $factura->rfc_emisor,
             $factura->nombre_emisor,
-            $fechaEmision
         ];
 
         if (
@@ -599,11 +602,11 @@ class ReporteSimplificado implements ReporteFacturacionPF
                     array_push($documentos, $documento);
                 }
             }
-
+            
             foreach($documentos as $documento) {
                 array_push(
                     $lineas,
-                    array_merge($linea, $documento)
+                    array_merge($linea, $documento,[$fechaEmision])
                 );
             }
         } else {
@@ -612,7 +615,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 array_merge($linea, ['', '', '', '', '', '', '', ''])
             );
         }
-
+        
         return $lineas;
     }
 
@@ -681,7 +684,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
             'titulo' => __('dashboard.reportes.ingresos_emitidos'),
             'encabezados' => [
                 __('dashboard.facturas.uuid'),
-                __('dashboard.facturas.uuid_sustitucion'),
                 __('dashboard.general.fecha'),
                 __('dashboard.facturas.serie'),
                 __('dashboard.facturas.folio'),
@@ -693,13 +695,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.moneda'),
                 __('dashboard.facturas.tipo_cambio'),
                 __('dashboard.facturas.subtotal'),
-                __('dashboard.facturas.periodicidad'),
-                __('dashboard.facturas.mes'),
-                __('dashboard.facturas.año'),
-                __('dashboard.facturas.tasa16'),
-                __('dashboard.facturas.tasa8'),
-                __('dashboard.facturas.tasa0'),
-                __('dashboard.facturas.tasaExento'),
                 __('dashboard.reportes.impuesto_trasladado_iva'),
                 __('dashboard.reportes.impuesto_trasladado_ieps'),
                 __('dashboard.reportes.impuesto_retenido_iva'),
@@ -714,7 +709,15 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.reportes.validacion_rfc_emisor'),
                 __('dashboard.facturas.uso_cfdi'),
                 __('dashboard.reportes.validacion_uso_cfdi'),
-                __('dashboard.reportes.validacion_metodo_forma_pago')
+                __('dashboard.reportes.validacion_metodo_forma_pago'),
+                __('dashboard.facturas.uuid_sustitucion'),
+                __('dashboard.facturas.periodicidad'),
+                __('dashboard.facturas.mes'),
+                __('dashboard.facturas.año'),
+                __('dashboard.facturas.tasa16'),
+                __('dashboard.facturas.tasa8'),
+                __('dashboard.facturas.tasa0'),
+                __('dashboard.facturas.tasaExento'),
             ],
             'lineas' => [],
         ];
@@ -740,7 +743,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 array_merge(
                     $this->generarLineaIngresosEmitidos($ingreso),
                     $this->generarColumnasValidaciones($ingreso),
-                   /*  $this->generarColumnasInformacionGlobal($ingreso) */
+                    $this->generarColumnasExtra($ingreso,'IngresosEmitidos')
                 )
             );
         }
@@ -751,12 +754,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaIngresosEmitidos(Factura $factura)
     {
         $comprobante = $factura->comprobanteXml;
-        //Agrega la columna de UUID por Sustitución si el TipoRelacion es igual a '04'
-        $uuidSustitucion = $this->obtenerCampoArrayFactura($comprobante, 'uuidSustitucion');
         
         $linea = [
             $factura->uuid,
-            $uuidSustitucion,
             $factura->fecha_emision->format('Y-m-d'),
             $factura->serie,
             $factura->folio,
@@ -781,23 +781,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             $comprobante->comprobante['Moneda'] ?? '',
             $comprobante->comprobante['TipoCambio'] ?? 1
         ) * $multiplicador);
-        //Periodicidad, Mes y Año de la Información Global solo se cambió de lugar
-        $arrInfoGlobal = $this->obtenerCampoArrayFactura($comprobante, 'InfoGlobal');
-
-        array_push($linea, $arrInfoGlobal['Periodicidad'] ?? '');
-        array_push($linea, $arrInfoGlobal['Meses'] ?? '');
-        array_push($linea, $arrInfoGlobal['Año'] ?? '');
-        //Columnas de tasas de impuestos
-        $arrTasaImpuestos = $this->obtenerCampoArrayFactura($comprobante, 'TasaDeImpuesto');
-        //Tasa 16
-        array_push($linea, $arrTasaImpuestos['Tasa16'] ?? '');
-        //Tasa 8
-        array_push($linea, $arrTasaImpuestos['Tasa8'] ?? '');
-        //Tasa 0
-        array_push($linea, $arrTasaImpuestos['Tasa0'] ?? '');
-        //Tasa Exento
-        array_push($linea, $arrTasaImpuestos['exento'] ?? '');
-
+        
         $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
         array_push($linea, ConvertirMontoAPesos::convertir(
             $impuestosTraslados['iva'],
@@ -863,7 +847,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
             'titulo' => __('dashboard.reportes.egresos_emitidos'),
             'encabezados' => [
                 __('dashboard.facturas.uuid'),
-                __('dashboard.facturas.uuid_relacionado'),
                 __('dashboard.general.fecha'),
                 __('dashboard.facturas.serie'),
                 __('dashboard.facturas.folio'),
@@ -887,9 +870,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.reportes.primer_concepto'),
                 __('dashboard.reportes.iva_tasa_0'),
                 __('dashboard.reportes.iva_exento'),
-                __('dashboard.facturas.periodicidad'),
-                __('dashboard.facturas.mes'),
-                __('dashboard.facturas.año'),
+                __('dashboard.facturas.uuid_relacionado'),
             ],
             'lineas' => [],
         ];
@@ -910,9 +891,11 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 $pagina['lineas'],
                 array_merge(
                     $this->generarLineaEgresosEmitidos($ingreso),
-                    $this->generarColumnasInformacionGlobal($ingreso)
+                    $this->generarColumnasInformacionGlobal($ingreso),
+                    $this->generarColumnasExtra($ingreso, 'EgresosEmitidos')
                 )
             );
+            /* dd($this->generarLineaEgresosEmitidos($ingreso),$this->generarColumnasInformacionGlobal($ingreso)); */
         }
 
         return $pagina;
@@ -921,11 +904,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaEgresosEmitidos(Factura $factura)
     {
         $comprobante = $factura->comprobanteXml;
-        $uuidRelacion = $this->obtenerCampoArrayFactura($comprobante,"cfdiRelacionados");
-        
+
         $linea = [
             $factura->uuid,
-            $uuidRelacion,
             $factura->fecha_emision->format('Y-m-d'),
             $factura->serie,
             $factura->folio,
@@ -1001,7 +982,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
         $columnasIvaExentoY0 = $this->obtenerColumnasIva0YExento($comprobante);
         array_push($linea, $columnasIvaExentoY0['iva_0']);
         array_push($linea, $columnasIvaExentoY0['iva_exento']);
-
         return $linea;
     }
 
@@ -1141,7 +1121,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.uuid'),
                 __('dashboard.facturas.rfc_receptor'),
                 __('dashboard.facturas.nombre_receptor'),
-                __('dashboard.facturas.fecha_emision'),
                 __('dashboard.facturas.fecha_de_pago'),
                 __('dashboard.facturas.uuid_pago'),
                 __('dashboard.facturas.serie'),
@@ -1150,6 +1129,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.saldo_anterior'),
                 __('dashboard.facturas.pago'),
                 __('dashboard.facturas.saldo_insoluto'),
+                __('dashboard.facturas.fecha_emision'),
             ],
             'lineas' => [],
         ];
@@ -1178,14 +1158,14 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaPagosEmitidos(Factura $factura)
     {
         $comprobante = $factura->comprobanteXml;
-        //Se agrega la fecha de emision de la factura
-        $fechaEmision = $this->obtenerCampoArrayFactura($comprobante,'fechaEmision'); 
+        // Agregar fecha de emisión de cada documento
+        $fechaEmision = $this->obtenerCampoArrayFactura($comprobante, 'fechaEmision');
+         
         $lineas = [];
         $linea = [
             $factura->uuid,
             $factura->rfc_receptor,
-            $factura->nombre_receptor,
-            $fechaEmision
+            $factura->nombre_receptor
         ];
 
         if (
@@ -1214,12 +1194,14 @@ class ReporteSimplificado implements ReporteFacturacionPF
                     }
                 }
             }
+           
 
             foreach($documentos as $documento) {
                 array_push(
                     $lineas,
-                    array_merge($linea, $documento)
+                    array_merge($linea, $documento,[$fechaEmision])
                 );
+
             }
         } else {
             array_push(
@@ -1227,7 +1209,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 array_merge($linea, ['', '', '', '', '', '', '', ''])
             );
         }
-
+        
         return $lineas;
     }
 
@@ -1471,6 +1453,41 @@ class ReporteSimplificado implements ReporteFacturacionPF
         ];
     }
 
+    private function generarColumnasExtra(Factura $factura, string $tipo){
+        $comprobante = $factura->comprobanteXml;
+        $linea = [];
+        if($tipo == 'EgresosEmitidos' || $tipo == 'EgresosRecibidos'){
+            //Se agrega la columna de UUID por Relación
+            $uuidRelacion = $this->obtenerCampoArrayFactura($comprobante,"cfdiRelacionados");
+            array_push($linea, $uuidRelacion);
+        }else if($tipo == 'IngresosEmitidos' || $tipo == 'IngresosRecibidos'){
+            //Agrega la columna de UUID por Sustitución si el TipoRelacion es igual a '04'
+            $uuidSustitucion = $this->obtenerCampoArrayFactura($comprobante, 'uuidSustitucion');
+            array_push($linea, $uuidSustitucion);
+            if($tipo == 'IngresosEmitidos'){ // solo para ingresos emitidos
+                //Periodicidad, Mes y Año de la Información Global solo se cambió de lugar
+                $arrInfoGlobal = $this->obtenerCampoArrayFactura($comprobante, 'InfoGlobal');
+
+                array_push($linea, $arrInfoGlobal['Periodicidad'] ?? '');
+                array_push($linea, $arrInfoGlobal['Meses'] ?? '');
+                array_push($linea, $arrInfoGlobal['Año'] ?? '');
+            }
+            //Columnas de tasas de impuestos
+            $arrTasaImpuestos = $this->obtenerCampoArrayFactura($comprobante, 'TasaDeImpuesto');
+            //Tasa 16
+            array_push($linea, $arrTasaImpuestos['Tasa16'] ?? '');
+            //Tasa 8
+            array_push($linea, $arrTasaImpuestos['Tasa8'] ?? '');
+            //Tasa 0
+            array_push($linea, $arrTasaImpuestos['Tasa0'] ?? '');
+            //Tasa Exento
+            array_push($linea, $arrTasaImpuestos['exento'] ?? '');
+           
+        }
+
+        return $linea;
+    }
+
     private function obtenerCampoArrayFactura($strJsonFactura, $campo){
         $arrJson = json_decode($strJsonFactura, true);  // convierte el string json en array
         $field = '';
@@ -1502,14 +1519,14 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 }
                 break;
             case "TasaDeImpuesto":
+                $arrImpuestos = [
+                    "Tasa16" => '0',
+                    "Tasa8" => '0',
+                    "Tasa0" => '0',
+                    "exento" => 'N/A'
+                ];
                 if (isset($comprobante['Impuestos']['Traslados'])){
                     $traslados = $comprobante['Impuestos']['Traslados'];
-                    $arrImpuestos = [
-                        "Tasa16" => '0',
-                        "Tasa8" => '0',
-                        "Tasa0" => '0',
-                        "exento" => 'N/A'
-                    ];
                     if(isset($traslados['Traslado'])){
 
                         foreach ($traslados['Traslado'] as $impuesto) {
@@ -1522,6 +1539,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                                         $arrImpuestos["Tasa8"] = $impuesto['Importe'] ?? '0';
                                         break;
                                     case "0.000000":
+                                    case '0.00':
                                         $arrImpuestos["Tasa0"] = 'CONTIENE';
                                         break;
                                 }
@@ -1533,8 +1551,8 @@ class ReporteSimplificado implements ReporteFacturacionPF
                         }
                         
                     }
-                    $field = $arrImpuestos;
                 }
+                $field = $arrImpuestos;
                 break;
             case "InfoGlobal":
                 $arrGlobalInfo = [
