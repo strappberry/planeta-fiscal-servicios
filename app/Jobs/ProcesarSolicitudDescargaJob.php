@@ -45,10 +45,19 @@ class ProcesarSolicitudDescargaJob implements ShouldQueue
 
         try {
             (new DescargaScraperPHPCfdi($solicitud->cliente))
-                ->fechaInicial(Carbon::parse($solicitud->fecha_inicio))
-                ->fechaFinal(Carbon::parse($solicitud->fecha_fin))
+                ->fechaInicial(
+                    Carbon::parse($solicitud->fecha_inicio, 'UTC')
+                        ->setTimezone(config('app.timezone'))
+                        ->startOfDay()
+                )
+                ->fechaFinal(
+                    Carbon::parse($solicitud->fecha_fin, 'UTC')
+                        ->setTimezone(config('app.timezone'))
+                        ->endOfDay()
+                )
                 ->establecerSolicitudDescarga($solicitud)
                 ->comenzar();
+
 
             $solicitud->status = SolicitudDescarga::STATUS_PROCESADO;
             $solicitud->save();
