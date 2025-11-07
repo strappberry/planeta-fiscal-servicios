@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\BuscarFacturaRequest;
 use App\Models\Factura;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class FacturasController extends Controller
 {
