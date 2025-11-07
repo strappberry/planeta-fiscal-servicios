@@ -33,10 +33,8 @@ class SolicitudesFacturaController extends Controller
             ], 409);
         }
 
-        $descargarDesde = Carbon::parse($request->fecha_inicio);
-        $descargarHasta = Carbon::parse($request->fecha_fin);
-        $descargarDesde->startOfDay();
-        $descargarHasta->endOfDay();
+        $descargarDesde = Carbon::parse($request->fecha_inicio, config('app.timezone'))->startOfDay();
+        $descargarHasta = Carbon::parse($request->fecha_fin, config('app.timezone'))->endOfDay();
 
         if ($descargarDesde->gt($descargarHasta)) {
             return response()->json([
@@ -95,5 +93,4 @@ class SolicitudesFacturaController extends Controller
             'solicitud' => $solicitud,
         ]);
     }
-
 }
