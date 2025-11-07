@@ -38,10 +38,12 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('facturas')->group(function () {
         Route::get('/buscar-facturas', [FacturasController::class, 'buscarFacturas']);
+        Route::get('/buscar-por-uuid', [FacturasController::class, 'buscarPorUuid']);
 
         Route::get('listar-solicitudes-descarga', [SolicitudesFacturaController::class, 'listarSolicitudes']);
         Route::post('solicitar-descarga', [SolicitudesFacturaController::class, 'crearSolicitudDescarga']);
@@ -54,21 +56,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/informacion-cliente/{rfc}', [ClientesController::class, 'informacionCliente']);
     });
 
-    Route::prefix('archivos')->group(function() {
+    Route::prefix('archivos')->group(function () {
         Route::post(
             'solicitar-archivos',
             [ArchivosController::class, 'crearSolicitudArchivos']
         );
     });
 
-    Route::prefix('reportes')->group(function() {
+    Route::prefix('reportes')->group(function () {
         Route::post(
             'solicitar-reporte',
             [ReportesController::class, 'crearSolicitudReporte']
         );
     });
 
-    Route::prefix('contafacil')->as('contafacil')->group(function() {
+    Route::prefix('contafacil')->as('contafacil')->group(function () {
         Route::prefix('ventas')->group(function () {
             Route::get('impuestos', [VentasController::class, 'impuestos']);
         });
@@ -81,16 +83,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('pago/{factura}', [ComplementosController::class, 'obtenerComplementoPagos']);
             Route::get('nomina/{factura}', [ComplementosController::class, 'obtenerComplementoNomina']);
         });
-
     });
-
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('contafacil')->group(function() {
+Route::prefix('contafacil')->group(function () {
     Route::prefix('clientes/{clienteId}')->group(function () {
         Route::get('/', [ContafacilClienteController::class, 'index']);
         Route::post('/{fecha}/actualizar-regimenes', [
@@ -99,41 +99,50 @@ Route::prefix('contafacil')->group(function() {
         ]);
     });
 
-    Route::prefix('ventas')->group(function() {
+    Route::prefix('ventas')->group(function () {
         Route::get('facturas', [VentasController::class, 'listadoFacturas']);
     });
 
-    Route::prefix('gastos')->group(function() {
+    Route::prefix('gastos')->group(function () {
         Route::get('facturas', [GastosController::class, 'listadoFacturas']);
     });
 
     Route::prefix('balanza')->group(function () {
         Route::get('/balanza/{cliente}/{fecha}', [
-            BalanzaComprobacionController::class, 'balanza'
+            BalanzaComprobacionController::class,
+            'balanza'
         ]);
         Route::get('/impuestos/{cliente}', [
-            BalanzaComprobacionController::class, 'impuestos'
+            BalanzaComprobacionController::class,
+            'impuestos'
         ]);
         Route::get('/polizas-ventas-gastos/{cliente}/{fecha}', [
-            BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentas'
+            BalanzaComprobacionController::class,
+            'polizasAutomaticasGastosYVentas'
         ]);
-        Route::get('/polizas-ventas-gastos/anual/{cliente}/{fecha}',[
-            BalanzaComprobacionController::class, 'polizasAutomaticasGastosYVentasAnual'
+        Route::get('/polizas-ventas-gastos/anual/{cliente}/{fecha}', [
+            BalanzaComprobacionController::class,
+            'polizasAutomaticasGastosYVentasAnual'
         ]);
         Route::post('actualizar-saldos', [
-            BalanzaComprobacionController::class, 'actualizarSaldosBalanza'
+            BalanzaComprobacionController::class,
+            'actualizarSaldosBalanza'
         ]);
         Route::get('calculo-iva/{clienteId}/{fecha}', [
-            BalanzaComprobacionController::class, 'calculosDelImpuesto'
+            BalanzaComprobacionController::class,
+            'calculosDelImpuesto'
         ]);
         Route::get('columnas-deducciones/{clienteId}/{fecha}', [
-            BalanzaComprobacionController::class, 'columnasDeducciones'
+            BalanzaComprobacionController::class,
+            'columnasDeducciones'
         ]);
         Route::get('determinacion-del-impuesto/{clienteId}/{fecha}', [
-            BalanzaComprobacionController::class, 'determinacionDelImpuesto'
+            BalanzaComprobacionController::class,
+            'determinacionDelImpuesto'
         ]);
         Route::post('actualizar-campos-editables/{clienteId}/{fecha}', [
-            BalanzaComprobacionController::class, 'actualizarCamposEditables'
+            BalanzaComprobacionController::class,
+            'actualizarCamposEditables'
         ]);
     });
 
@@ -150,35 +159,43 @@ Route::prefix('contafacil')->group(function() {
         Route::post('/consideracion-multiple', [FacturasClienteController::class, 'establecerConsideracionMultiples']);
         Route::post('/establecer-fecha-pago/{factura}', [FacturasClienteController::class, 'establecerFechaPago']);
         Route::post('/establecer-concepto-sat/{factura}', [
-            FacturasClienteController::class, 'establecerConceptoSat'
+            FacturasClienteController::class,
+            'establecerConceptoSat'
         ]);
         Route::post('/establecer-concepto-deduccion-personal/{factura}', [
-            FacturasClienteController::class, 'establecerConceptoDeduccionPersonal'
+            FacturasClienteController::class,
+            'establecerConceptoDeduccionPersonal'
         ]);
         Route::post('/establecer-deducible/{factura}', [
-            FacturasClienteController::class, 'establecerDeducible'
+            FacturasClienteController::class,
+            'establecerDeducible'
         ]);
         Route::post('/establecer-tipo-ingreso/{factura}', [
-            FacturasClienteController::class, 'establecerTipoIngreso'
+            FacturasClienteController::class,
+            'establecerTipoIngreso'
         ]);
     });
 
     Route::prefix('facturas-numeros-cuentas/{clienteId}')->group(function () {
         Route::get('/poliza/{factura}', [
-            FacturasNumeroCuentaController::class, 'obtenerPolizaAutomaticaFactura'
+            FacturasNumeroCuentaController::class,
+            'obtenerPolizaAutomaticaFactura'
         ]);
         Route::post('/agregar-cuenta/{factura}', [
-            FacturasNumeroCuentaController::class, 'agregarNumeroCuentaManual'
+            FacturasNumeroCuentaController::class,
+            'agregarNumeroCuentaManual'
         ]);
         Route::delete('/eliminar-cuenta-manual/{factura}/{numeroCuenta}', [
-            FacturasNumeroCuentaController::class, 'eliminarNumeroCuentaManual'
+            FacturasNumeroCuentaController::class,
+            'eliminarNumeroCuentaManual'
         ]);
         Route::post('/vinculacion-masiva', [
-            FacturasNumeroCuentaController::class, 'vinculacionMasiva'
+            FacturasNumeroCuentaController::class,
+            'vinculacionMasiva'
         ]);
     });
 
-    Route::prefix('facturas')->group(function() {
+    Route::prefix('facturas')->group(function () {
         Route::post('/actualizar-montos/{factura}', [ContafacilFacturasController::class, 'actualizarMontos']);
         Route::post('/reestablecer-montos/{factura}', [ContafacilFacturasController::class, 'reestablecerOriginal']);
     });
@@ -188,12 +205,12 @@ Route::prefix('contafacil')->group(function() {
         Route::post('crear', [NumerosCuentasController::class, 'crearNumeroCuenta']);
     });
 
-    Route::prefix('bancos')->group(function() {
+    Route::prefix('bancos')->group(function () {
         Route::get('/', [BancosController::class, 'listarBancos']);
         Route::post('/crear', [BancosController::class, 'crearBanco']);
     });
 
-    Route::prefix('bancos-proyectos')->group(function() {
+    Route::prefix('bancos-proyectos')->group(function () {
         Route::get('/{cliente}', [BancosProyectosController::class, 'listar']);
         Route::post('/crear', [BancosProyectosController::class, 'crearProyecto']);
     });
@@ -211,7 +228,7 @@ Route::prefix('contafacil')->group(function() {
         Route::post('/guardar-tabla', [TablasTarifasController::class, 'guardarTablaTarifa']);
     });
 
-    Route::prefix('conceptos-sat')->group(function() {
+    Route::prefix('conceptos-sat')->group(function () {
         Route::get('/', [ConceptosSatController::class, 'obtenerConceptosSat']);
     });
 
@@ -229,10 +246,12 @@ Route::prefix('contafacil')->group(function() {
         Route::post('crear/{clienteId}/{fecha}', [SaldosAFavorController::class, 'agregarSaldoAFavor']);
         Route::post('{saldoAFavor}/agregar-acreditamiento', [SaldosAFavorController::class, 'agregarAcreditamiento']);
         Route::delete('eliminar/{saldoAFavor}/{acreditamiento}', [
-            SaldosAFavorController::class, 'eliminarAcreditamiento'
+            SaldosAFavorController::class,
+            'eliminarAcreditamiento'
         ]);
         Route::delete('eliminar/{saldoAFavor}', [
-            SaldosAFavorController::class, 'eliminarSaldoAFavor'
+            SaldosAFavorController::class,
+            'eliminarSaldoAFavor'
         ]);
     });
 
@@ -244,7 +263,8 @@ Route::prefix('contafacil')->group(function() {
 
     Route::prefix('campos-editables')->group(function () {
         Route::post('actualizar-campo/{clienteId}/{fecha}', [
-            CamposEditablesController::class, 'actualizarCampoEditable'
+            CamposEditablesController::class,
+            'actualizarCampoEditable'
         ]);
     });
 });

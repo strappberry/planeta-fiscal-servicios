@@ -33,4 +33,21 @@ class FacturasController extends Controller
         ]);
     }
 
+    public function buscarPorUuid(Request $request)
+    {
+        $request->validate([
+            'rfc' => 'required|string',
+            'uuid' => 'required|string|uuid',
+        ]);
+
+        $factura = \App\Models\Factura::where('rfc_receptor', $request->rfc)
+            ->where('uuid', $request->uuid)
+            ->first();
+
+        if (!$factura) {
+            return response()->json(['message' => 'Factura no encontrada'], 404);
+        }
+
+        return response()->json(['factura' => $factura]);
+    }
 }
