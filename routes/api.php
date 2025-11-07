@@ -43,7 +43,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('facturas')->group(function () {
         Route::get('/buscar-facturas', [FacturasController::class, 'buscarFacturas']);
-        Route::get('/buscar-por-uuid', [FacturasController::class, 'buscarPorUuid']);
 
         Route::get('listar-solicitudes-descarga', [SolicitudesFacturaController::class, 'listarSolicitudes']);
         Route::post('solicitar-descarga', [SolicitudesFacturaController::class, 'crearSolicitudDescarga']);

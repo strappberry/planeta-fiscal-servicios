@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\BuscarFacturaRequest;
 use App\Models\Factura;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class FacturasController extends Controller
 {
@@ -32,23 +31,5 @@ class FacturasController extends Controller
         return response()->json([
             'facturas' => $facturas,
         ]);
-    }
-
-    public function buscarPorUuid(Request $request)
-    {
-        $request->validate([
-            'rfc' => 'required|string',
-            'uuid' => 'required|string|uuid',
-        ]);
-
-        $factura = \App\Models\Factura::where('rfc_receptor', $request->rfc)
-            ->where('uuid', $request->uuid)
-            ->first();
-
-        if (!$factura) {
-            return response()->json(['message' => 'Factura no encontrada'], 404);
-        }
-
-        return response()->json(['factura' => $factura]);
     }
 }
