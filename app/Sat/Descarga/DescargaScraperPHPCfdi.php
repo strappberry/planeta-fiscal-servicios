@@ -107,29 +107,22 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
     {
         $fechaIntervalo = $this->fechaFin->copy();
         $intervalosDeDescarga = [];
-        if ($this->fechaInicio->equalTo($this->fechaFin)) {
-            $intervalosDeDescarga[] = [
-                'fechaInicio' => new DateTimeImmutable($this->fechaInicio->format('Y-m-d')),
-                'fechaFin'    => new DateTimeImmutable($this->fechaFin->format('Y-m-d')),
-            ];
-        } else {
-            do {
-                $fechaFin = $fechaIntervalo->format('Y-m-d');
-                $fechaIntervalo->subWeeks(2);
+        do {
+            $fechaFin = $fechaIntervalo->format('Y-m-d');
+            $fechaIntervalo->subWeeks(2);
 
-                if ($fechaIntervalo->gt($this->fechaInicio)) {
-                    $fechaInicio = $fechaIntervalo->format('Y-m-d');
-                } else {
-                    $fechaInicio = $this->fechaInicio->format('Y-m-d');
-                }
-                $fechaIntervalo->subDay();
+            if ($fechaIntervalo->gt($this->fechaInicio)) {
+                $fechaInicio = $fechaIntervalo->format('Y-m-d');
+            } else {
+                $fechaInicio = $this->fechaInicio->format('Y-m-d');
+            }
+            $fechaIntervalo->subDay();
 
-                array_push($intervalosDeDescarga, [
-                    'fechaInicio' => new DateTimeImmutable($fechaInicio),
-                    'fechaFin'    => new DateTimeImmutable($fechaFin),
-                ]);
-            } while ($fechaIntervalo->gte($this->fechaInicio));
-        }
+            array_push($intervalosDeDescarga, [
+                'fechaInicio' => new DateTimeImmutable($fechaInicio),
+                'fechaFin' => new DateTimeImmutable($fechaFin),
+            ]);
+        } while ($fechaIntervalo->gte($this->fechaInicio));
 
         foreach ($intervalosDeDescarga as $intervalo) {
             try {
@@ -144,7 +137,7 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
             }
         }
     }
-    //
+
     private function listarCfdis(
         DateTimeImmutable $fechaInicio,
         DateTimeImmutable $fechaFin,
