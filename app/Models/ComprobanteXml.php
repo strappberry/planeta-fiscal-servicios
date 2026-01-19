@@ -60,7 +60,7 @@ class ComprobanteXml extends Model
 
         foreach ($pagos as $pago) {
             foreach ($pago['DoctoRelacionado'] as $documento) {
-                $datosDocumento= [];
+                $datosDocumento = [];
 
                 foreach ($documento as $clave => $valor) {
                     $datosDocumento[$clave] = $valor;
@@ -91,7 +91,7 @@ class ComprobanteXml extends Model
             !isset($this->comprobante['Impuestos']['Traslados']['Traslado'])
         ) return $impuestos;
 
-        foreach($this->comprobante['Impuestos']['Traslados']['Traslado'] as $impuesto) {
+        foreach ($this->comprobante['Impuestos']['Traslados']['Traslado'] as $impuesto) {
             if ($impuesto['Impuesto'] == self::IMPUESTO_IVA) {
                 $impuestos['iva'] += $impuesto['Importe'] ?? 0;
             } elseif ($impuesto['Impuesto'] == self::IMPUESTO_ISR) {
@@ -139,7 +139,7 @@ class ComprobanteXml extends Model
             !isset($this->comprobante['Impuestos']['Retenciones']['Retencion'])
         ) return $impuestos;
 
-        foreach($this->comprobante['Impuestos']['Retenciones']['Retencion'] as $impuesto) {
+        foreach ($this->comprobante['Impuestos']['Retenciones']['Retencion'] as $impuesto) {
             if ($impuesto['Impuesto'] == self::IMPUESTO_IVA) {
                 $impuestos['iva'] += $impuesto['Importe'] ?? 0;
             } elseif ($impuesto['Impuesto'] == self::IMPUESTO_ISR) {
@@ -162,7 +162,7 @@ class ComprobanteXml extends Model
                 !isset($concepto['Impuestos']) ||
                 !isset($concepto['Impuestos']['Retenciones']) ||
                 !isset($concepto['Impuestos']['Retenciones']['Retencion'])
-            )  {
+            ) {
                 continue;
             }
 
@@ -204,4 +204,8 @@ class ComprobanteXml extends Model
         return $this->comprobante['InformacionGlobal'] ?? [];
     }
 
+    public function obtenerRegimenReceptor(): string
+    {
+        return $this->comprobante['Receptor']['RegimenFiscalReceptor'] ?? '';
+    }
 }

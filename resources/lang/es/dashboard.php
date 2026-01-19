@@ -60,10 +60,12 @@ return [
         'uuid_pago' => 'UUID Pago',
         'uuid_relacionado' => 'UUID Relacionado',
         'fecha_emision' => 'Fecha de Emisión',
-        'uuid_sustitucion' => 'UUID Relacionado por Sustitución',        
+        'uuid_sustitucion' => 'UUID Relacionado por Sustitución',
         'nom_fecha_pago' => 'Fecha de Pago',
         'fecha_timbrado' => 'Fecha de Timbrado',
         'total_sueldos' => 'Total de Sueldos',
+        'regimen_emisor' => 'Regimen Emisor',
+        'regimen_receptor' => 'Regimen Receptor',
     ],
 
     'general' => [

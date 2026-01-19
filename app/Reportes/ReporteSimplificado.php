@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Reportes;
 
 use App\Enums\TipoPersona;
@@ -27,8 +28,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
         string $rfc,
         DateTimeImmutable $fechaInicio,
         DateTimeImmutable $fechaFin
-    )
-    {
+    ) {
         $this->rfc = $rfc;
         $this->fechaInicio = $fechaInicio;
         $this->fechaFin = $fechaFin;
@@ -111,12 +111,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
-                __('dashboard.reportes.tipo_contribuyente'),
-                __('dashboard.reportes.regimen_contribuyente'),
-                __('dashboard.reportes.validacion_rfc_emisor'),
+                __('dashboard.reportes.regimen_emisor'),
+                __('dashboard.reportes.regimen_receptor'),
                 __('dashboard.facturas.uso_cfdi'),
-                __('dashboard.reportes.validacion_uso_cfdi'),
-                __('dashboard.reportes.validacion_metodo_forma_pago'),
+                __('dashboard.reportes.tipo_contribuyente'),
                 __('dashboard.facturas.uuid_sustitucion'),
                 __('dashboard.facturas.tasa16'),
                 __('dashboard.facturas.tasa8'),
@@ -128,7 +126,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
 
         $ingresos = Factura::query()
             ->where('rfc_receptor', $this->rfc)
-            ->where(function($query) {
+            ->where(function ($query) {
                 return $query
                     ->where('tipo_comprobante', 'I')
                     ->orWhere('tipo_comprobante', 'E');
@@ -146,8 +144,13 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 $pagina['lineas'],
                 array_merge(
                     $this->generarLineaIngresosRecibido($ingreso),
-                    $this->generarColumnasValidaciones($ingreso),
-                    $this->generarColumnasExtra($ingreso,'IngresosRecibidos'),
+                    [
+                        $comprobante->obtenerRegimenEmisor(),
+                        $comprobante->obtenerRegimenReceptor(),
+                        $comprobante->obtenerUsoCfdi(),
+                        ucfirst(TipoPersona::obtenerTipoPersona($ingreso->rfc_emisor)),
+                    ],
+                    $this->generarColumnasExtra($ingreso, 'IngresosRecibidos')
                 )
             );
         }
@@ -157,7 +160,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
 
     private function generarLineaIngresosRecibido(Factura $factura)
     {
-        $comprobante = $factura->comprobanteXml;   
+        $comprobante = $factura->comprobanteXml;
         $linea = [
             $factura->uuid,
             $factura->fecha_emision->format('Y-m-d'),
@@ -231,10 +234,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 Str::of($comprobante->comprobante['Conceptos']['Concepto'][0]['Descripcion'] ?? '')
                     ->replace('(', '')
                     ->replace(')', '')
-                    ->replace('=','')
-                    ->replace('+','')
-                    ->replace('-','')
-                    ->replace('>','')
+                    ->replace('=', '')
+                    ->replace('+', '')
+                    ->replace('-', '')
+                    ->replace('>', '')
             );
         } else {
             array_push($linea, '');
@@ -306,7 +309,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaEgresosRecibido(Factura $factura)
     {
         $comprobante = $factura->comprobanteXml;
-        
+
         $linea = [
             $factura->uuid,
             $factura->fecha_emision->format('Y-m-d'),
@@ -390,10 +393,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 Str::of($comprobante->comprobante['Conceptos']['Concepto'][0]['Descripcion'] ?? '')
                     ->replace('(', '')
                     ->replace(')', '')
-                    ->replace('=','')
-                    ->replace('+','')
-                    ->replace('-','')
-                    ->replace('>','')
+                    ->replace('=', '')
+                    ->replace('+', '')
+                    ->replace('-', '')
+                    ->replace('>', '')
 
             );
         } else {
@@ -438,7 +441,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             ->orderBy('folio')
             ->get();
 
-        foreach($facturas as $factura) {
+        foreach ($facturas as $factura) {
             array_push(
                 $pagina['lineas'],
                 $this->generarLineaNominaRecibido($factura)
@@ -497,7 +500,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
             } else {
                 array_push($linea, '');
             }
-
         } else {
             array_push($linea, '');
             array_push($linea, '');
@@ -561,7 +563,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
         $comprobante = $factura->comprobanteXml;
         // Agregar fecha de emisión de cada documento
         $fechaEmision = $this->obtenerCampoArrayFactura($comprobante, 'fechaEmision');
-        
+
         $lineas = [];
         $linea = [
             $factura->uuid,
@@ -577,11 +579,11 @@ class ReporteSimplificado implements ReporteFacturacionPF
             $pagos = $comprobante->comprobante['Complemento']['Pagos']['Pago'];
             $documentos = [];
 
-            foreach($pagos as $pago) {
+            foreach ($pagos as $pago) {
                 if (!isset($pago['DoctoRelacionado'])) {
                     continue;
                 }
-                foreach($pago['DoctoRelacionado'] as $documento) {
+                foreach ($pago['DoctoRelacionado'] as $documento) {
                     $documento = [
                         substr($pago['FechaPago'], 0, 10) ?? '',
                         $documento['IdDocumento'] ?? '',
@@ -596,11 +598,11 @@ class ReporteSimplificado implements ReporteFacturacionPF
                     array_push($documentos, $documento);
                 }
             }
-            
-            foreach($documentos as $documento) {
+
+            foreach ($documentos as $documento) {
                 array_push(
                     $lineas,
-                    array_merge($linea, $documento,[$fechaEmision])
+                    array_merge($linea, $documento, [$fechaEmision])
                 );
             }
         } else {
@@ -609,7 +611,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 array_merge($linea, ['', '', '', '', '', '', '', ''])
             );
         }
-        
+
         return $lineas;
     }
 
@@ -650,7 +652,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             ->where('rfc_receptor', $this->rfc)
             ->whereDate('fecha_emision', '>=', $this->fechaInicio)
             ->whereDate('fecha_emision', '<=', $this->fechaFin)
-            ->where('complementos','like','%CartaPorte%')
+            ->where('complementos', 'like', '%CartaPorte%')
             ->vigentes()
             ->orderBy('fecha_emision')
             ->orderBy('serie')
@@ -735,7 +737,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 array_merge(
                     $this->generarLineaIngresosEmitidos($ingreso),
                     $this->generarColumnasValidaciones($ingreso),
-                    $this->generarColumnasExtra($ingreso,'IngresosEmitidos')
+                    $this->generarColumnasExtra($ingreso, 'IngresosEmitidos')
                 )
             );
         }
@@ -746,7 +748,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaIngresosEmitidos(Factura $factura)
     {
         $comprobante = $factura->comprobanteXml;
-        
+
         $linea = [
             $factura->uuid,
             $factura->fecha_emision->format('Y-m-d'),
@@ -773,7 +775,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             $comprobante->comprobante['Moneda'] ?? '',
             $comprobante->comprobante['TipoCambio'] ?? 1
         ) * $multiplicador);
-        
+
         $impuestosTraslados = $comprobante->obtenerImpuestosTraslados();
         array_push($linea, ConvertirMontoAPesos::convertir(
             $impuestosTraslados['iva'],
@@ -1007,7 +1009,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             ->orderBy('folio')
             ->get();
 
-        foreach($facturas as $factura) {
+        foreach ($facturas as $factura) {
             array_push(
                 $pagina['lineas'],
                 $this->generarLineaNominaEmitido($factura)
@@ -1082,7 +1084,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 $linea,
                 isset($arrNominaGeneral['TotalSueldos']) ? $arrNominaGeneral['TotalSueldos'] : ''
             );
-
         } else {
             array_push($linea, '');
             array_push($linea, '');
@@ -1090,7 +1091,6 @@ class ReporteSimplificado implements ReporteFacturacionPF
             array_push($linea, '');
             array_push($linea, '');
             array_push($linea, '');
-            
         }
 
         return $linea;
@@ -1148,7 +1148,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
         $comprobante = $factura->comprobanteXml;
         // Agregar fecha de emisión de cada documento
         $fechaEmision = $this->obtenerCampoArrayFactura($comprobante, 'fechaEmision');
-         
+
         $lineas = [];
         $linea = [
             $factura->uuid,
@@ -1164,9 +1164,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
             $pagos = $comprobante->comprobante['Complemento']['Pagos']['Pago'];
             $documentos = [];
 
-            foreach($pagos as $pago) {
+            foreach ($pagos as $pago) {
                 if (isset($pago['DoctoRelacionado'])) {
-                    foreach($pago['DoctoRelacionado'] as $documento) {
+                    foreach ($pago['DoctoRelacionado'] as $documento) {
                         $documento = [
                             substr($pago['FechaPago'], 0, 10) ?? '',
                             $documento['IdDocumento'] ?? '',
@@ -1182,14 +1182,13 @@ class ReporteSimplificado implements ReporteFacturacionPF
                     }
                 }
             }
-           
 
-            foreach($documentos as $documento) {
+
+            foreach ($documentos as $documento) {
                 array_push(
                     $lineas,
-                    array_merge($linea, $documento,[$fechaEmision])
+                    array_merge($linea, $documento, [$fechaEmision])
                 );
-
             }
         } else {
             array_push(
@@ -1197,7 +1196,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 array_merge($linea, ['', '', '', '', '', '', '', ''])
             );
         }
-        
+
         return $lineas;
     }
 
@@ -1238,7 +1237,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             ->where('rfc_emisor', $this->rfc)
             ->whereDate('fecha_emision', '>=', $this->fechaInicio)
             ->whereDate('fecha_emision', '<=', $this->fechaFin)
-            ->where('complementos','like','%CartaPorte%')
+            ->where('complementos', 'like', '%CartaPorte%')
             ->vigentes()
             ->orderBy('fecha_emision')
             ->orderBy('serie')
@@ -1311,7 +1310,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
 
         array_push(
             $linea,
-            ValidacionesFacturasRecibidas::usoCfdiCorrecto($usoCfdi) ? '':
+            ValidacionesFacturasRecibidas::usoCfdiCorrecto($usoCfdi) ? '' :
                 __('dashboard.reportes.corregir_uso_cfdi')
         );
 
@@ -1360,7 +1359,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
         $hasta = Carbon::parse($this->fechaFin)->endOfYear();
 
         $facturas = Factura::query()
-            ->where(function ($query) use($rfc) {
+            ->where(function ($query) use ($rfc) {
                 return $query
                     ->where('rfc_emisor', $rfc)
                     ->orWhere('rfc_receptor', $rfc);
@@ -1384,7 +1383,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
     {
         $linea = [];
         $comprobante = $factura->comprobanteXml;
-        
+
         array_push($linea, $factura->uuid);
         array_push($linea, $factura->fecha_emision->format('Y-m-d'));
         array_push($linea, $factura->serie);
@@ -1441,18 +1440,19 @@ class ReporteSimplificado implements ReporteFacturacionPF
         ];
     }
 
-    private function generarColumnasExtra(Factura $factura, string $tipo){
+    private function generarColumnasExtra(Factura $factura, string $tipo)
+    {
         $comprobante = $factura->comprobanteXml;
         $linea = [];
-        if($tipo == 'EgresosEmitidos' || $tipo == 'EgresosRecibidos'){
+        if ($tipo == 'EgresosEmitidos' || $tipo == 'EgresosRecibidos') {
             //Se agrega la columna de UUID por Relación
-            $uuidRelacion = $this->obtenerCampoArrayFactura($comprobante,"cfdiRelacionados");
+            $uuidRelacion = $this->obtenerCampoArrayFactura($comprobante, "cfdiRelacionados");
             array_push($linea, $uuidRelacion);
-        }else if($tipo == 'IngresosEmitidos' || $tipo == 'IngresosRecibidos'){
+        } else if ($tipo == 'IngresosEmitidos' || $tipo == 'IngresosRecibidos') {
             //Agrega la columna de UUID por Sustitución si el TipoRelacion es igual a '04'
             $uuidSustitucion = $this->obtenerCampoArrayFactura($comprobante, 'uuidSustitucion');
             array_push($linea, $uuidSustitucion);
-            if($tipo == 'IngresosEmitidos'){ // solo para ingresos emitidos
+            if ($tipo == 'IngresosEmitidos') { // solo para ingresos emitidos
                 //Periodicidad, Mes y Año de la Información Global solo se cambió de lugar
                 $arrInfoGlobal = $this->obtenerCampoArrayFactura($comprobante, 'InfoGlobal');
 
@@ -1470,125 +1470,124 @@ class ReporteSimplificado implements ReporteFacturacionPF
             array_push($linea, $arrTasaImpuestos['Tasa0'] ?? '');
             //Tasa Exento
             array_push($linea, $arrTasaImpuestos['exento'] ?? '');
-           
         }
 
         return $linea;
     }
 
-    private function obtenerCampoArrayFactura($strJsonFactura, $campo){
+    private function obtenerCampoArrayFactura($strJsonFactura, $campo)
+    {
         $arrJson = json_decode($strJsonFactura, true);  // convierte el string json en array
         $field = '';
-        
-        if(isset($arrJson['comprobante'])){
+
+        if (isset($arrJson['comprobante'])) {
             $comprobante = $arrJson['comprobante'];
-            switch($campo){
-            case "cfdiRelacionados":
-                if (isset($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID']) &&
-                    !empty($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'])
-                ) {
-                    $field = $comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'];
-                }
-                break;
-            case "fechaEmision":
-                if (isset($comprobante['Fecha'])) {
-                    $fecha = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $comprobante['Fecha']);
-                    //Valida la fecha de la factura
-                    $field = ($fecha && $fecha->format('Y-m-d\TH:i:s') === $comprobante['Fecha']) ? $fecha->format('Y-m-d') : '';
-                }
-                break;
-            case "uuidSustitucion":
-                if (isset($comprobante['CfdiRelacionados'][0]['TipoRelacion'])){
-                    //Solo para tipo de relacion 04
-                    $tipoRelacion = $comprobante['CfdiRelacionados'][0]['TipoRelacion'];
-                    if($tipoRelacion == "04" && isset($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'])){
+            switch ($campo) {
+                case "cfdiRelacionados":
+                    if (
+                        isset($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID']) &&
+                        !empty($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'])
+                    ) {
                         $field = $comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'];
                     }
-                }
-                break;
-            case "TasaDeImpuesto":
-                $arrImpuestos = [
-                    "Tasa16" => '0',
-                    "Tasa8" => '0',
-                    "Tasa0" => '0',
-                    "exento" => 'N/A'
-                ];
-                if (isset($comprobante['Impuestos']['Traslados'])){
-                    $traslados = $comprobante['Impuestos']['Traslados'];
-                    if(isset($traslados['Traslado'])){
-
-                        foreach ($traslados['Traslado'] as $impuesto) {
-                            if(isset($impuesto['TasaOCuota'])){
-                                switch($impuesto['TasaOCuota']){
-                                    case "0.160000":
-                                        $arrImpuestos["Tasa16"] = $impuesto['Importe'] ?? '0';
-                                        break;
-                                    case "0.080000":
-                                        $arrImpuestos["Tasa8"] = $impuesto['Importe'] ?? '0';
-                                        break;
-                                    case "0.000000":
-                                    case '0.00':
-                                        $arrImpuestos["Tasa0"] = 'CONTIENE';
-                                        break;
-                                }
-                            }else{
-                                if(isset($impuesto['TipoFactor']) && $impuesto['TipoFactor'] =="Exento"){
-                                    $arrImpuestos["exento"]  = 'CONTIENE';
-                                }
-                            } 
+                    break;
+                case "fechaEmision":
+                    if (isset($comprobante['Fecha'])) {
+                        $fecha = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $comprobante['Fecha']);
+                        //Valida la fecha de la factura
+                        $field = ($fecha && $fecha->format('Y-m-d\TH:i:s') === $comprobante['Fecha']) ? $fecha->format('Y-m-d') : '';
+                    }
+                    break;
+                case "uuidSustitucion":
+                    if (isset($comprobante['CfdiRelacionados'][0]['TipoRelacion'])) {
+                        //Solo para tipo de relacion 04
+                        $tipoRelacion = $comprobante['CfdiRelacionados'][0]['TipoRelacion'];
+                        if ($tipoRelacion == "04" && isset($comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'])) {
+                            $field = $comprobante['CfdiRelacionados'][0]['CfdiRelacionado'][0]['UUID'];
                         }
-                        
                     }
-                }
-                $field = $arrImpuestos;
-                break;
-            case "InfoGlobal":
-                $arrGlobalInfo = [
-                    "Periodicidad" =>  '',
-                    "Meses" =>  '',
-                    "Año" =>  ''
-                ];
-                if(isset($comprobante['InformacionGlobal'])){
-                    $receptor = $comprobante['Receptor']['Nombre'] ?? '';
-                    if(strtolower($receptor) == "publico en general"){
-                        $arrGlobalInfo = [
-                        "Periodicidad" =>  $comprobante['InformacionGlobal']['Periodicidad'] ?? '',
-                        "Meses" =>  $comprobante['InformacionGlobal']['Meses'] ?? '',
-                        "Año" =>  $comprobante['InformacionGlobal']['Año'] ?? ''
-                        ];
+                    break;
+                case "TasaDeImpuesto":
+                    $arrImpuestos = [
+                        "Tasa16" => '0',
+                        "Tasa8" => '0',
+                        "Tasa0" => '0',
+                        "exento" => 'N/A'
+                    ];
+                    if (isset($comprobante['Impuestos']['Traslados'])) {
+                        $traslados = $comprobante['Impuestos']['Traslados'];
+                        if (isset($traslados['Traslado'])) {
+
+                            foreach ($traslados['Traslado'] as $impuesto) {
+                                if (isset($impuesto['TasaOCuota'])) {
+                                    switch ($impuesto['TasaOCuota']) {
+                                        case "0.160000":
+                                            $arrImpuestos["Tasa16"] = $impuesto['Importe'] ?? '0';
+                                            break;
+                                        case "0.080000":
+                                            $arrImpuestos["Tasa8"] = $impuesto['Importe'] ?? '0';
+                                            break;
+                                        case "0.000000":
+                                        case '0.00':
+                                            $arrImpuestos["Tasa0"] = 'CONTIENE';
+                                            break;
+                                    }
+                                } else {
+                                    if (isset($impuesto['TipoFactor']) && $impuesto['TipoFactor'] == "Exento") {
+                                        $arrImpuestos["exento"]  = 'CONTIENE';
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
-                $field = $arrGlobalInfo;
-                break;
-            case "NominaGeneral":
-                $arrNominaGeneral = [
-                    "FechaTimbrado" =>  '',
-                    "FechaPago" =>  '',
-                    "TotalSueldos" =>  '0'
-                ];
-                if (isset($comprobante['Fecha'])) {
-                    $fechaTimbrado = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $comprobante['Fecha']);
-                    //Valida la fecha de la factura
-                    $arrNominaGeneral['FechaTimbrado'] = ($fechaTimbrado && $fechaTimbrado->format('Y-m-d\TH:i:s') === $comprobante['Fecha']) ? $fechaTimbrado->format('Y-m-d') : '';
-                }
+                    $field = $arrImpuestos;
+                    break;
+                case "InfoGlobal":
+                    $arrGlobalInfo = [
+                        "Periodicidad" =>  '',
+                        "Meses" =>  '',
+                        "Año" =>  ''
+                    ];
+                    if (isset($comprobante['InformacionGlobal'])) {
+                        $receptor = $comprobante['Receptor']['Nombre'] ?? '';
+                        if (strtolower($receptor) == "publico en general") {
+                            $arrGlobalInfo = [
+                                "Periodicidad" =>  $comprobante['InformacionGlobal']['Periodicidad'] ?? '',
+                                "Meses" =>  $comprobante['InformacionGlobal']['Meses'] ?? '',
+                                "Año" =>  $comprobante['InformacionGlobal']['Año'] ?? ''
+                            ];
+                        }
+                    }
+                    $field = $arrGlobalInfo;
+                    break;
+                case "NominaGeneral":
+                    $arrNominaGeneral = [
+                        "FechaTimbrado" =>  '',
+                        "FechaPago" =>  '',
+                        "TotalSueldos" =>  '0'
+                    ];
+                    if (isset($comprobante['Fecha'])) {
+                        $fechaTimbrado = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $comprobante['Fecha']);
+                        //Valida la fecha de la factura
+                        $arrNominaGeneral['FechaTimbrado'] = ($fechaTimbrado && $fechaTimbrado->format('Y-m-d\TH:i:s') === $comprobante['Fecha']) ? $fechaTimbrado->format('Y-m-d') : '';
+                    }
 
-                if (isset($comprobante['Complemento']['Nomina']['FechaPago'])) {
-                    $fechaPago = $comprobante['Complemento']['Nomina']['FechaPago'];
-                    $fechaPagoFormat = DateTimeImmutable::createFromFormat('Y-m-d', $fechaPago);
-                    //Valida la fecha de la factura
-                    $arrNominaGeneral['FechaPago'] = ($fechaPagoFormat && $fechaPagoFormat->format('Y-m-d') === $fechaPago) ? $fechaPagoFormat->format('Y-m-d') : '';
-                }
+                    if (isset($comprobante['Complemento']['Nomina']['FechaPago'])) {
+                        $fechaPago = $comprobante['Complemento']['Nomina']['FechaPago'];
+                        $fechaPagoFormat = DateTimeImmutable::createFromFormat('Y-m-d', $fechaPago);
+                        //Valida la fecha de la factura
+                        $arrNominaGeneral['FechaPago'] = ($fechaPagoFormat && $fechaPagoFormat->format('Y-m-d') === $fechaPago) ? $fechaPagoFormat->format('Y-m-d') : '';
+                    }
 
-                if (isset($comprobante['Complemento']['Nomina']['Percepciones'])){
-                    $totalSueldos = $comprobante['Complemento']['Nomina']['Percepciones']['TotalSueldos'] ?? '0';
-                    $arrNominaGeneral['TotalSueldos'] = $totalSueldos;
-                }
+                    if (isset($comprobante['Complemento']['Nomina']['Percepciones'])) {
+                        $totalSueldos = $comprobante['Complemento']['Nomina']['Percepciones']['TotalSueldos'] ?? '0';
+                        $arrNominaGeneral['TotalSueldos'] = $totalSueldos;
+                    }
 
-                $field = $arrNominaGeneral;
-                break;
+                    $field = $arrNominaGeneral;
+                    break;
             }
         }
         return $field;
     }
-
 }
