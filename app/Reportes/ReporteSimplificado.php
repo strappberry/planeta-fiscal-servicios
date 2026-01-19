@@ -1124,7 +1124,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.saldo_anterior'),
                 __('dashboard.facturas.pago'),
                 __('dashboard.facturas.saldo_insoluto'),
+                __('dashboard.facturas.tipo_cambio'),
                 __('dashboard.facturas.fecha_emision'),
+                __('dashboard.facturas.forma_pago'),
             ],
             'lineas' => [],
         ];
@@ -1153,29 +1155,34 @@ class ReporteSimplificado implements ReporteFacturacionPF
     private function generarLineaPagosEmitidos(Factura $factura)
     {
         $comprobante = $factura->comprobanteXml;
-        // Agregar fecha de emisión de cada documento
         $fechaEmision = $this->obtenerCampoArrayFactura($comprobante, 'fechaEmision');
 
         $lineas = [];
-        $linea = [
+        $lineaBase = [
             $factura->uuid,
             $factura->rfc_receptor,
-            $factura->nombre_receptor
+            $factura->nombre_receptor,
         ];
 
         if (
             $comprobante &&
-            isset($comprobante->comprobante['Complemento']) &&
-            isset($comprobante->comprobante['Complemento']['Pagos'])
+            isset($comprobante->comprobante['Complemento']['Pagos']['Pago'])
         ) {
-            $pagos = $comprobante->comprobante['Complemento']['Pagos']['Pago'];
-            $documentos = [];
+            foreach ($comprobante->comprobante['Complemento']['Pagos']['Pago'] as $pago) {
 
-            foreach ($pagos as $pago) {
-                if (isset($pago['DoctoRelacionado'])) {
-                    foreach ($pago['DoctoRelacionado'] as $documento) {
-                        $documento = [
+                if (!isset($pago['DoctoRelacionado'])) {
+                    continue;
+                }
+
+                foreach ($pago['DoctoRelacionado'] as $documento) {
+
+                    $lineas[] = array_merge(
+                        $lineaBase,
+                        [
+                            // Fecha de pago
                             substr($pago['FechaPago'], 0, 10) ?? '',
+
+                            // Documento relacionado
                             $documento['IdDocumento'] ?? '',
                             $documento['Serie'] ?? '',
                             $documento['Folio'] ?? '',
@@ -1183,25 +1190,26 @@ class ReporteSimplificado implements ReporteFacturacionPF
                             $documento['ImpSaldoAnt'] ?? '',
                             $documento['ImpPagado'] ?? '',
                             $documento['ImpSaldoInsoluto'] ?? '',
-                        ];
 
-                        array_push($documentos, $documento);
-                    }
+                            // Tipo de cambio (MXN => 0)
+                            (
+                                ($documento['MonedaDR'] ?? '') === 'MXN'
+                                ? 0
+                                : ($pago['TipoCambioP'] ?? 0)
+                            ),
+
+                            // Fecha de emisión del CFDI relacionado
+                            $fechaEmision,
+
+                            // Forma de pago
+                            $pago['FormaDePagoP'] ?? '',
+                        ]
+                    );
                 }
             }
-
-
-            foreach ($documentos as $documento) {
-                array_push(
-                    $lineas,
-                    array_merge($linea, $documento, [$fechaEmision])
-                );
-            }
         } else {
-            array_push(
-                $lineas,
-                array_merge($linea, ['', '', '', '', '', '', '', ''])
-            );
+            // 11 columnas después de $lineaBase
+            $lineas[] = array_merge($lineaBase, array_fill(0, 11, ''));
         }
 
         return $lineas;
