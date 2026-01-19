@@ -140,14 +140,15 @@ class ReporteSimplificado implements ReporteFacturacionPF
             ->get();
 
         foreach ($ingresos as $ingreso) {
+            $comprobante = $ingreso->comprobanteXml;
             array_push(
                 $pagina['lineas'],
                 array_merge(
                     $this->generarLineaIngresosRecibido($ingreso),
                     [
-                        $comprobante->obtenerRegimenEmisor(),
-                        $comprobante->obtenerRegimenReceptor(),
-                        $comprobante->obtenerUsoCfdi(),
+                        $comprobante ? $comprobante->obtenerRegimenEmisor() : '',
+                        $comprobante ? $comprobante->obtenerRegimenReceptor() : '',
+                        $comprobante ? $comprobante->obtenerUsoCfdi() : '',
                         ucfirst(TipoPersona::obtenerTipoPersona($ingreso->rfc_emisor)),
                     ],
                     $this->generarColumnasExtra($ingreso, 'IngresosRecibidos')
