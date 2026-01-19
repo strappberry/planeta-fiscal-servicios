@@ -533,7 +533,9 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.saldo_anterior'),
                 __('dashboard.facturas.pago'),
                 __('dashboard.facturas.saldo_insoluto'),
+                __('dashboard.facturas.tipo_cambio'),
                 __('dashboard.facturas.fecha_emision'),
+                __('dashboard.facturas.forma_pago'),
             ],
             'lineas' => [],
         ];
@@ -566,7 +568,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
         $fechaEmision = $this->obtenerCampoArrayFactura($comprobante, 'fechaEmision');
 
         $lineas = [];
-        $linea = [
+        $lineaBase = [
             $factura->uuid,
             $factura->rfc_emisor,
             $factura->nombre_emisor,
@@ -574,47 +576,42 @@ class ReporteSimplificado implements ReporteFacturacionPF
 
         if (
             $comprobante &&
-            isset($comprobante->comprobante['Complemento']) &&
-            isset($comprobante->comprobante['Complemento']['Pagos'])
+            isset($comprobante->comprobante['Complemento']['Pagos']['Pago'])
         ) {
-            $pagos = $comprobante->comprobante['Complemento']['Pagos']['Pago'];
-            $documentos = [];
+            foreach ($comprobante->comprobante['Complemento']['Pagos']['Pago'] as $pago) {
 
-            foreach ($pagos as $pago) {
                 if (!isset($pago['DoctoRelacionado'])) {
                     continue;
                 }
-                foreach ($pago['DoctoRelacionado'] as $documento) {
-                    $documento = [
-                        substr($pago['FechaPago'], 0, 10) ?? '',
-                        $documento['IdDocumento'] ?? '',
-                        $documento['Serie'] ?? '',
-                        $documento['Folio'] ?? '',
-                        $documento['MonedaDR'] ?? '',
-                        $documento['ImpSaldoAnt'] ?? '',
-                        $documento['ImpPagado'] ?? '',
-                        $documento['ImpSaldoInsoluto'] ?? '',
-                    ];
 
-                    array_push($documentos, $documento);
+                foreach ($pago['DoctoRelacionado'] as $documento) {
+
+                    $lineas[] = array_merge(
+                        $lineaBase,
+                        [
+                            substr($pago['FechaPago'], 0, 10) ?? '',
+                            $documento['IdDocumento'] ?? '',
+                            $documento['Serie'] ?? '',
+                            $documento['Folio'] ?? '',
+                            $documento['MonedaDR'] ?? '',
+                            $documento['ImpSaldoAnt'] ?? '',
+                            $documento['ImpPagado'] ?? '',
+                            $documento['ImpSaldoInsoluto'] ?? '',
+                            $pago['TipoCambioP'] ?? '',
+                            $fechaEmision,
+                            $pago['FormaDePagoP'] ?? '',
+                        ]
+                    );
                 }
             }
-
-            foreach ($documentos as $documento) {
-                array_push(
-                    $lineas,
-                    array_merge($linea, $documento, [$fechaEmision])
-                );
-            }
         } else {
-            array_push(
-                $lineas,
-                array_merge($linea, ['', '', '', '', '', '', '', ''])
-            );
+            // 11 columnas después de $lineaBase
+            $lineas[] = array_merge($lineaBase, array_fill(0, 11, ''));
         }
 
         return $lineas;
     }
+
 
     /**
      * -------------------------------------------------------------------------
