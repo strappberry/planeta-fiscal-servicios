@@ -701,12 +701,10 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 __('dashboard.facturas.descuento'),
                 __('dashboard.facturas.total'),
                 __('dashboard.reportes.primer_concepto'),
-                __('dashboard.reportes.tipo_contribuyente'),
-                __('dashboard.reportes.regimen_contribuyente'),
-                __('dashboard.reportes.validacion_rfc_emisor'),
+                __('dashboard.facturas.regimen_emisor'),
+                __('dashboard.facturas.regimen_receptor'),
                 __('dashboard.facturas.uso_cfdi'),
-                __('dashboard.reportes.validacion_uso_cfdi'),
-                __('dashboard.reportes.validacion_metodo_forma_pago'),
+                __('dashboard.reportes.tipo_contribuyente'),
                 __('dashboard.facturas.uuid_sustitucion'),
                 __('dashboard.facturas.periodicidad'),
                 __('dashboard.facturas.mes'),
@@ -739,7 +737,12 @@ class ReporteSimplificado implements ReporteFacturacionPF
                 $pagina['lineas'],
                 array_merge(
                     $this->generarLineaIngresosEmitidos($ingreso),
-                    $this->generarColumnasValidaciones($ingreso),
+                    [
+                        $comprobante ? $comprobante->obtenerRegimenEmisor() : '',
+                        $comprobante ? $comprobante->obtenerRegimenReceptor() : '',
+                        $comprobante ? $comprobante->obtenerUsoCfdi() : '',
+                        ucfirst(TipoPersona::obtenerTipoPersona($ingreso->rfc_receptor)),
+                    ],
                     $this->generarColumnasExtra($ingreso, 'IngresosEmitidos')
                 )
             );
