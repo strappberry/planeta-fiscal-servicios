@@ -1194,7 +1194,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
                             // Tipo de cambio (MXN => 0)
                             (
                                 ($documento['MonedaDR'] ?? '') === 'MXN'
-                                ? 0
+                                ? ''
                                 : ($pago['TipoCambioP'] ?? 0)
                             ),
 
