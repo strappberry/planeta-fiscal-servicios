@@ -733,6 +733,7 @@ class ReporteSimplificado implements ReporteFacturacionPF
             ->get();
 
         foreach ($ingresos as $ingreso) {
+            $comprobante = $ingreso->comprobanteXml;
             array_push(
                 $pagina['lineas'],
                 array_merge(
