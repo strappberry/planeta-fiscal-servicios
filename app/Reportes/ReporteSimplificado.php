@@ -597,7 +597,12 @@ class ReporteSimplificado implements ReporteFacturacionPF
                             $documento['ImpSaldoAnt'] ?? '',
                             $documento['ImpPagado'] ?? '',
                             $documento['ImpSaldoInsoluto'] ?? '',
-                            $pago['TipoCambioP'] ?? '',
+                            (
+                                ($documento['MonedaDR'] ?? '') === 'MXN'
+                                ? ''
+                                : ($pago['TipoCambioP'] ?? 0)
+                            ),
+
                             $fechaEmision,
                             $pago['FormaDePagoP'] ?? '',
                         ]
