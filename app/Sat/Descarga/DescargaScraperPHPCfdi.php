@@ -7,7 +7,6 @@ use App\Models\SolicitudDescarga;
 use App\Sat\Manejadores\ManejadorDescargaXml;
 use App\Sat\Utilidades\InsertaDatosScraper;
 use Carbon\Carbon;
-use Carbon\CarbonInterval;
 use DateTimeImmutable;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -22,28 +21,13 @@ use PhpCfdi\Credentials\Credential;
 
 class DescargaScraperPHPCfdi implements DescargaScraperBuilder
 {
-    /** @var \App\Models\Cliente */
     private $cliente;
-
-    /** @var \App\Models\SolicitudDescarga */
     private $solicitudDescarga;
-
-    /** @var \Carbon\Carbon */
     private $fechaInicio;
-
-    /** @var \Carbon\Carbon */
     private $fechaFin;
-
-    /** @var string */
     private $carpeta;
-
-    /** @var \PhpCfdi\CfdiSatScraper\SatScraper */
     private $satScraper;
-
-    /** @var \PhpCfdi\CfdiSatScraper\MetadataList[] */
     private $paquetesCfdis = [];
-
-    /** @var \PhpCfdi\CfdiSatScraper\Metadata[] */
     private $cfdisADescargar = [];
 
     public function __construct(Cliente $cliente)
@@ -107,6 +91,8 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
     {
         $fechaIntervalo = $this->fechaFin->copy();
         $intervalosDeDescarga = [];
+        $errores = [];
+
         do {
             $fechaFin = $fechaIntervalo->format('Y-m-d');
             $fechaIntervalo->subWeeks(2);
@@ -116,25 +102,44 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
             } else {
                 $fechaInicio = $this->fechaInicio->format('Y-m-d');
             }
+
             $fechaIntervalo->subDay();
 
-            array_push($intervalosDeDescarga, [
+            $intervalosDeDescarga[] = [
                 'fechaInicio' => new DateTimeImmutable($fechaInicio),
                 'fechaFin' => new DateTimeImmutable($fechaFin),
-            ]);
+            ];
         } while ($fechaIntervalo->gte($this->fechaInicio));
 
         foreach ($intervalosDeDescarga as $intervalo) {
             try {
-                $this->listarCfdis($intervalo['fechaInicio'], $intervalo['fechaFin'], DownloadType::emitidos());
+                $this->listarCfdis(
+                    $intervalo['fechaInicio'],
+                    $intervalo['fechaFin'],
+                    DownloadType::emitidos()
+                );
             } catch (Exception $e) {
-                Log::error("[EMITIDOS] Error al listar CFDIs del cliente {$this->cliente->rfc} " . $e->getMessage());
+                $errores[] = "[EMITIDOS] {$e->getMessage()}";
+                Log::error("[EMITIDOS] Error al listar CFDIs del cliente {$this->cliente->rfc} {$e->getMessage()}");
             }
+
             try {
-                $this->listarCfdis($intervalo['fechaInicio'], $intervalo['fechaFin'], DownloadType::recibidos());
+                $this->listarCfdis(
+                    $intervalo['fechaInicio'],
+                    $intervalo['fechaFin'],
+                    DownloadType::recibidos()
+                );
             } catch (Exception $e) {
-                Log::error("[RECIBIDOS] Error al listar CFDIs del cliente {$this->cliente->rfc} " . $e->getMessage());
+                $errores[] = "[RECIBIDOS] {$e->getMessage()}";
+                Log::error("[RECIBIDOS] Error al listar CFDIs del cliente {$this->cliente->rfc} {$e->getMessage()}");
             }
+        }
+
+        if (empty($this->paquetesCfdis) && !empty($errores)) {
+            throw new Exception(
+                "No fue posible listar CFDIs del cliente {$this->cliente->rfc}. "
+                    . implode(' | ', array_slice($errores, 0, 4))
+            );
         }
     }
 
@@ -147,14 +152,16 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
         $query->setDownloadType($tipoDescarga);
 
         $paqueteCfdis = $this->satScraper->listByPeriod($query);
-        array_push($this->paquetesCfdis, $paqueteCfdis);
+        $this->paquetesCfdis[] = $paqueteCfdis;
     }
 
     public function procesarPaquetesCfdis()
     {
         $conteoCfdis = 0;
+
         foreach ($this->paquetesCfdis as $paqueteCfdis) {
             $conteoCfdis += count($paqueteCfdis);
+
             foreach ($paqueteCfdis as $uuid => $datosFactura) {
                 $factura = $this->cliente->facturas()->where('uuid', $uuid)->first();
                 $descargarXml = true;
@@ -167,7 +174,7 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
                 }
 
                 if ($descargarXml) {
-                    array_push($this->cfdisADescargar, $datosFactura);
+                    $this->cfdisADescargar[] = $datosFactura;
                 }
             }
         }
@@ -178,7 +185,12 @@ class DescargaScraperPHPCfdi implements DescargaScraperBuilder
             $this->solicitudDescarga->save();
         }
 
+        if (empty($this->cfdisADescargar)) {
+            return;
+        }
+
         $manejarDescargar = new ManejadorDescargaXml();
+
         $this->satScraper->resourceDownloader(
             ResourceType::xml(),
             new MetadataList($this->cfdisADescargar),

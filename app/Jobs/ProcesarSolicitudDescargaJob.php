@@ -44,7 +44,7 @@ class ProcesarSolicitudDescargaJob implements ShouldQueue
         $solicitud->save();
 
         try {
-            (new DescargaScraperPHPCfdi($solicitud->cliente))
+            $resultado = (new DescargaScraperPHPCfdi($solicitud->cliente))
                 ->fechaInicial(
                     Carbon::parse($solicitud->fecha_inicio, 'UTC')
                         ->setTimezone(config('app.timezone'))
@@ -58,6 +58,13 @@ class ProcesarSolicitudDescargaJob implements ShouldQueue
                 ->establecerSolicitudDescarga($solicitud)
                 ->comenzar();
 
+            $solicitud->refresh();
+
+            if ((int) $solicitud->cantidad_facturas === 0) {
+                $solicitud->status = SolicitudDescarga::STATUS_ERROR_AL_PROCESAR;
+                $solicitud->save();
+                return;
+            }
 
             $solicitud->status = SolicitudDescarga::STATUS_PROCESADO;
             $solicitud->save();
