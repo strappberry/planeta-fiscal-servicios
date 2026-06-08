@@ -46,7 +46,7 @@ return [
             'driver' => 'beanstalkd',
             'host' => 'localhost',
             'queue' => 'default',
-            'retry_after' => 90,
+            'retry_after' => env('QUEUE_RETRY_AFTER', 6000),
             'block_for' => 0,
             'after_commit' => false,
         ],
