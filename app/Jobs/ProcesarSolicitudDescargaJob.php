@@ -60,8 +60,8 @@ class ProcesarSolicitudDescargaJob implements ShouldQueue
 
             $solicitud->refresh();
 
-            if ((int) $solicitud->cantidad_facturas === 0) {
-                $solicitud->status = SolicitudDescarga::STATUS_ERROR_AL_PROCESAR;
+            if ((int) $solicitud->descargas === 0) {
+                $solicitud->status = SolicitudDescarga::STATUS_SIN_FACTURAS;
                 $solicitud->save();
                 return;
             }

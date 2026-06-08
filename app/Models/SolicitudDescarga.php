@@ -15,6 +15,7 @@ class SolicitudDescarga extends Model
     const STATUS_PROCESADO         = 'procesado';
     const STATUS_ERROR_AL_PROCESAR = 'error_al_procesar';
     const STATUS_CANCELADO         = 'cancelado';
+    const STATUS_SIN_FACTURAS = 'sin_facturas';
 
     protected $fillable = [
         'fecha_inicio',
