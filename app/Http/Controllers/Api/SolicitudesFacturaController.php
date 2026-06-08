@@ -24,6 +24,7 @@ class SolicitudesFacturaController extends Controller
                 SolicitudDescarga::STATUS_PROCESADO,
                 SolicitudDescarga::STATUS_ERROR_AL_PROCESAR,
                 SolicitudDescarga::STATUS_CANCELADO,
+                SolicitudDescarga::STATUS_SIN_FACTURAS,
             ])
             ->count();
 
